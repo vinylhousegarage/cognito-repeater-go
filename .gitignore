@@ -1,0 +1,28 @@
+# Go build
+*.exe
+*.test
+*.out
+bootstrap
+bin/
+build/
+dist/
+
+# IDE
+.vscode/
+.idea/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Environment
+.env
+
+# Air (hot reload)
+.air/
+.air.toml
+tmp/
+
+# Docker
+*.tar
+*.img
