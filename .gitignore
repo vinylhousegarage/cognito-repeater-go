@@ -21,6 +21,7 @@ Thumbs.db
 # Air (hot reload)
 .air/
 .air.toml
+tmp/
 
 # Docker
 *.tar
