@@ -1,4 +1,8 @@
-FROM golang:1.24
+FROM golang:1.24.3 AS base
 WORKDIR /app
-RUN go install github.com/air-verse/air@latest
-CMD ["air"]
+COPY . .
+RUN [ -f go.mod ] || go mod init cognito-repeater-go
+RUN go mod tidy
+FROM cosmtrek/air
+WORKDIR /app
+COPY --from=base /app /app
