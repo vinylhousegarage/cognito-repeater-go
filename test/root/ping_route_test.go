@@ -1,4 +1,4 @@
-package router_test
+package root_test
 
 import (
     "net/http"
