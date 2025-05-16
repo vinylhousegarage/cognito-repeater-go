@@ -1,0 +1,15 @@
+root = "."
+tmp_dir = "tmp"
+
+[build]
+  cmd = "go build -o ./tmp/main ./cmd/dev"
+  bin = "tmp/main"
+
+[include]
+  ext = ["go"]
+
+[exclude_dir]
+  names = ["tmp", "vendor", "dist"]
+
+[log]
+  time = true
