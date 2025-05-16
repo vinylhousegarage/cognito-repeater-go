@@ -6,13 +6,13 @@ import (
 )
 
 type Config struct {
-	Region             string
-	ClientSecret       string
-	LogoutURI          string
-	RedirectURI        string
-	Scope              string
-	UserPoolClientID   string
-	UserPoolID         string
+	Region           string
+	ClientSecret     string
+	LogoutURI        string
+	RedirectURI      string
+	Scope            string
+	UserPoolClientID string
+	UserPoolID       string
 }
 
 func LoadConfig() (*Config, error) {
