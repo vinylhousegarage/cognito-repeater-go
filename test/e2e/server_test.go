@@ -6,13 +6,15 @@ import (
 	"net/http/httptest"
 	"testing"
 
-	"cognito-repeater-go/internal/router"
+	"cognito-repeater-go/internal/server"
 
 	"github.com/stretchr/testify/assert"
 )
 
-func TestPingRoute_E2E(t *testing.T) {
-	ts := httptest.NewServer(router.NewRouter())
+func TestServer_Ping_E2E(t *testing.T) {
+	s := server.NewServer()
+
+	ts := httptest.NewServer(s.Handler)
 	defer ts.Close()
 
 	resp, err := http.Get(ts.URL + "/ping")
@@ -20,9 +22,7 @@ func TestPingRoute_E2E(t *testing.T) {
 	defer resp.Body.Close()
 
 	body, err := io.ReadAll(resp.Body)
-	if err != nil {
-		t.Fatalf("failed to read response body: %v", err)
-	}
+	assert.NoError(t, err)
 
 	assert.Equal(t, http.StatusOK, resp.StatusCode)
 	assert.Equal(t, "pong", string(body))
