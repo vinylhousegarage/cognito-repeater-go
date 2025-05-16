@@ -1,10 +1,10 @@
 package errors_test
 
 import (
+	"io"
 	"net/http"
 	"net/http/httptest"
 	"testing"
-	"io"
 
 	"cognito-repeater-go/internal/router"
 	"github.com/stretchr/testify/assert"
