@@ -1,15 +1,18 @@
 package router
 
 import (
-    "net/http"
+	"net/http"
 
-    "cognito-repeater-go/internal/root"
+	"cognito-repeater-go/internal/errors"
+	"cognito-repeater-go/internal/root"
 )
 
 func NewRouter() http.Handler {
-    mux := http.NewServeMux()
+	mux := http.NewServeMux()
 
-    mux.HandleFunc("/ping", root.PingHandler)
+	mux.HandleFunc("/ping", root.PingHandler)
 
-    return mux
+	errors.RegisterErrorRoutes(mux)
+
+	return mux
 }
