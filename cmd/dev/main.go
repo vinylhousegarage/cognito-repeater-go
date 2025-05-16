@@ -1,7 +1,14 @@
 package main
 
-import "log"
+import (
+	"log"
+
+	"cognito-repeater-go/internal/server"
+)
 
 func main() {
-	log.Println("Listening on :8080")
+	srv := server.NewServer()
+
+	log.Println("Listening on", srv.Addr)
+	log.Fatal(srv.ListenAndServe())
 }
