@@ -19,7 +19,8 @@ func TestRouter_PingRouteRegistered(t *testing.T) {
 	r.ServeHTTP(w, req)
 
 	resp := w.Result()
-	body, _ := io.ReadAll(resp.Body)
+	body, err := io.ReadAll(resp.Body)
+	assert.NoError(t, err)
 
 	assert.Equal(t, http.StatusOK, resp.StatusCode)
 	assert.Equal(t, "pong", string(body))
