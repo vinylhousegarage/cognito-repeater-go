@@ -1,4 +1,4 @@
-package e2e_test
+package root_test
 
 import (
 	"io"
