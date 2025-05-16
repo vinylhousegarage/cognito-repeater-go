@@ -2,6 +2,7 @@ package root
 
 import (
 	"encoding/json"
+	"log"
 	"net/http"
 )
 
@@ -19,5 +20,9 @@ func MetadataHandler(w http.ResponseWriter, r *http.Request) {
 		"openapi_url":                  "/openapi.json",
 	}
 
-	json.NewEncoder(w).Encode(metadata)
+	if err := json.NewEncoder(w).Encode(metadata); err != nil {
+		log.Printf("failed to encode JSON: %v", err)
+		http.Error(w, "failed to encode JSON", http.StatusInternalServerError)
+		return
+	}
 }
