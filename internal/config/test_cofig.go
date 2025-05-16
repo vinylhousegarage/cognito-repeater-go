@@ -2,8 +2,6 @@ package config
 
 import (
 	"testing"
-
-	"cognito-repeater-go/internal/config"
 )
 
 func TestLoadConfig_Success(t *testing.T) {
