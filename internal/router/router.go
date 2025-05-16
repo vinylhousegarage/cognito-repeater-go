@@ -10,9 +10,8 @@ import (
 func NewRouter() http.Handler {
 	mux := http.NewServeMux()
 
-	mux.HandleFunc("/ping", root.PingHandler)
-
 	errors.RegisterErrorRoutes(mux)
+	root.RegisterRootRoutes(mux)
 
 	return mux
 }
