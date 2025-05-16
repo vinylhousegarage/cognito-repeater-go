@@ -13,7 +13,7 @@ func TestLoadConfig_Success(t *testing.T) {
 	t.Setenv("AWS_COGNITO_USER_POOL_CLIENT_ID", "abc123")
 	t.Setenv("AWS_COGNITO_USER_POOL_ID", "ap-northeast-1_xyz789")
 
-	cfg, err := config.LoadConfig()
+	cfg, err := LoadConfig()
 	if err != nil {
 		t.Fatalf("expected no error, got %v", err)
 	}
@@ -25,7 +25,7 @@ func TestLoadConfig_Success(t *testing.T) {
 }
 
 func TestLoadConfig_MissingVars(t *testing.T) {
-	_, err := config.LoadConfig()
+	_, err := LoadConfig()
 	if err == nil {
 		t.Fatal("expected error due to missing env vars, got nil")
 	}
