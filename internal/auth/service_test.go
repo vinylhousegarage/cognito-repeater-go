@@ -6,20 +6,34 @@ import (
 	"net/http/httptest"
 	"testing"
 
+	"cognito-repeater-go/internal/config"
 	"github.com/stretchr/testify/assert"
 )
 
-type Metadata struct {
-	EndSessionEndpoint string `json:"end_session_endpoint"`
+func Test_fetchMetadata_SendsRequestToCorrectURL(t *testing.T) {
+	var requestedPath string
+
+	ts := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		requestedPath = r.URL.Path
+		w.WriteHeader(http.StatusOK)
+		w.Write([]byte(`{}`))
+	}))
+	defer ts.Close()
+
+	mock := &mockMetadataURL{URL: ts.URL}
+
+	_, err := fetchMetadata(mock)
+	assert.NoError(t, err)
+	assert.Equal(t, "/",
+		requestedPath, "fetchMetadata should request root path")
 }
 
-func Test_fetchMetadata_Success(t *testing.T) {
-	mockMetadata := Metadata{
-		EndSessionEndpoint: "https://mock.example.com/logout",
+func Test_fetchMetadata_ParsesResponseIntoMap(t *testing.T) {
+	expected := map[string]interface{}{
+		"issuer":               "https://example.com",
+		"end_session_endpoint": "https://example.com/logout",
 	}
-
-	mockJSON, err := json.Marshal(mockMetadata)
-	assert.NoError(t, err)
+	mockJSON, _ := json.Marshal(expected)
 
 	ts := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(http.StatusOK)
@@ -27,8 +41,10 @@ func Test_fetchMetadata_Success(t *testing.T) {
 	}))
 	defer ts.Close()
 
-	result, err := fetchMetadata(ts.URL)
+	mock := &mockMetadataURL{URL: ts.URL}
+	result, err := fetchMetadata(mock)
 
 	assert.NoError(t, err)
-	assert.Equal(t, mockMetadata.EndSessionEndpoint, result.EndSessionEndpoint)
+	assert.Equal(t, expected["issuer"], result["issuer"])
+	assert.Equal(t, expected["end_session_endpoint"], result["end_session_endpoint"])
 }
