@@ -17,5 +17,5 @@ func TestLogoutHandler_StatusAndLocation(t *testing.T) {
 	resp := w.Result()
 
 	assert.Equal(t, http.StatusFound, resp.StatusCode)
-	assert.Equal(t, "https://example.com/logout_redirect", resp.Header.Get("Location"))
+	assert.Equal(t, "https://stab.com/logout", resp.Header.Get("Location"))
 }
