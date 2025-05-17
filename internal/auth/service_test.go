@@ -44,7 +44,7 @@ func Test_fetchMetadata_ParsesResponseIntoMap(t *testing.T) {
 
 	ts := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(http.StatusOK)
-		w.Write(mockJSON)
+		_, _ = w.Write(mockJSON)
 	}))
 	defer ts.Close()
 
