@@ -8,7 +8,7 @@ import (
 	"cognito-repeater-go/internal/config"
 )
 
-func fetchMetadata(cfg *config.Config) (map[string]interface{}, error) {
+func fetchMetadata(p config.MetadataURLProvider) (map[string]interface{}, error) {
 	url := cfg.MetadataURL()
 
 	resp, err := http.Get(url)
