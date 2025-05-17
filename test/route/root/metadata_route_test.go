@@ -1,8 +1,8 @@
 package root_test
 
 import (
-	"io"
 	"encoding/json"
+	"io"
 	"net/http"
 	"net/http/httptest"
 	"testing"
