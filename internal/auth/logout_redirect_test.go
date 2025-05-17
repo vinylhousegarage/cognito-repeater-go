@@ -25,7 +25,7 @@ func TestMetadataHandler_ReturnsExpectedStatusAndJSONBody(t *testing.T) {
 	assert.NoError(t, err)
 
 	expected := map[string]string{
-		"message": "Logout Successful",
+		"message": "Logout successful",
 	}
 
 	var actual map[string]string
