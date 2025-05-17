@@ -50,3 +50,7 @@ func LoadConfig() (*Config, error) {
 func (c *Config) MetadataURL() string {
 	return fmt.Sprintf("https://cognito-idp.%s.amazonaws.com/%s/.well-known/openid-configuration", c.Region, c.UserPoolID)
 }
+
+type MetadataURLProvider interface {
+	MetadataURL() string
+}
