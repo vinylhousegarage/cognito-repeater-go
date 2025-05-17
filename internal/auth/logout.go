@@ -8,4 +8,3 @@ import (
 func LogoutHandler(w http.ResponseWriter, r *http.Request) {
 	http.Redirect(w, r, "https://stab.com/logout", http.StatusFound)
 }
-
