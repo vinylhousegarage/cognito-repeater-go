@@ -1,3 +1,10 @@
+import (
+	"cognito-repeater-go/internal/config"
+	"encoding/json"
+	"fmt"
+	"net/http"
+)
+
 func fetchMetadata(cfg *config.Config) (map[string]interface{}, error) {
 	url := cfg.MetadataURL()
 
