@@ -9,7 +9,7 @@ import (
 )
 
 func fetchMetadata(p config.MetadataURLProvider) (map[string]interface{}, error) {
-	url := cfg.MetadataURL()
+	url := p.MetadataURL()
 
 	resp, err := http.Get(url)
 	if err != nil {
