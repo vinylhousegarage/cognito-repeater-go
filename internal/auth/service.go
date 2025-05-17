@@ -1,8 +1,11 @@
+package auth
+
 import (
-	"cognito-repeater-go/internal/config"
 	"encoding/json"
 	"fmt"
 	"net/http"
+
+	"cognito-repeater-go/internal/config"
 )
 
 func fetchMetadata(cfg *config.Config) (map[string]interface{}, error) {
