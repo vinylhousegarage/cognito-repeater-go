@@ -9,6 +9,14 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
+type mockMetadataURL struct {
+	URL string
+}
+
+func (m *mockMetadataURL) MetadataURL() string {
+	return m.URL
+}
+
 func Test_fetchMetadata_SendsRequestToCorrectURL(t *testing.T) {
 	var requestedPath string
 
