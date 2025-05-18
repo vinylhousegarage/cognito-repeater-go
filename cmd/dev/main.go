@@ -7,7 +7,12 @@ import (
 )
 
 func main() {
-	srv := server.NewServer()
+	cfg, err := config.LoadConfig()
+	if err != nil {
+		log.Fatal("failed to load config:", err)
+	}
+
+	srv := server.NewServer(cfg)
 
 	log.Println("Listening on", srv.Addr)
 	log.Fatal(srv.ListenAndServe())

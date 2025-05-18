@@ -8,10 +8,10 @@ import (
 	"cognito-repeater-go/internal/root"
 )
 
-func NewRouter() http.Handler {
+func NewRouter(p MetadataURLProvider) http.Handler {
 	mux := http.NewServeMux()
 
-	auth.RegisterAuthRoutes(mux)
+	auth.RegisterAuthRoutes(mux, p)
 	errors.RegisterErrorRoutes(mux)
 	root.RegisterRootRoutes(mux)
 
