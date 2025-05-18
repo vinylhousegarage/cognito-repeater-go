@@ -74,3 +74,23 @@ func Test_interfaceToString_ReturnsOnlyStringFields(t *testing.T) {
 
 	assert.Equal(t, expected, result)
 }
+
+func Test_getLogoutEndpoint_ReturnsValue_WhenExists(t *testing.T) {
+	mockJSON := `{
+		"issuer": "https://example.com",
+		"end_session_endpoint": "https://example.com/logout"
+	}`
+
+	ts := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		w.WriteHeader(http.StatusOK)
+		_, _ = w.Write([]byte(mockJSON))
+	}))
+	defer ts.Close()
+
+	mock := &mockMetadataURL{URL: ts.URL}
+
+	result, err := getLogoutEndpoint(mock)
+
+	assert.NoError(t, err)
+	assert.Equal(t, "https://example.com/logout", result)
+}
