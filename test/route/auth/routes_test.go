@@ -7,8 +7,6 @@ import (
 	"net/http/httptest"
 	"testing"
 
-	"cognito-repeater-go/internal/auth"
-	"cognito-repeater-go/internal/config"
 	"cognito-repeater-go/internal/router"
 
 	"github.com/stretchr/testify/assert"
@@ -22,9 +20,24 @@ func (m *mockMetadataURL) MetadataURL() string {
 	return m.URL
 }
 
-func TestRouter_LogoutRedirectRoute_ReturnsExpectedJSON(t *testing.T) {
-	r := router.NewRouter(p config.MetadataURLProvider)
+func newMockProvider(t *testing.T) (*mockMetadataURL, func()) {
+	mockJSON := `{
+		"end_session_endpoint": "https://example.com/logout"
+	}`
+	ts := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		w.WriteHeader(http.StatusOK)
+		_, _ = w.Write([]byte(mockJSON))
+	}))
+	t.Cleanup(ts.Close)
 
+	return &mockMetadataURL{URL: ts.URL}, ts.Close
+}
+
+func TestRouter_LogoutRedirectRoute_ReturnsExpectedJSON(t *testing.T) {
+	mockProvider, teardown := newMockProvider(t)
+	defer teardown()
+
+	r := router.NewRouter(mockProvider)
 	req := httptest.NewRequest(http.MethodGet, "/logout/redirect", nil)
 	w := httptest.NewRecorder()
 
@@ -48,23 +61,13 @@ func TestRouter_LogoutRedirectRoute_ReturnsExpectedJSON(t *testing.T) {
 }
 
 func TestRouter_LogoutRoute_WithInjectedProvider_Returns302Redirect(t *testing.T) {
-	mockJSON := `{
-		"end_session_endpoint": "https://example.com/logout"
-	}`
+	mockProvider, teardown := newMockProvider(t)
+	defer teardown()
 
-	ts := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		w.WriteHeader(http.StatusOK)
-		_, _ = w.Write([]byte(mockJSON))
-	}))
-	defer ts.Close()
-
-	mockProvider := &mockMetadataURL{URL: ts.URL}
-
-	r := mux.NewRouter(p config.MetadataURLProvider)
-	r.HandleFunc("/logout", auth.LogoutHandler(mockProvider))
-
+	r := router.NewRouter(mockProvider)
 	req := httptest.NewRequest(http.MethodGet, "/logout", nil)
 	w := httptest.NewRecorder()
+
 	r.ServeHTTP(w, req)
 
 	resp := w.Result()

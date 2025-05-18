@@ -3,7 +3,6 @@ package server
 import (
 	"net/http"
 
-	
 	"cognito-repeater-go/internal/config"
 	"cognito-repeater-go/internal/router"
 )
