@@ -11,8 +11,17 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
+type mockMetadataURL struct {
+	URL string
+}
+
+func (m *mockMetadataURL) MetadataURL() string {
+	return m.URL
+}
+
 func TestRouter_Error404RouteRegistered(t *testing.T) {
-	r := router.NewRouter()
+	mockProvider := &mockMetadataURL{URL: "http://localhost"}
+	r := router.NewRouter(mockProvider)
 
 	req := httptest.NewRequest(http.MethodGet, "/error/404", nil)
 	w := httptest.NewRecorder()
