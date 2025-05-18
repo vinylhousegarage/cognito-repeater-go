@@ -7,8 +7,15 @@ import (
 )
 
 // LogoutHandler redirects the user to the configured logout URL.
-func LogoutHandler(w http.ResponseWriter, r *http.Request) {
-	http.Redirect(w, r, "https://stab.com/logout", http.StatusFound)
+func LogoutHandler(p config.MetadataURLProvider) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		endpoint, err := getLogoutEndpoint(p)
+		if err != nil {
+			http.Error(w, "internal server error", http.StatusInternalServerError)
+			return
+		}
+		http.Redirect(w, r, endpoint, http.StatusFound)
+	}
 }
 
 type LogoutResponse struct {
