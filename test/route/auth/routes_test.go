@@ -8,6 +8,7 @@ import (
 	"testing"
 
 	"cognito-repeater-go/internal/auth"
+	"cognito-repeater-go/internal/config"
 	"cognito-repeater-go/internal/router"
 
 	"github.com/stretchr/testify/assert"
@@ -22,7 +23,7 @@ func (m *mockMetadataURL) MetadataURL() string {
 }
 
 func TestRouter_LogoutRedirectRoute_ReturnsExpectedJSON(t *testing.T) {
-	r := router.NewRouter()
+	r := router.NewRouter(p config.MetadataURLProvider)
 
 	req := httptest.NewRequest(http.MethodGet, "/logout/redirect", nil)
 	w := httptest.NewRecorder()
@@ -59,7 +60,7 @@ func TestRouter_LogoutRoute_WithInjectedProvider_Returns302Redirect(t *testing.T
 
 	mockProvider := &mockMetadataURL{URL: ts.URL}
 
-	r := mux.NewRouter()
+	r := mux.NewRouter(p config.MetadataURLProvider)
 	r.HandleFunc("/logout", auth.LogoutHandler(mockProvider))
 
 	req := httptest.NewRequest(http.MethodGet, "/logout", nil)

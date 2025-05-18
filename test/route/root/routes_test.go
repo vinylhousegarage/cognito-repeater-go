@@ -6,13 +6,14 @@ import (
 	"net/http/httptest"
 	"testing"
 
+	"cognito-repeater-go/internal/config"
 	"cognito-repeater-go/internal/router"
 
 	"github.com/stretchr/testify/assert"
 )
 
 func TestRouter_PingRouteRegistered(t *testing.T) {
-	r := router.NewRouter()
+	r := router.NewRouter(p config.MetadataURLProvider)
 
 	req := httptest.NewRequest(http.MethodGet, "/ping", nil)
 	w := httptest.NewRecorder()
