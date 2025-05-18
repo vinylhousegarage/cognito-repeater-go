@@ -28,3 +28,13 @@ func fetchMetadata(p config.MetadataURLProvider) (map[string]interface{}, error)
 
 	return result, nil
 }
+
+func interfaceToString(m map[string]interface{}) map[string]string {
+	result := make(map[string]string)
+	for k, v := range m {
+		if s, ok := v.(string); ok {
+			result[k] = s
+		}
+	}
+	return result
+}
