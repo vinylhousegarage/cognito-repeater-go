@@ -38,3 +38,16 @@ func interfaceToString(m map[string]interface{}) map[string]string {
 	}
 	return result
 }
+
+func getLogoutEndpoint(p config.MetadataURLProvider) (string, error) {
+	raw, err := fetchMetadata(p)
+	if err != nil {
+		return "", err
+	}
+	converted := interfaceToString(raw)
+
+	if val, ok := converted["end_session_endpoint"]; ok {
+		return val, nil
+	}
+	return "", fmt.Errorf("end_session_endpoint not found")
+}
