@@ -3,6 +3,7 @@ package main
 import (
 	"log"
 
+	"cognito-repeater-go/internal/config"
 	"cognito-repeater-go/internal/server"
 )
 

@@ -1,6 +1,7 @@
 package auth
 
 import (
+	"cognito-repeater-go/internal/config"
 	"encoding/json"
 	"log"
 	"net/http"
