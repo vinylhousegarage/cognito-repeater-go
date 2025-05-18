@@ -4,11 +4,12 @@ import (
 	"net/http"
 
 	"cognito-repeater-go/internal/auth"
+	"cognito-repeater-go/internal/config"
 	"cognito-repeater-go/internal/errors"
 	"cognito-repeater-go/internal/root"
 )
 
-func NewRouter(p MetadataURLProvider) http.Handler {
+func NewRouter(p config.MetadataURLProvider) http.Handler {
 	mux := http.NewServeMux()
 
 	auth.RegisterAuthRoutes(mux, p)
