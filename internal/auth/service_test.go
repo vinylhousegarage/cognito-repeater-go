@@ -74,3 +74,14 @@ func Test_interfaceToString_ReturnsOnlyStringFields(t *testing.T) {
 
 	assert.Equal(t, expected, result)
 }
+
+func Test_getLogoutEndpoint_ReturnsValue_WhenExists(t *testing.T) {
+	input := map[string]string{
+		"end_session_endpoint": "https://example.com/logout",
+	}
+
+	result, err := getLogoutEndpoint(input)
+
+	assert.NoError(t, err)
+	assert.Equal(t, "https://example.com/logout", result)
+}
