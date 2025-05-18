@@ -8,6 +8,7 @@ import (
 	"testing"
 
 	"cognito-repeater-go/internal/auth"
+	"cognito-repeater-go/internal/config"
 	"cognito-repeater-go/internal/router"
 
 	"github.com/stretchr/testify/assert"
