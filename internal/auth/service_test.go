@@ -55,3 +55,22 @@ func Test_fetchMetadata_ParsesResponseIntoMap(t *testing.T) {
 	assert.Equal(t, expected["issuer"], result["issuer"])
 	assert.Equal(t, expected["end_session_endpoint"], result["end_session_endpoint"])
 }
+
+func Test_interfaceToString_ReturnsOnlyStringFields(t *testing.T) {
+	input := map[string]interface{}{
+		"issuer":               "https://example.com",
+		"end_session_endpoint": "https://example.com/logout",
+		"expires_in":           3600,
+		"enabled":              true,
+		"algorithms":           []string{"RS256"},
+	}
+
+	expected := map[string]string{
+		"issuer":               "https://example.com",
+		"end_session_endpoint": "https://example.com/logout",
+	}
+
+	result := interfaceToString(input)
+
+	assert.Equal(t, expected, result)
+}
