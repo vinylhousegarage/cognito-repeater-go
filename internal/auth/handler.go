@@ -1,10 +1,11 @@
 package auth
 
 import (
-	"cognito-repeater-go/internal/config"
 	"encoding/json"
 	"log"
 	"net/http"
+
+	"cognito-repeater-go/internal/config"
 )
 
 // LogoutHandler redirects the user to the configured logout URL.
