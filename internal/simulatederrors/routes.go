@@ -1,4 +1,4 @@
-package errors
+package simulatederrors
 
 import (
 	"net/http"
