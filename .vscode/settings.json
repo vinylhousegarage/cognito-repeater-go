@@ -1,8 +1,4 @@
 {
-  "[go]": {
-    "editor.formatOnSave": true,
-    "editor.codeActionsOnSave": {
-      "source.organizeImports": true
-    }
-  }
+  "go.formatTool": "goimports",
+  "editor.formatOnSave": true
 }
