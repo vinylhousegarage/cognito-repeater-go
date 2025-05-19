@@ -4,8 +4,6 @@ import (
 	"encoding/json"
 	"log"
 	"net/http"
-
-	"cognito-repeater-go/internal/config"
 )
 
 type LogoutResponse struct {
