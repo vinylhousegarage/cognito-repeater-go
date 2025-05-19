@@ -16,6 +16,9 @@ dist/
 .DS_Store
 Thumbs.db
 
+# Environment
+.env
+
 # Air (hot reload)
 .air/
 tmp/
