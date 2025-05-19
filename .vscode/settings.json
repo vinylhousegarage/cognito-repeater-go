@@ -1,11 +1,4 @@
 {
-  "emeraldwalk.runonsave": {
-    "commands": [
-      {
-        "match": ".*Makefile$",
-        "isAsync": true,
-        "cmd": "workbench.action.tasks.runTask make build"
-      }
-    ]
-  }
+  "go.formatTool": "goimports",
+  "editor.formatOnSave": true
 }

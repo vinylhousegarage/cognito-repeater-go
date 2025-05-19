@@ -12,9 +12,32 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func TestRouter_LogoutRedirectRoute_ReturnsExpectedJSON(t *testing.T) {
-	r := router.NewRouter()
+type mockMetadataURL struct {
+	URL string
+}
 
+func (m *mockMetadataURL) MetadataURL() string {
+	return m.URL
+}
+
+func newMockProvider(t *testing.T) (*mockMetadataURL, func()) {
+	mockJSON := `{
+		"end_session_endpoint": "https://example.com/logout"
+	}`
+	ts := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		w.WriteHeader(http.StatusOK)
+		_, _ = w.Write([]byte(mockJSON))
+	}))
+	t.Cleanup(ts.Close)
+
+	return &mockMetadataURL{URL: ts.URL}, ts.Close
+}
+
+func TestRouter_LogoutRedirectRoute_ReturnsExpectedJSON(t *testing.T) {
+	mockProvider, teardown := newMockProvider(t)
+	defer teardown()
+
+	r := router.NewRouter(mockProvider)
 	req := httptest.NewRequest(http.MethodGet, "/logout/redirect", nil)
 	w := httptest.NewRecorder()
 
