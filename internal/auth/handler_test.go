@@ -10,19 +10,23 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func TestLogoutHandler_StatusAndLocation(t *testing.T) {
-	mockProvider := &mockMetadataURL{URL: "https://stab.com/logout"}
-	handler := LogoutHandler(mockProvider)
-
+func TestLogoutHandlerStatus(t *testing.T) {
 	req := httptest.NewRequest(http.MethodGet, "/logout", nil)
 	w := httptest.NewRecorder()
+
+	handler := LogoutHandler(func() (string, error) {
+		return "https://example.com/logout", nil
+	})
 
 	handler(w, req)
 
 	resp := w.Result()
+	defer resp.Body.Close()
+
 	assert.Equal(t, http.StatusFound, resp.StatusCode)
-	assert.Equal(t, "https://stab.com/logout", resp.Header.Get("Location"))
+	assert.Equal(t, "https://example.com/logout", resp.Header.Get("Location"))
 }
+
 
 func TestMetadataHandler_ReturnsExpectedStatusAndJSONBody(t *testing.T) {
 	req := httptest.NewRequest(http.MethodGet, "/logout/redirect", nil)
