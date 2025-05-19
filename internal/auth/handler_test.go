@@ -11,7 +11,7 @@ import (
 )
 
 func TestLogoutHandler_StatusAndLocation(t *testing.T) {
-	mockProvider := &mockMetadataURL{URL: "http://localhost"}
+	mockProvider := &mockMetadataURL{URL: "https://stab.com/logout"}
 	handler := LogoutHandler(mockProvider)
 
 	req := httptest.NewRequest(http.MethodGet, "/logout", nil)
