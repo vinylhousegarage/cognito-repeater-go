@@ -3,7 +3,6 @@ package auth
 import (
 	"net/http"
 
-	"cognito-repeater-go/internal/auth/logout_redirect"
 	"cognito-repeater-go/internal/config"
 )
 
