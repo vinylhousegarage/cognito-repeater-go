@@ -2,7 +2,6 @@ package main
 
 import (
 	"log"
-	"net/http"
 
 	"cognito-repeater-go/internal/config"
 	"cognito-repeater-go/internal/server"
