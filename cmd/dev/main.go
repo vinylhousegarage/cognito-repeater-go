@@ -2,6 +2,7 @@ package main
 
 import (
 	"log"
+	"net/http"
 
 	"cognito-repeater-go/internal/config"
 	"cognito-repeater-go/internal/server"
@@ -10,7 +11,7 @@ import (
 func main() {
 	cfg, err := config.LoadConfig()
 	if err != nil {
-		log.Fatal("failed to load config:", err)
+		log.Fatalf("failed to load config: %v", err)
 	}
 
 	srv := server.NewServer(cfg)
