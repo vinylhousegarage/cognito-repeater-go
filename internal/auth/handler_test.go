@@ -27,7 +27,6 @@ func TestLogoutHandlerStatus(t *testing.T) {
 	assert.Equal(t, "https://example.com/logout", resp.Header.Get("Location"))
 }
 
-
 func TestMetadataHandler_ReturnsExpectedStatusAndJSONBody(t *testing.T) {
 	req := httptest.NewRequest(http.MethodGet, "/logout/redirect", nil)
 	w := httptest.NewRecorder()
