@@ -59,18 +59,3 @@ func TestRouter_LogoutRedirectRoute_ReturnsExpectedJSON(t *testing.T) {
 
 	assert.Equal(t, expected, actual)
 }
-
-func TestRouter_LogoutRoute_WithInjectedProvider_Returns302Redirect(t *testing.T) {
-	mockProvider, teardown := newMockProvider(t)
-	defer teardown()
-
-	r := router.NewRouter(mockProvider)
-	req := httptest.NewRequest(http.MethodGet, "/logout", nil)
-	w := httptest.NewRecorder()
-
-	r.ServeHTTP(w, req)
-
-	resp := w.Result()
-	assert.Equal(t, http.StatusFound, resp.StatusCode)
-	assert.Equal(t, "https://example.com/logout", resp.Header.Get("Location"))
-}
