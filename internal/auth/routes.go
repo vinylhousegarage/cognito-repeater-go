@@ -1,8 +1,10 @@
 package auth
 
 import (
-	"cognito-repeater-go/internal/config"
 	"net/http"
+
+	"cognito-repeater-go/internal/auth/logout_redirect"
+	"cognito-repeater-go/internal/config"
 )
 
 func RegisterAuthRoutes(mux *http.ServeMux, p config.MetadataURLProvider) {
