@@ -3,9 +3,9 @@ package auth
 import (
 	"net/http"
 
-	"cognito-repeater-go/internal/config"
+	"cognito-repeater-go/internal/auth/logout_redirect"
 )
 
-func RegisterAuthRoutes(mux *http.ServeMux, p config.MetadataURLProvider) {
-	mux.HandleFunc("/logout/redirect", LogoutRedirectHandler)
+func RegisterAuthRoutes(mux *http.ServeMux) {
+	mux.HandleFunc("/logout/redirect", logout_redirect.LogoutRedirectHandler)
 }
