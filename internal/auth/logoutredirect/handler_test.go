@@ -1,4 +1,4 @@
-package logout_redirect
+package logoutredirect
 
 import (
 	"encoding/json"
