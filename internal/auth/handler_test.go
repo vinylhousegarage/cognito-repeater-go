@@ -10,14 +10,6 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-type mockMetadataURL struct {
-	URL string
-}
-
-func (m *mockMetadataURL) MetadataURL() string {
-	return m.URL
-}
-
 func TestLogoutHandler_StatusAndLocation(t *testing.T) {
 	mockProvider := &mockMetadataURL{URL: "http://localhost"}
 	handler := LogoutHandler(mockProvider)
