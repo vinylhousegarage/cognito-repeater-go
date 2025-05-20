@@ -1,4 +1,4 @@
-package auth_test
+package test
 
 import (
 	"encoding/json"

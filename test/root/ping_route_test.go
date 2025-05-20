@@ -1,4 +1,4 @@
-package root_test
+package test
 
 import (
 	"io"
