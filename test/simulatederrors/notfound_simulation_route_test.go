@@ -11,7 +11,7 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func TestRouter_Error404RouteRegistered(t *testing.T) {
+func TestError404RouteReturnsPlainTextNotFound(t *testing.T) {
 	t.Parallel()
 
 	r := router.NewRouter(mockCfg)
