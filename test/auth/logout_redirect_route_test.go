@@ -1,4 +1,4 @@
-package test
+package auth_test
 
 import (
 	"encoding/json"
@@ -8,6 +8,7 @@ import (
 	"testing"
 
 	"cognito-repeater-go/internal/router"
+	"cognito-repeater-go/internal/test/test_helpers"
 
 	"github.com/stretchr/testify/assert"
 )
@@ -15,7 +16,7 @@ import (
 func TestRouter_LogoutRedirectRoute_ReturnsExpectedJSON(t *testing.T) {
 	t.Parallel()
 
-	r := router.NewRouter(mockCfg)
+	r := router.NewRouter(test_helpers.MockCfg)
 
 	req := httptest.NewRequest(http.MethodGet, "/logout/redirect", nil)
 	w := httptest.NewRecorder()
