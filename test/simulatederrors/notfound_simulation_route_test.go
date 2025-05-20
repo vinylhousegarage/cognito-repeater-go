@@ -7,7 +7,7 @@ import (
 	"testing"
 
 	"cognito-repeater-go/internal/router"
-	"cognito-repeater-go/internal/test/test_helpers"
+	"cognito-repeater-go/test/test_helpers"
 
 	"github.com/stretchr/testify/assert"
 )
