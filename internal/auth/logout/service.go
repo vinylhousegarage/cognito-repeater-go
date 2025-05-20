@@ -13,7 +13,7 @@ type LogoutMetadata struct {
 }
 
 type LogoutEndpointProvider interface {
-	GetLogoutURL(p MetadataURLProvider) (string, error)
+	GetLogoutURL(p config.MetadataURLProvider) (string, error)
 }
 
 type logoutService struct {
