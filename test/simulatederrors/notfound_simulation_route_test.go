@@ -1,4 +1,4 @@
-package test_helpers
+package simulatederrors_test
 
 import (
 	"io"
@@ -7,6 +7,7 @@ import (
 	"testing"
 
 	"cognito-repeater-go/internal/router"
+	"cognito-repeater-go/internal/test/test_helpers"
 
 	"github.com/stretchr/testify/assert"
 )
@@ -14,7 +15,7 @@ import (
 func TestError404RouteReturnsPlainTextNotFound(t *testing.T) {
 	t.Parallel()
 
-	r := router.NewRouter(mockCfg)
+	r := router.NewRouter(test_helpers.MockCfg)
 
 	req := httptest.NewRequest(http.MethodGet, "/error/404", nil)
 	w := httptest.NewRecorder()
