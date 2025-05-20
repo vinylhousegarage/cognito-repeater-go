@@ -11,7 +11,7 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func TestRouter_PingRouteRegistered(t *testing.T) {
+func TestPingRouteReturnsPlainTextPong(t *testing.T) {
 	t.Parallel()
 
 	r := router.NewRouter(mockCfg)
