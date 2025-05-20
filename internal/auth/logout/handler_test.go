@@ -25,7 +25,7 @@ func (m *mockMetadataProvider) MetadataURL() string {
 func TestLogoutHandlerRedirectsToLogoutEndpoint(t *testing.T) {
 	t.Parallel()
 
-	handler := LogoutHandler(&mockEndpointProvider{})(&mockMetadataProvider{})
+	handler := LogoutHandler(&mockEndpointProvider{}, &mockMetadataProvider{})
 
 	req := httptest.NewRequest(http.MethodGet, "/logout/redirect", nil)
 	w := httptest.NewRecorder()
