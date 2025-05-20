@@ -1,5 +1,7 @@
 package test
 
+import "cognito-repeater-go/internal/config"
+
 var mockCfg = &config.Config{
 	Region:           "ap-northeast-1",
 	ClientSecret:     "client-secret",
