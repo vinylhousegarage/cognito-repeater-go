@@ -18,7 +18,7 @@ func (m *mockMetadataURL) MetadataURL() string {
 	return m.URL
 }
 
-func TestGetLogoutURL_ReturnsExpectedEndpoint(t *testing.T) {
+func TestGetLogoutURLReturnsExpectedEndpoint(t *testing.T) {
 	ts := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(http.StatusOK)
 		_, _ = w.Write([]byte(`{"end_session_endpoint": "https://example.com/logout"}`))
@@ -34,7 +34,7 @@ func TestGetLogoutURL_ReturnsExpectedEndpoint(t *testing.T) {
 	assert.Equal(t, "https://example.com/logout", endpoint)
 }
 
-func TestGetLogoutURL_StatusCode500(t *testing.T) {
+func TestGetLogoutURLStatusCode500(t *testing.T) {
 	ts := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "server error", http.StatusInternalServerError)
 	}))
