@@ -1,8 +1,8 @@
-package test
+package test_helpers
 
 import "cognito-repeater-go/internal/config"
 
-var mockCfg = &config.Config{
+var MockCfg = &config.Config{
 	Region:           "ap-northeast-1",
 	ClientSecret:     "client-secret",
 	LogoutURI:        "https://example.com/logout",
