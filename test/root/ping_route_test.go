@@ -7,21 +7,15 @@ import (
 	"testing"
 
 	"cognito-repeater-go/internal/router"
+	"cognito-repeater-go/test/test_helpers"
 
 	"github.com/stretchr/testify/assert"
 )
 
-type mockMetadataURL struct {
-	URL string
-}
+func TestPingRouteReturnsPlainTextPong(t *testing.T) {
+	t.Parallel()
 
-func (m *mockMetadataURL) MetadataURL() string {
-	return m.URL
-}
-
-func TestRouter_PingRouteRegistered(t *testing.T) {
-	mockProvider := &mockMetadataURL{URL: "http://localhost"}
-	r := router.NewRouter(mockProvider)
+	r := router.NewRouter(test_helpers.MockCfg)
 
 	req := httptest.NewRequest(http.MethodGet, "/ping", nil)
 	w := httptest.NewRecorder()
@@ -30,7 +24,7 @@ func TestRouter_PingRouteRegistered(t *testing.T) {
 
 	resp := w.Result()
 	body, err := io.ReadAll(resp.Body)
-	assert.NoError(t, err)
+	assert.NoError(t, err, "failed to read response body")
 
 	assert.Equal(t, http.StatusOK, resp.StatusCode)
 	assert.Equal(t, "pong", string(body))

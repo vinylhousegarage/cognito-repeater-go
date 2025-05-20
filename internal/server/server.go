@@ -7,9 +7,9 @@ import (
 	"cognito-repeater-go/internal/router"
 )
 
-func NewServer(p config.MetadataURLProvider) *http.Server {
+func NewServer(cfg *config.Config) *http.Server {
 	return &http.Server{
 		Addr:    ":8080",
-		Handler: router.NewRouter(p),
+		Handler: router.NewRouter(cfg),
 	}
 }

@@ -1,4 +1,4 @@
-package errors
+package simulatederrors_test
 
 import (
 	"io"
@@ -6,18 +6,25 @@ import (
 	"net/http/httptest"
 	"testing"
 
+	"cognito-repeater-go/internal/router"
+	"cognito-repeater-go/test/test_helpers"
+
 	"github.com/stretchr/testify/assert"
 )
 
-func TestError404Handler_StatusAndBody(t *testing.T) {
+func TestError404RouteReturnsPlainTextNotFound(t *testing.T) {
+	t.Parallel()
+
+	r := router.NewRouter(test_helpers.MockCfg)
+
 	req := httptest.NewRequest(http.MethodGet, "/error/404", nil)
 	w := httptest.NewRecorder()
 
-	Error404Handler(w, req)
+	r.ServeHTTP(w, req)
 
 	resp := w.Result()
 	body, err := io.ReadAll(resp.Body)
-	assert.NoError(t, err)
+	assert.NoError(t, err, "failed to read response body")
 
 	assert.Equal(t, http.StatusNotFound, resp.StatusCode)
 	assert.Equal(t, "not found 404", string(body))

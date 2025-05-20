@@ -5,16 +5,16 @@ import (
 
 	"cognito-repeater-go/internal/auth"
 	"cognito-repeater-go/internal/config"
-	"cognito-repeater-go/internal/errors"
 	"cognito-repeater-go/internal/root"
+	"cognito-repeater-go/internal/simulatederrors"
 )
 
-func NewRouter(p config.MetadataURLProvider) http.Handler {
+func NewRouter(cfg *config.Config) http.Handler {
 	mux := http.NewServeMux()
 
-	auth.RegisterAuthRoutes(mux, p)
-	errors.RegisterErrorRoutes(mux)
+	auth.RegisterAuthRoutes(mux)
 	root.RegisterRootRoutes(mux)
+	simulatederrors.RegisterErrorRoutes(mux)
 
 	return mux
 }

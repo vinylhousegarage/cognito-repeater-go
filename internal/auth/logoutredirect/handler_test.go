@@ -1,4 +1,4 @@
-package auth
+package logoutredirect
 
 import (
 	"encoding/json"

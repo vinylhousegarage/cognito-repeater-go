@@ -1,4 +1,4 @@
-package errors_test
+package notfound
 
 import (
 	"io"
@@ -6,27 +6,14 @@ import (
 	"net/http/httptest"
 	"testing"
 
-	"cognito-repeater-go/internal/router"
-
 	"github.com/stretchr/testify/assert"
 )
 
-type mockMetadataURL struct {
-	URL string
-}
-
-func (m *mockMetadataURL) MetadataURL() string {
-	return m.URL
-}
-
-func TestRouter_Error404RouteRegistered(t *testing.T) {
-	mockProvider := &mockMetadataURL{URL: "http://localhost"}
-	r := router.NewRouter(mockProvider)
-
+func TestError404Handler_StatusAndBody(t *testing.T) {
 	req := httptest.NewRequest(http.MethodGet, "/error/404", nil)
 	w := httptest.NewRecorder()
 
-	r.ServeHTTP(w, req)
+	Error404Handler(w, req)
 
 	resp := w.Result()
 	body, err := io.ReadAll(resp.Body)
