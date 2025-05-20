@@ -1,0 +1,10 @@
+{
+  "name": "YourContainerName",
+  "extensions": [
+    "golang.Go"
+  ],
+  "settings": {
+    "go.formatTool": "goimports",
+    "editor.formatOnSave": true
+  }
+}
