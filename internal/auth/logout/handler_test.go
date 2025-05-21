@@ -13,7 +13,7 @@ import (
 
 type mockLogoutURLProvider struct{}
 
-func (m *mockLogoutURLProvider) GetLogoutURL(mup config.MetadataURLProvider) (string, error) {
+func (m *mockLogoutURLProvider) GetLogoutURL(p config.MetadataURLProvider) (string, error) {
 	return "https://example.com/logout", nil
 }
 

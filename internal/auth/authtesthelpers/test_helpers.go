@@ -10,6 +10,6 @@ func (m *MockMetadataURL) MetadataURL() string {
 
 type MockMetadataURLProvider struct{}
 
-func (m *MockMetadataURLProvider) MetadataURL() string {
+func (p *MockMetadataURLProvider) MetadataURL() string {
 	return "https://mock.metadata.url"
 }
