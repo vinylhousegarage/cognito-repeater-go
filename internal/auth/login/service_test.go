@@ -26,7 +26,7 @@ func TestGetLoginURLReturnsExpectedEndpoint(t *testing.T) {
 
 	expected := "https://example.com/oauth2/authorize"
 
-assert.NoError(t, err, "failed to fetch authorization endpoint")
+	assert.NoError(t, err, "failed to fetch authorization endpoint")
 	assert.Equal(t, expected, endpoint)
 }
 
