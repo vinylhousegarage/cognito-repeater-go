@@ -8,8 +8,8 @@ func (m *MockMetadataURL) MetadataURL() string {
 	return m.URL
 }
 
-type MockMetadataProvider struct{}
+type MockMetadataURLProvider struct{}
 
-func (m *MockMetadataProvider) MetadataURL() string {
+func (p *MockMetadataURLProvider) MetadataURL() string {
 	return "https://mock.metadata.url"
 }

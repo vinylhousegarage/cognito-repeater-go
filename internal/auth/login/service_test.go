@@ -10,7 +10,7 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-var _ LoginEndpointProvider = (*loginService)(nil)
+var _ LoginURLProvider = (*loginService)(nil)
 
 func TestGetLoginURLReturnsExpectedEndpoint(t *testing.T) {
 	ts := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {

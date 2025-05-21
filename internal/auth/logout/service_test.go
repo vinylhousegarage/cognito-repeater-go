@@ -10,7 +10,7 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-var _ LogoutEndpointProvider = (*logoutService)(nil)
+var _ LogoutURLProvider = (*logoutService)(nil)
 
 func TestGetLogoutURLReturnsExpectedEndpoint(t *testing.T) {
 	ts := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {

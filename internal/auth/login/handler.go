@@ -6,7 +6,7 @@ import (
 	"cognito-repeater-go/internal/config"
 )
 
-func LoginHandler(provider LoginEndpointProvider, p config.MetadataURLProvider) http.HandlerFunc {
+func LoginHandler(provider LoginURLProvider, p config.MetadataURLProvider) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		endpoint, err := provider.GetLoginURL(p)
 		if err != nil {

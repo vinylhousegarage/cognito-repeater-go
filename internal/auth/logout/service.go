@@ -12,7 +12,7 @@ type LogoutMetadata struct {
 	EndSessionEndpoint string `json:"end_session_endpoint"`
 }
 
-type LogoutEndpointProvider interface {
+type LogoutURLProvider interface {
 	GetLogoutURL(p config.MetadataURLProvider) (string, error)
 }
 
@@ -20,7 +20,7 @@ type logoutService struct {
 	client *http.Client
 }
 
-func NewLogoutService(client *http.Client) LogoutEndpointProvider {
+func NewLogoutService(client *http.Client) LogoutURLProvider {
 	return &logoutService{client: client}
 }
 

@@ -15,7 +15,12 @@ func NewRouter(cfg *config.Config) http.Handler {
 
 	provider := logout.NewLogoutService(http.DefaultClient)
 
-	auth.RegisterAuthRoutes(mux, provider, cfg)
+	authHandlers := auth.AuthHandlers{
+		LogoutURLProvider:   provider,
+		MetadataURLProvider: cfg,
+	}
+
+	auth.RegisterAuthRoutes(mux, authHandlers)
 	root.RegisterRootRoutes(mux)
 	simulatederrors.RegisterErrorRoutes(mux)
 

@@ -11,16 +11,16 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-type mockLogoutEndpointProvider struct{}
+type mockLogoutURLProvider struct{}
 
-func (m *mockLogoutEndpointProvider) GetLogoutURL(p config.MetadataURLProvider) (string, error) {
+func (m *mockLogoutURLProvider) GetLogoutURL(p config.MetadataURLProvider) (string, error) {
 	return "https://example.com/logout", nil
 }
 
 func TestLogoutHandlerRedirectsToLogoutEndpoint(t *testing.T) {
 	t.Parallel()
 
-	handler := LogoutHandler(&mockLogoutEndpointProvider{}, &authtesthelpers.MockMetadataProvider{})
+	handler := LogoutHandler(&mockLogoutURLProvider{}, &authtesthelpers.MockMetadataURLProvider{})
 
 	req := httptest.NewRequest(http.MethodGet, "/logout/redirect", nil)
 	w := httptest.NewRecorder()
