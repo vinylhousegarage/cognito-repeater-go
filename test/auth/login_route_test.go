@@ -5,26 +5,14 @@ import (
 	"net/http/httptest"
 	"testing"
 
-	"cognito-repeater-go/internal/auth/login"
-	"cognito-repeater-go/internal/config"
-	"cognito-repeater-go/test/test_helpers"
-
+	"cognito-repeater-go/internal/router"
 	"github.com/stretchr/testify/assert"
 )
 
-type mockLoginEndpointProvider struct{}
-
-func (m *mockLoginEndpointProvider) GetLoginURL(p config.MetadataURLProvider) (string, error) {
-	return "https://example.com/oauth2/authorize", nil
-}
-
-func TestLoginRouteIsRegistered(t *testing.T) {
+func TestLoginRouteIsRegisteredInProductionRouter(t *testing.T) {
 	t.Parallel()
 
-	handler := login.LoginHandler(&mockLoginEndpointProvider{}, &test_helpers.MockMetadataProvider{})
-
-	router := http.NewServeMux()
-	router.Handle("/login", handler)
+	router := router.NewRouter()
 
 	req := httptest.NewRequest(http.MethodGet, "/login", nil)
 	w := httptest.NewRecorder()
@@ -33,5 +21,5 @@ func TestLoginRouteIsRegistered(t *testing.T) {
 
 	resp := w.Result()
 	assert.Equal(t, http.StatusFound, resp.StatusCode)
-	assert.Equal(t, "https://example.com/oauth2/authorize", resp.Header.Get("Location"))
+	assert.Contains(t, resp.Header.Get("Location"), "oauth2/authorize")
 }
