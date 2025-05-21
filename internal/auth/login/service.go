@@ -12,7 +12,7 @@ type LoginMetadata struct {
 	AuthorizationEndpoint string `json:"authorization_endpoint"`
 }
 
-type LoginEndpointProvider interface {
+type LoginURLProvider interface {
 	GetLoginURL(p config.MetadataURLProvider) (string, error)
 }
 
@@ -20,7 +20,7 @@ type loginService struct {
 	client *http.Client
 }
 
-func NewLoginService(client *http.Client) LoginEndpointProvider {
+func NewLoginService(client *http.Client) LoginURLProvider {
 	return &loginService{client: client}
 }
 

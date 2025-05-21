@@ -11,16 +11,16 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-type mockLoginEndpointProvider struct{}
+type mockLoginURLProvider struct{}
 
-func (m *mockLoginEndpointProvider) GetLoginURL(p config.MetadataURLProvider) (string, error) {
+func (m *mockLoginURLProvider) GetLoginURL(p config.MetadataURLProvider) (string, error) {
 	return "https://example.com/oauth2/authorize", nil
 }
 
 func TestLoginHandlerRedirectsToLoginEndpoint(t *testing.T) {
 	t.Parallel()
 
-	handler := LoginHandler(&mockLoginEndpointProvider{}, &authtesthelpers.MockMetadataProvider{})
+	handler := LoginHandler(&mockLoginURLProvider{}, &authtesthelpers.MockMetadataURLProvider{})
 
 	req := httptest.NewRequest(http.MethodGet, "/login", nil)
 	w := httptest.NewRecorder()
