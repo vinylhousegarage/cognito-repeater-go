@@ -5,18 +5,12 @@ import (
 	"net/http/httptest"
 	"testing"
 
+	"cognito-repeater-go/internal/auth"
+
 	"github.com/stretchr/testify/assert"
 )
 
 var _ LoginEndpointProvider = (*loginService)(nil)
-
-type mockMetadataURL struct {
-	URL string
-}
-
-func (m *mockMetadataURL) MetadataURL() string {
-	return m.URL
-}
 
 func TestGetLoginURLReturnsExpectedEndpoint(t *testing.T) {
 	ts := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
@@ -25,7 +19,7 @@ func TestGetLoginURLReturnsExpectedEndpoint(t *testing.T) {
 	}))
 	defer ts.Close()
 
-	mock := &mockMetadataURL{URL: ts.URL}
+	mock := &auth.MockMetadataURL{URL: ts.URL}
 
 	svc := NewLoginService(http.DefaultClient)
 	endpoint, err := svc.GetLoginURL(mock)
@@ -42,7 +36,7 @@ func TestGetLoginURLStatusCode500(t *testing.T) {
 	}))
 	defer ts.Close()
 
-	mock := &mockMetadataURL{URL: ts.URL}
+	mock := &auth.MockMetadataURL{URL: ts.URL}
 
 	svc := NewLoginService(http.DefaultClient)
 	_, err := svc.GetLoginURL(mock)
