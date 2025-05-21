@@ -1,4 +1,14 @@
 {
-  "go.formatTool": "goimports",
-  "editor.formatOnSave": true
+  "emeraldwalk.runonsave": {
+    "commands": [
+      {
+        "match": "\\.go$",
+        "command": "make format"
+      },
+      {
+        "match": "\\.go$",
+        "command": "make lint"
+      }
+    ]
+  }
 }
