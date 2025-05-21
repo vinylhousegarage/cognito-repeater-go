@@ -1,4 +1,4 @@
-package auth
+package authtesthelpers
 
 type MockMetadataURL struct {
 	URL string
