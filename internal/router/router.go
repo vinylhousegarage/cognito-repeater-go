@@ -4,7 +4,6 @@ import (
 	"net/http"
 
 	"cognito-repeater-go/internal/auth"
-	"cognito-repeater-go/internal/auth/logout"
 	"cognito-repeater-go/internal/config"
 	"cognito-repeater-go/internal/root"
 	"cognito-repeater-go/internal/simulatederrors"
@@ -13,12 +12,7 @@ import (
 func NewRouter(cfg *config.Config) http.Handler {
 	mux := http.NewServeMux()
 
-	provider := logout.NewLogoutService(http.DefaultClient)
-
-	authHandlers := auth.AuthHandlers{
-		LogoutURLProvider:   provider,
-		MetadataURLProvider: cfg,
-	}
+	authHandlers := auth.NewAuthHandlers(cfg, http.DefaultClient)
 
 	auth.RegisterAuthRoutes(mux, authHandlers)
 	root.RegisterRootRoutes(mux)
