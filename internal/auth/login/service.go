@@ -16,15 +16,15 @@ type LoginURLProvider interface {
 	GetLoginURL(p config.MetadataURLProvider) (string, error)
 }
 
-type loginService struct {
+type loginClient struct {
 	client *http.Client
 }
 
-func NewLoginService(client *http.Client) LoginURLProvider {
-	return &loginService{client: client}
+func NewLoginClient(client *http.Client) LoginURLProvider {
+	return &loginClient{client: client}
 }
 
-func (s *loginService) GetLoginURL(p config.MetadataURLProvider) (string, error) {
+func (s *loginClient) GetLoginURL(p config.MetadataURLProvider) (string, error) {
 	url := p.MetadataURL()
 
 	resp, err := s.client.Get(url)

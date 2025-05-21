@@ -16,15 +16,15 @@ type LogoutURLProvider interface {
 	GetLogoutURL(p config.MetadataURLProvider) (string, error)
 }
 
-type logoutService struct {
+type logoutClient struct {
 	client *http.Client
 }
 
-func NewLogoutService(client *http.Client) LogoutURLProvider {
-	return &logoutService{client: client}
+func NewLogoutClient(client *http.Client) LogoutURLProvider {
+	return &logoutClient{client: client}
 }
 
-func (s *logoutService) GetLogoutURL(p config.MetadataURLProvider) (string, error) {
+func (s *logoutClient) GetLogoutURL(p config.MetadataURLProvider) (string, error) {
 	url := p.MetadataURL()
 
 	resp, err := s.client.Get(url)

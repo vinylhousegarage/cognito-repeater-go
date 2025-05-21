@@ -10,7 +10,7 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-var _ LoginURLProvider = (*loginService)(nil)
+var _ LoginURLProvider = (*loginClient)(nil)
 
 func TestGetLoginURLReturnsExpectedEndpoint(t *testing.T) {
 	ts := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
@@ -21,7 +21,7 @@ func TestGetLoginURLReturnsExpectedEndpoint(t *testing.T) {
 
 	mock := &authtesthelpers.MockMetadataURL{URL: ts.URL}
 
-	svc := NewLoginService(http.DefaultClient)
+	svc := NewLoginClient(http.DefaultClient)
 	endpoint, err := svc.GetLoginURL(mock)
 
 	expected := "https://example.com/oauth2/authorize"
@@ -38,7 +38,7 @@ func TestGetLoginURLStatusCode500(t *testing.T) {
 
 	mock := &authtesthelpers.MockMetadataURL{URL: ts.URL}
 
-	svc := NewLoginService(http.DefaultClient)
+	svc := NewLoginClient(http.DefaultClient)
 	_, err := svc.GetLoginURL(mock)
 
 	assert.Error(t, err)
