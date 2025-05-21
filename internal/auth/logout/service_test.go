@@ -10,7 +10,7 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-var _ LogoutURLProvider = (*logoutService)(nil)
+var _ LogoutURLProvider = (*logoutClient)(nil)
 
 func TestGetLogoutURLReturnsExpectedEndpoint(t *testing.T) {
 	ts := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
@@ -21,7 +21,7 @@ func TestGetLogoutURLReturnsExpectedEndpoint(t *testing.T) {
 
 	mock := &authtesthelpers.MockMetadataURL{URL: ts.URL}
 
-	svc := NewLogoutService(http.DefaultClient)
+	svc := NewLogoutClient(http.DefaultClient)
 	endpoint, err := svc.GetLogoutURL(mock)
 
 	assert.NoError(t, err)
@@ -36,7 +36,7 @@ func TestGetLogoutURLStatusCode500(t *testing.T) {
 
 	mock := &authtesthelpers.MockMetadataURL{URL: ts.URL}
 
-	svc := NewLogoutService(http.DefaultClient)
+	svc := NewLogoutClient(http.DefaultClient)
 	_, err := svc.GetLogoutURL(mock)
 
 	assert.Error(t, err)

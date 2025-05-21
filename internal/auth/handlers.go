@@ -8,7 +8,7 @@ import (
 
 func NewAuthHandlers(cfg config.MetadataURLProvider, client *http.Client) AuthHandlers {
 	return AuthHandlers{
-		LogoutURLProvider:   logout.NewLogoutService(client),
+		LogoutURLProvider:   logout.NewLogoutClient(client),
 		MetadataURLProvider: cfg,
 	}
 }
