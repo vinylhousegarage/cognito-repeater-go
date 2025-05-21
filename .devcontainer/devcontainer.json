@@ -1,10 +1,14 @@
 {
-  "name": "YourContainerName",
-  "extensions": [
-    "golang.Go"
-  ],
-  "settings": {
-    "go.formatTool": "goimports",
-    "editor.formatOnSave": true
+  "name": "cognito-repeater-go",
+  "customizations": {
+    "vscode": {
+      "extensions": [
+        "golang.Go"
+      ],
+      "settings": {
+        "go.formatTool": "goimports",
+        "editor.formatOnSave": true
+      }
+    }
   }
 }
