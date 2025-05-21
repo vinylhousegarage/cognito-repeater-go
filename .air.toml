@@ -2,7 +2,7 @@ root = "."
 tmp_dir = "tmp"
 
 [build]
-cmd = "make prepare && go build -o ./tmp/main ./cmd/dev"
+cmd = "goimports -w . && go build -o ./tmp/main ./cmd/dev"
 bin = "tmp/main"
 
 [include]
