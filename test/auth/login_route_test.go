@@ -6,6 +6,7 @@ import (
 	"testing"
 
 	"cognito-repeater-go/internal/router"
+	"cognito-repeater-go/test/test_helpers"
 
 	"github.com/stretchr/testify/assert"
 )
@@ -13,7 +14,7 @@ import (
 func TestLoginRouteIsRegisteredInProductionRouter(t *testing.T) {
 	t.Parallel()
 
-	router := router.NewRouter(MockCfg)
+	router := router.NewRouter(test_helpers.MockCfg)
 
 	req := httptest.NewRequest(http.MethodGet, "/login", nil)
 	w := httptest.NewRecorder()
