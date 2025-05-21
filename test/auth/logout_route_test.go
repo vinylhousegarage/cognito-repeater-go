@@ -6,6 +6,7 @@ import (
 	"testing"
 
 	"cognito-repeater-go/internal/auth/logout"
+	"cognito-repeater-go/internal/config"
 	"cognito-repeater-go/test/test_helpers"
 
 	"github.com/stretchr/testify/assert"
