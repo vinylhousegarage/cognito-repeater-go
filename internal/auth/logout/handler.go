@@ -6,9 +6,9 @@ import (
 	"cognito-repeater-go/internal/config"
 )
 
-func LogoutHandler(provider LogoutEndpointProvider, p config.MetadataURLProvider) http.HandlerFunc {
+func LogoutHandler(lup LogoutURLProvider, mup config.MetadataURLProvider) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		endpoint, err := provider.GetLogoutURL(p)
+		endpoint, err := lupp.GetLogoutURL(mup)
 		if err != nil {
 			http.Error(w, err.Error(), http.StatusInternalServerError)
 			return
