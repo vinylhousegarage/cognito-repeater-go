@@ -6,6 +6,7 @@ import (
 	"testing"
 
 	"cognito-repeater-go/internal/router"
+
 	"github.com/stretchr/testify/assert"
 )
 
