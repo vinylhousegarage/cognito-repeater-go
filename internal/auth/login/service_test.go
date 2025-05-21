@@ -1,4 +1,4 @@
-package logout
+package login
 
 import (
 	"net/http"
@@ -10,25 +10,27 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-var _ LogoutEndpointProvider = (*logoutService)(nil)
+var _ LoginEndpointProvider = (*loginService)(nil)
 
-func TestGetLogoutURLReturnsExpectedEndpoint(t *testing.T) {
+func TestGetLoginURLReturnsExpectedEndpoint(t *testing.T) {
 	ts := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(http.StatusOK)
-		_, _ = w.Write([]byte(`{"end_session_endpoint": "https://example.com/logout"}`))
+		_, _ = w.Write([]byte(`{"authorization_endpoint": "https://example.com/oauth2/authorize"}`))
 	}))
 	defer ts.Close()
 
 	mock := &authtesthelpers.MockMetadataURL{URL: ts.URL}
 
-	svc := NewLogoutService(http.DefaultClient)
-	endpoint, err := svc.GetLogoutURL(mock)
+	svc := NewLoginService(http.DefaultClient)
+	endpoint, err := svc.GetLoginURL(mock)
 
-	assert.NoError(t, err)
-	assert.Equal(t, "https://example.com/logout", endpoint)
+	expected := "https://example.com/oauth2/authorize"
+
+	assert.NoError(t, err, "failed to fetch authorization endpoint")
+	assert.Equal(t, expected, endpoint)
 }
 
-func TestGetLogoutURLStatusCode500(t *testing.T) {
+func TestGetLoginURLStatusCode500(t *testing.T) {
 	ts := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "server error", http.StatusInternalServerError)
 	}))
@@ -36,8 +38,8 @@ func TestGetLogoutURLStatusCode500(t *testing.T) {
 
 	mock := &authtesthelpers.MockMetadataURL{URL: ts.URL}
 
-	svc := NewLogoutService(http.DefaultClient)
-	_, err := svc.GetLogoutURL(mock)
+	svc := NewLoginService(http.DefaultClient)
+	_, err := svc.GetLoginURL(mock)
 
 	assert.Error(t, err)
 	assert.Contains(t, err.Error(), "unexpected status code: 500")
