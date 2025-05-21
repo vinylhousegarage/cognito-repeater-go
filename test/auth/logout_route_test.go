@@ -6,15 +6,22 @@ import (
 	"testing"
 
 	"cognito-repeater-go/internal/auth/logout"
+	"cognito-repeater-go/internal/config"
 	"cognito-repeater-go/test/test_helpers"
 
 	"github.com/stretchr/testify/assert"
 )
 
+type mockLogoutEndpointProvider struct{}
+
+func (m *mockLogoutEndpointProvider) GetLogoutURL(p config.MetadataURLProvider) (string, error) {
+	return "https://example.com/logout", nil
+}
+
 func TestLogoutRouteIsRegistered(t *testing.T) {
 	t.Parallel()
 
-	handler := logout.LogoutHandler(&test_helpers.MockEndpointProvider{}, &test_helpers.MockMetadataProvider{})
+	handler := logout.LogoutHandler(&mockLogoutEndpointProvider{}, &test_helpers.MockMetadataProvider{})
 
 	router := http.NewServeMux()
 	router.Handle("/logout", handler)

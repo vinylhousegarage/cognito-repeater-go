@@ -14,12 +14,6 @@ var MockCfg = &config.Config{
 	UserPoolID:       "pool-id",
 }
 
-type MockEndpointProvider struct{}
-
-func (m *MockEndpointProvider) GetLogoutURL(p config.MetadataURLProvider) (string, error) {
-	return "https://example.com/logout", nil
-}
-
 type MockMetadataProvider struct{}
 
 func (m *MockMetadataProvider) MetadataURL() string {
