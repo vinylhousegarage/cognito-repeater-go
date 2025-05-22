@@ -40,3 +40,15 @@ func TestBuildLoginURLSuccess(t *testing.T) {
 	q := parsed.Query()
 	assert.Equal(t, state, q.Get("state"))
 }
+
+func TestBuildLoginURLInvalidURL(t *testing.T) {
+	t.Parallel()
+
+	const (
+		invalidEndpoint = ":::"
+		state           = "abc"
+	)
+
+	_, err := BuildLoginURL(invalidEndpoint, state)
+	assert.Error(t, err)
+}
