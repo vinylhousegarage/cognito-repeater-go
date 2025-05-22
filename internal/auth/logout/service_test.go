@@ -4,7 +4,7 @@ import (
 	"io"
 	"net/http"
 	"net/http/httptest"
-	"string"
+	"strings"
 	"testing"
 
 	"cognito-repeater-go/test/testhelpers"
