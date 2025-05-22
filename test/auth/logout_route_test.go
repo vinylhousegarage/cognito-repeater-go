@@ -21,7 +21,7 @@ func (m *mockLogoutEndpointProvider) GetLogoutURL(p config.MetadataURLProvider) 
 func TestLogoutRouteIsRegistered(t *testing.T) {
 	t.Parallel()
 
-	handler := logout.LogoutHandler(&mockLogoutEndpointProvider{}, &testhelpers.MockMetadataProvider{})
+	handler := logout.LogoutHandler(&mockLogoutEndpointProvider{}, &testhelpers.MockMetadataURLProvider{})
 
 	router := http.NewServeMux()
 	router.Handle("/logout", handler)
