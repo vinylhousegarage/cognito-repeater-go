@@ -1,4 +1,4 @@
-package logic
+package login
 
 import (
 	"crypto/rand"
