@@ -1,8 +1,10 @@
 package logout
 
 import (
+	"io"
 	"net/http"
 	"net/http/httptest"
+	"string"
 	"testing"
 
 	"cognito-repeater-go/test/testhelpers"
@@ -21,7 +23,18 @@ func TestGetLogoutURLReturnsExpectedEndpoint(t *testing.T) {
 
 	mock := &testhelpers.MockMetadataURL{URL: ts.URL}
 
-	svc := NewLogoutClient(testhelpers.MockClient)
+	mockClient := &testhelpers.MockHTTPClient{
+		DoFunc: func(req *http.Request) (*http.Response, error) {
+			body := `{"end_session_endpoint":"https://example.com/logout"}`
+			return &http.Response{
+				StatusCode: 200,
+				Body:       io.NopCloser(strings.NewReader(body)),
+				Header:     make(http.Header),
+			}, nil
+		},
+	}
+
+	svc := NewLogoutClient(mockClient)
 	endpoint, err := svc.GetLogoutURL(mock)
 
 	assert.NoError(t, err)
