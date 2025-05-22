@@ -3,6 +3,7 @@ package login
 import (
 	"net/http"
 	"net/http/httptest"
+	"net/url"
 	"testing"
 
 	"cognito-repeater-go/internal/config"
@@ -26,11 +27,19 @@ func TestLoginHandlerRedirectsToLoginEndpoint(t *testing.T) {
 	w := httptest.NewRecorder()
 
 	handler(w, req)
-
 	resp := w.Result()
 
 	assert.Equal(t, http.StatusFound, resp.StatusCode)
-	assert.Equal(t, "https://example.com/oauth2/authorize", resp.Header.Get("Location"))
+
+	location := resp.Header.Get("Location")
+	parsed, err := url.Parse(location)
+	assert.NoError(t, err)
+
+	assert.Equal(t, "example.com", parsed.Host)
+	assert.Equal(t, "/oauth2/authorize", parsed.Path)
+
+	state := parsed.Query().Get("state")
+	assert.NotEmpty(t, state, "state param should be present in the redirect URL")
 }
 
 func TestLoginHandlerSetsStateCookie(t *testing.T) {
