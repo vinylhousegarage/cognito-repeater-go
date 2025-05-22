@@ -1,9 +1,7 @@
 package testhelpers
 
 import (
-	"io"
 	"net/http"
-	"strings"
 
 	"cognito-repeater-go/internal/config"
 )
