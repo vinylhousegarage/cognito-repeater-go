@@ -1,8 +1,10 @@
 package login
 
 import (
+	"io"
 	"net/http"
 	"net/http/httptest"
+	"strings"
 	"testing"
 
 	"cognito-repeater-go/test/testhelpers"
