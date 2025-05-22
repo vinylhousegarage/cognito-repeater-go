@@ -25,6 +25,8 @@ func TestLoadConfig_Success(t *testing.T) {
 }
 
 func TestLoadConfig_MissingVars(t *testing.T) {
+	t.Parallel()
+
 	_, err := LoadConfig()
 	if err == nil {
 		t.Fatal("expected error due to missing env vars, got nil")
