@@ -21,7 +21,7 @@ func TestGetLoginURLReturnsExpectedEndpoint(t *testing.T) {
 
 	mock := &testhelpers.MockMetadataURL{URL: ts.URL}
 
-	svc := NewLoginClient(authtesthelpers.MockClient)
+	svc := NewLoginClient(testhelpers.MockClient)
 	endpoint, err := svc.GetLoginURL(mock)
 
 	expected := "https://example.com/oauth2/authorize"
