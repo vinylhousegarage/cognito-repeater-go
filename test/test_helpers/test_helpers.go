@@ -19,3 +19,11 @@ type MockMetadataProvider struct{}
 func (m *MockMetadataProvider) MetadataURL() string {
 	return "https://mock.metadata.url"
 }
+
+type MockHTTPClient struct {
+	DoFunc func(req *http.Request) (*http.Response, error)
+}
+
+func (m *MockHTTPClient) Do(req *http.Request) (*http.Response, error) {
+	return m.DoFunc(req)
+}
