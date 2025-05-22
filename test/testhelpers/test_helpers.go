@@ -1,10 +1,22 @@
-package authtesthelpers
+package testhelpers
 
 import (
-	"net/http"
 	"io"
+	"net/http"
 	"strings"
+
+	"cognito-repeater-go/internal/config"
 )
+
+var MockCfg = &config.Config{
+	Region:           "ap-northeast-1",
+	ClientSecret:     "client-secret",
+	LogoutURI:        "https://example.com/logout",
+	RedirectURI:      "https://localhost/callback",
+	Scope:            "openid",
+	UserPoolClientID: "client-id",
+	UserPoolID:       "pool-id",
+}
 
 type MockMetadataURL struct {
 	URL string
@@ -14,9 +26,9 @@ func (m *MockMetadataURL) MetadataURL() string {
 	return m.URL
 }
 
-type MockMetadataURLProvider struct{}
+type MockMetadataProvider struct{}
 
-func (p *MockMetadataURLProvider) MetadataURL() string {
+func (m *MockMetadataProvider) MetadataURL() string {
 	return "https://mock.metadata.url"
 }
 
@@ -30,7 +42,7 @@ func (m *MockHTTPClient) Do(req *http.Request) (*http.Response, error) {
 
 var MockClient = &MockHTTPClient{
 	DoFunc: func(req *http.Request) (*http.Response, error) {
-		body := `{"end_session_endpoint":"https://example.com/logout"}`
+		body := `{"authorization_endpoint":"https://example.com/oauth2/authorize"}`
 		return &http.Response{
 			StatusCode: 200,
 			Body:       io.NopCloser(strings.NewReader(body)),
