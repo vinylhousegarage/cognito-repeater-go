@@ -1,7 +1,6 @@
 package login
 
 import (
-	"fmt"
 	"net/http"
 
 	"cognito-repeater-go/internal/config"
