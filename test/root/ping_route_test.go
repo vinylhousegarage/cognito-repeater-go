@@ -7,7 +7,7 @@ import (
 	"testing"
 
 	"cognito-repeater-go/internal/router"
-	"cognito-repeater-go/test/test_helpers"
+	"cognito-repeater-go/test/testhelpers"
 
 	"github.com/stretchr/testify/assert"
 )
@@ -15,7 +15,7 @@ import (
 func TestPingRouteReturnsPlainTextPong(t *testing.T) {
 	t.Parallel()
 
-	r := router.NewRouter(test_helpers.MockCfg, test_helpers.MockClient)
+	r := router.NewRouter(testhelpers.MockCfg, testhelpers.MockClient)
 
 	req := httptest.NewRequest(http.MethodGet, "/ping", nil)
 	w := httptest.NewRecorder()
