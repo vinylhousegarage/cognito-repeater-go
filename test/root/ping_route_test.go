@@ -15,7 +15,7 @@ import (
 func TestPingRouteReturnsPlainTextPong(t *testing.T) {
 	t.Parallel()
 
-	r := router.NewRouter(testhelpers.MockCfg, testhelpers.MockClient)
+	r := router.NewRouter(testhelpers.MockCfg, http.DefaultClient)
 
 	req := httptest.NewRequest(http.MethodGet, "/ping", nil)
 	w := httptest.NewRecorder()

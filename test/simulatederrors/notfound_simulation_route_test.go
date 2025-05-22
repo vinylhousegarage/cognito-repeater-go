@@ -15,7 +15,7 @@ import (
 func TestError404RouteReturnsPlainTextNotFound(t *testing.T) {
 	t.Parallel()
 
-	r := router.NewRouter(testhelpers.MockCfg, testhelpers.MockClient)
+	r := router.NewRouter(testhelpers.MockCfg, http.DefaultClient)
 
 	req := httptest.NewRequest(http.MethodGet, "/error/404", nil)
 	w := httptest.NewRecorder()

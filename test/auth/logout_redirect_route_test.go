@@ -16,7 +16,7 @@ import (
 func TestRouter_LogoutRedirectRoute_ReturnsExpectedJSON(t *testing.T) {
 	t.Parallel()
 
-	r := router.NewRouter(testhelpers.MockCfg, testhelpers.MockClient)
+	r := router.NewRouter(testhelpers.MockCfg, http.DefaultClient)
 
 	req := httptest.NewRequest(http.MethodGet, "/logout/redirect", nil)
 	w := httptest.NewRecorder()
