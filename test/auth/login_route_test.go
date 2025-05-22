@@ -14,7 +14,7 @@ import (
 func TestLoginRouteIsRegisteredInProductionRouter(t *testing.T) {
 	t.Parallel()
 
-	router := router.NewRouter(testhelpers.MockCfg, testhelpers.MockClient)
+	router := router.NewRouter(testhelpers.MockCfg, http.DefaultClient)
 
 	req := httptest.NewRequest(http.MethodGet, "/login", nil)
 	w := httptest.NewRecorder()
