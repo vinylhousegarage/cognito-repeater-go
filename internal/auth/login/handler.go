@@ -9,7 +9,6 @@ import (
 
 func LoginHandler(provider LoginURLProvider, p config.MetadataURLProvider) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		fmt.Println("===> /login accessed")
 		endpoint, err := provider.GetLoginURL(p)
 		if err != nil {
 			http.Error(w, err.Error(), http.StatusInternalServerError)
