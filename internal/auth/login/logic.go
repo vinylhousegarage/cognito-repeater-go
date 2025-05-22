@@ -4,6 +4,7 @@ import (
 	"crypto/rand"
 	"encoding/base64"
 	"net/http"
+	"net/url"
 )
 
 func GenerateState() string {
@@ -24,4 +25,15 @@ func BuildStateCookie(state string) *http.Cookie {
 		Secure:   true,
 		SameSite: http.SameSiteLaxMode,
 	}
+}
+
+func BuildLoginURL(endpoint, state string) (string, error) {
+	loginURL, err := url.Parse(endpoint)
+	if err != nil {
+		return "", err
+	}
+	q := loginURL.Query()
+	q.Set("state", state)
+	loginURL.RawQuery = q.Encode()
+	return loginURL.String(), nil
 }
