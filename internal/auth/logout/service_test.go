@@ -5,7 +5,7 @@ import (
 	"net/http/httptest"
 	"testing"
 
-	"cognito-repeater-go/internal/auth/authtesthelpers"
+	"cognito-repeater-go/internal/test/testhelpers"
 
 	"github.com/stretchr/testify/assert"
 )
@@ -19,7 +19,7 @@ func TestGetLogoutURLReturnsExpectedEndpoint(t *testing.T) {
 	}))
 	defer ts.Close()
 
-	mock := &authtesthelpers.MockMetadataURL{URL: ts.URL}
+	mock := &testhelpers.MockMetadataURL{URL: ts.URL}
 
 	svc := NewLogoutClient(authtesthelpers.MockClient)
 	endpoint, err := svc.GetLogoutURL(mock)
@@ -34,7 +34,7 @@ func TestGetLogoutURLStatusCode500(t *testing.T) {
 	}))
 	defer ts.Close()
 
-	mock := &authtesthelpers.MockMetadataURL{URL: ts.URL}
+	mock := &testhelpers.MockMetadataURL{URL: ts.URL}
 
 	svc := NewLogoutClient(http.DefaultClient)
 	_, err := svc.GetLogoutURL(mock)
