@@ -30,12 +30,12 @@ func (s *logoutClient) GetLogoutURL(p config.MetadataURLProvider) (string, error
 
 	req, err := http.NewRequest("GET", url, nil)
 	if err != nil {
-			return "", fmt.Errorf("failed to create request: %w", err)
+		return "", fmt.Errorf("failed to create request: %w", err)
 	}
 
 	resp, err := s.client.Do(req)
 	if err != nil {
-			return "", fmt.Errorf("failed to fetch metadata: %w", err)
+		return "", fmt.Errorf("failed to fetch metadata: %w", err)
 	}
 	defer resp.Body.Close()
 
