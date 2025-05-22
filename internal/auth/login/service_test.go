@@ -12,6 +12,7 @@ import (
 
 var _ LoginURLProvider = (*loginClient)(nil)
 
+
 func TestGetLoginURLReturnsExpectedEndpoint(t *testing.T) {
 	ts := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(http.StatusOK)
@@ -21,13 +22,22 @@ func TestGetLoginURLReturnsExpectedEndpoint(t *testing.T) {
 
 	mock := &testhelpers.MockMetadataURL{URL: ts.URL}
 
-	svc := NewLoginClient(testhelpers.MockClient)
+	mockClient := &testhelpers.MockHTTPClient{
+		DoFunc: func(req *http.Request) (*http.Response, error) {
+			body := `{"authorization_endpoint":"https://example.com/oauth2/authorize"}`
+			return &http.Response{
+				StatusCode: 200,
+				Body:       io.NopCloser(strings.NewReader(body)),
+				Header:     make(http.Header),
+			}, nil
+		},
+	}
+
+	svc := NewLoginClient(mockClient)
 	endpoint, err := svc.GetLoginURL(mock)
 
-	expected := "https://example.com/oauth2/authorize"
-
 	assert.NoError(t, err, "failed to fetch authorization endpoint")
-	assert.Equal(t, expected, endpoint)
+	assert.Equal(t, "https://example.com/oauth2/authorize", endpoint)
 }
 
 func TestGetLoginURLStatusCode500(t *testing.T) {
