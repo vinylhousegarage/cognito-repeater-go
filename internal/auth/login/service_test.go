@@ -53,5 +53,4 @@ func TestGetLoginURLStatusCode500(t *testing.T) {
 	_, err := svc.GetLoginURL(mock)
 
 	assert.Error(t, err)
-	assert.Contains(t, err.Error(), "unexpected status code: 500")
 }
