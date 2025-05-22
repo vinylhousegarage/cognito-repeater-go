@@ -1,5 +1,11 @@
 package authtesthelpers
 
+import (
+	"net/http"
+	"io"
+	"strings"
+)
+
 type MockMetadataURL struct {
 	URL string
 }
