@@ -39,14 +39,3 @@ type MockHTTPClient struct {
 func (m *MockHTTPClient) Do(req *http.Request) (*http.Response, error) {
 	return m.DoFunc(req)
 }
-
-var MockClient = &MockHTTPClient{
-	DoFunc: func(req *http.Request) (*http.Response, error) {
-		body := `{"authorization_endpoint":"https://example.com/oauth2/authorize"}`
-		return &http.Response{
-			StatusCode: 200,
-			Body:       io.NopCloser(strings.NewReader(body)),
-			Header:     make(http.Header),
-		}, nil
-	},
-}
