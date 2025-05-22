@@ -27,7 +27,6 @@ func NewLoginClient(client httpclient.HTTPClient) LoginURLProvider {
 
 func (s *loginClient) GetLoginURL(p config.MetadataURLProvider) (string, error) {
 	url := p.MetadataURL()
-	fmt.Println("===> Fetching metadata from:", url)
 
 	req, err := http.NewRequest("GET", url, nil)
 	if err != nil {
