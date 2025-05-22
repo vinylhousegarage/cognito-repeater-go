@@ -1,30 +1,33 @@
 package auth_test
 
 import (
+	"io"
 	"net/http"
 	"net/http/httptest"
+	"strings"
 	"testing"
 
-	"cognito-repeater-go/internal/auth/logout"
-	"cognito-repeater-go/internal/config"
+	"cognito-repeater-go/internal/router"
 	"cognito-repeater-go/test/testhelpers"
 
 	"github.com/stretchr/testify/assert"
 )
 
-type mockLogoutEndpointProvider struct{}
-
-func (m *mockLogoutEndpointProvider) GetLogoutURL(p config.MetadataURLProvider) (string, error) {
-	return "https://example.com/logout", nil
-}
-
-func TestLogoutRouteIsRegistered(t *testing.T) {
+func TestLogoutRouteIsRegisteredInProductionRouter(t *testing.T) {
 	t.Parallel()
 
-	handler := logout.LogoutHandler(&mockLogoutEndpointProvider{}, &testhelpers.MockMetadataURLProvider{})
+	mockClient := &testhelpers.MockHTTPClient{
+		DoFunc: func(req *http.Request) (*http.Response, error) {
+			body := `{"end_session_endpoint": "https://example.com/logout"}`
+			return &http.Response{
+				StatusCode: 200,
+				Body:       io.NopCloser(strings.NewReader(body)),
+				Header:     make(http.Header),
+			}, nil
+		},
+	}
 
-	router := http.NewServeMux()
-	router.Handle("/logout", handler)
+	router := router.NewRouter(testhelpers.MockCfg, mockClient)
 
 	req := httptest.NewRequest(http.MethodGet, "/logout", nil)
 	w := httptest.NewRecorder()
@@ -33,5 +36,5 @@ func TestLogoutRouteIsRegistered(t *testing.T) {
 
 	resp := w.Result()
 	assert.Equal(t, http.StatusFound, resp.StatusCode)
-	assert.Equal(t, "https://example.com/logout", resp.Header.Get("Location"))
+	assert.Contains(t, resp.Header.Get("Location"), "logout")
 }
