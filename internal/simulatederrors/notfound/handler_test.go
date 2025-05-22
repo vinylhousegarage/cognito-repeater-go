@@ -10,6 +10,8 @@ import (
 )
 
 func TestError404Handler_StatusAndBody(t *testing.T) {
+	t.Parallel()
+
 	req := httptest.NewRequest(http.MethodGet, "/error/404", nil)
 	w := httptest.NewRecorder()
 

@@ -11,6 +11,8 @@ import (
 )
 
 func TestMetadataHandler_ReturnsExpectedStatusAndJSONBody(t *testing.T) {
+	t.Parallel()
+
 	req := httptest.NewRequest(http.MethodGet, "/logout/redirect", nil)
 	w := httptest.NewRecorder()
 

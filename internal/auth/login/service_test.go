@@ -15,6 +15,8 @@ import (
 var _ LoginURLProvider = (*loginClient)(nil)
 
 func TestGetLoginURLReturnsExpectedEndpoint(t *testing.T) {
+	t.Parallel()
+
 	ts := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(http.StatusOK)
 		_, _ = w.Write([]byte(`{"authorization_endpoint": "https://example.com/oauth2/authorize"}`))
@@ -42,6 +44,8 @@ func TestGetLoginURLReturnsExpectedEndpoint(t *testing.T) {
 }
 
 func TestGetLoginURLStatusCode500(t *testing.T) {
+	t.Parallel()
+
 	ts := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "server error", http.StatusInternalServerError)
 	}))

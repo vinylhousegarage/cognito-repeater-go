@@ -5,6 +5,8 @@ import (
 )
 
 func TestLoadConfig_Success(t *testing.T) {
+	t.Parallel()
+
 	t.Setenv("AWS_REGION", "ap-northeast-1")
 	t.Setenv("AWS_COGNITO_CLIENT_SECRET", "dummy-secret")
 	t.Setenv("AWS_COGNITO_LOGOUT_URI", "https://example.com/logout")
@@ -25,6 +27,8 @@ func TestLoadConfig_Success(t *testing.T) {
 }
 
 func TestLoadConfig_MissingVars(t *testing.T) {
+	t.Parallel()
+
 	_, err := LoadConfig()
 	if err == nil {
 		t.Fatal("expected error due to missing env vars, got nil")

@@ -10,6 +10,8 @@ import (
 )
 
 func TestPingHandler_ReturnsPong(t *testing.T) {
+	t.Parallel()
+
 	req := httptest.NewRequest(http.MethodGet, "/ping", nil)
 	w := httptest.NewRecorder()
 
