@@ -16,7 +16,7 @@ func TestValidateCallbackRequestValidInput(t *testing.T) {
 		Value: "xyz789",
 	})
 
-	code, err := service.ValidateCallbackRequest(req)
+	code, err := ValidateCallbackRequest(req)
 
 	if err != nil {
 		t.Fatalf("expected no error, got %v", err)
