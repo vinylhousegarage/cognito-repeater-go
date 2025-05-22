@@ -21,7 +21,7 @@ func TestGetLogoutURLReturnsExpectedEndpoint(t *testing.T) {
 
 	mock := &authtesthelpers.MockMetadataURL{URL: ts.URL}
 
-	svc := NewLogoutClient(http.DefaultClient)
+	svc := NewLogoutClient(MockClient)
 	endpoint, err := svc.GetLogoutURL(mock)
 
 	assert.NoError(t, err)
