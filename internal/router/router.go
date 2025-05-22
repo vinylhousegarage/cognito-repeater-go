@@ -5,14 +5,15 @@ import (
 
 	"cognito-repeater-go/internal/auth"
 	"cognito-repeater-go/internal/config"
+	"cognito-repeater-go/internal/httpclient"
 	"cognito-repeater-go/internal/root"
 	"cognito-repeater-go/internal/simulatederrors"
 )
 
-func NewRouter(cfg *config.Config) http.Handler {
+func NewRouter(cfg *config.Config, client httpclient.HTTPClient) http.Handler {
 	mux := http.NewServeMux()
 
-	authHandlers := auth.NewAuthHandlers(cfg, http.DefaultClient)
+	authHandlers := auth.NewAuthHandlers(cfg, client)
 
 	auth.RegisterAuthRoutes(mux, authHandlers)
 	root.RegisterRootRoutes(mux)

@@ -6,6 +6,7 @@ import (
 	"net/http"
 
 	"cognito-repeater-go/internal/config"
+	"cognito-repeater-go/internal/httpclient"
 )
 
 type LogoutMetadata struct {
@@ -17,17 +18,22 @@ type LogoutURLProvider interface {
 }
 
 type logoutClient struct {
-	client *http.Client
+	client httpclient.HTTPClient
 }
 
-func NewLogoutClient(client *http.Client) LogoutURLProvider {
+func NewLogoutClient(client httpclient.HTTPClient) LogoutURLProvider {
 	return &logoutClient{client: client}
 }
 
 func (s *logoutClient) GetLogoutURL(p config.MetadataURLProvider) (string, error) {
 	url := p.MetadataURL()
 
-	resp, err := s.client.Get(url)
+	req, err := http.NewRequest("GET", url, nil)
+	if err != nil {
+		return "", fmt.Errorf("failed to create request: %w", err)
+	}
+
+	resp, err := s.client.Do(req)
 	if err != nil {
 		return "", fmt.Errorf("failed to fetch metadata: %w", err)
 	}

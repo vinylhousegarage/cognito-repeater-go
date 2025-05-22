@@ -5,8 +5,8 @@ import (
 	"net/http/httptest"
 	"testing"
 
-	"cognito-repeater-go/internal/auth/authtesthelpers"
 	"cognito-repeater-go/internal/config"
+	"cognito-repeater-go/test/testhelpers"
 
 	"github.com/stretchr/testify/assert"
 )
@@ -20,7 +20,7 @@ func (m *mockLoginURLProvider) GetLoginURL(p config.MetadataURLProvider) (string
 func TestLoginHandlerRedirectsToLoginEndpoint(t *testing.T) {
 	t.Parallel()
 
-	handler := LoginHandler(&mockLoginURLProvider{}, &authtesthelpers.MockMetadataURLProvider{})
+	handler := LoginHandler(&mockLoginURLProvider{}, &testhelpers.MockMetadataURLProvider{})
 
 	req := httptest.NewRequest(http.MethodGet, "/login", nil)
 	w := httptest.NewRecorder()
