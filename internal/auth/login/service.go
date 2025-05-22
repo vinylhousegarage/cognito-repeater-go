@@ -6,6 +6,7 @@ import (
 	"net/http"
 
 	"cognito-repeater-go/internal/config"
+	"cognito-repeater-go/internal/httpclient"
 )
 
 type LoginMetadata struct {
@@ -17,10 +18,10 @@ type LoginURLProvider interface {
 }
 
 type loginClient struct {
-	client *http.Client
+	client httpclient.HTTPClient
 }
 
-func NewLoginClient(client *http.Client) LoginURLProvider {
+func NewLoginClient(client httpclient.HTTPClient) LoginURLProvider {
 	return &loginClient{client: client}
 }
 

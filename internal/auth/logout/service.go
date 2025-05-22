@@ -6,6 +6,7 @@ import (
 	"net/http"
 
 	"cognito-repeater-go/internal/config"
+	"cognito-repeater-go/internal/httpclient"
 )
 
 type LogoutMetadata struct {
@@ -17,10 +18,10 @@ type LogoutURLProvider interface {
 }
 
 type logoutClient struct {
-	client *http.Client
+	client httpclient.HTTPClient
 }
 
-func NewLogoutClient(client *http.Client) LogoutURLProvider {
+func NewLogoutClient(client httpclient.HTTPClient) LogoutURLProvider {
 	return &logoutClient{client: client}
 }
 
