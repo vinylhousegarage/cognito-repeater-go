@@ -1,8 +1,10 @@
 package auth_test
 
 import (
+	"io"
 	"net/http"
 	"net/http/httptest"
+	"strings"
 	"testing"
 
 	"cognito-repeater-go/internal/router"
@@ -14,7 +16,18 @@ import (
 func TestLoginRouteIsRegisteredInProductionRouter(t *testing.T) {
 	t.Parallel()
 
-	router := router.NewRouter(testhelpers.MockCfg, http.DefaultClient)
+	mockClient := &testhelpers.MockHTTPClient{
+		DoFunc: func(req *http.Request) (*http.Response, error) {
+			body := `{"authorization_endpoint":"https://example.com/oauth2/authorize"}`
+			return &http.Response{
+				StatusCode: 200,
+				Body:       io.NopCloser(strings.NewReader(body)),
+				Header:     make(http.Header),
+			}, nil
+		},
+	}
+
+	router := router.NewRouter(testhelpers.MockCfg, mockClient)
 
 	req := httptest.NewRequest(http.MethodGet, "/login", nil)
 	w := httptest.NewRecorder()
