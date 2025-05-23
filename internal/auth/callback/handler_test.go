@@ -34,7 +34,7 @@ func (m *mockHTTPClient) Do(req *http.Request) (*http.Response, error) {
 
 	return &http.Response{
 		StatusCode: http.StatusOK,
-		Body:       io.NopCloser(bytes.NewBufferString(body)),
+		Body:       io.NopCloser(bytes.NewBuffer(body)),
 		Header:     make(http.Header),
 	}, nil
 }
