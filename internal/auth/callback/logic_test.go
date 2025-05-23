@@ -19,8 +19,6 @@ func TestBuildTokenRequestBody(t *testing.T) {
 
 	result := BuildTokenRequestBody(code, cfg)
 
-	expected := "code=xyz789&client_id=abc123&grant_type=authorization_code&redirect_uri=https%3A%2F%2Fexample.com%2Fcallback"
-
 	values, err := url.ParseQuery(result)
 	require.NoError(t, err)
 
