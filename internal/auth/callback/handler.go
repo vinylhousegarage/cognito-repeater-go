@@ -66,6 +66,8 @@ func CallbackHandler(deps CallbackHandlerDependencies) http.HandlerFunc {
 
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusOK)
-		json.NewEncoder(w).Encode(tokenResp)
+		if err := json.NewEncoder(w).Encode(tokenResp); err != nil {
+			http.Error(w, "failed to encode token response", http.StatusInternalServerError)
+		}
 	}
 }
