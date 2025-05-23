@@ -13,9 +13,12 @@ import (
 func NewRouter(cfg *config.Config, client httpclient.HTTPClient) http.Handler {
 	mux := http.NewServeMux()
 
-	authHandlers := auth.NewAuthHandlers(cfg, client)
+	handlerDeps := deps.HandlerDependencies{
+		Config:     cfg,
+		HTTPClient: client,
+	}
 
-	auth.RegisterAuthRoutes(mux, authHandlers)
+	auth.RegisterAuthRoutes(mux, handlerDeps)
 	root.RegisterRootRoutes(mux)
 	simulatederrors.RegisterErrorRoutes(mux)
 
