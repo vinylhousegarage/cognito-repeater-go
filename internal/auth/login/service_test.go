@@ -40,8 +40,8 @@ func TestGetLoginURLStatusCode500(t *testing.T) {
 
 	mock := &testhelpers.MockMetadataURL{URL: ts.URL}
 
-	svc := NewLoginClient(http.DefaultClient)
-	_, err := svc.GetLoginURL(mock)
+	client := NewLoginClient(http.DefaultClient)
+	_, err := client.GetLoginURL(mock)
 
 	assert.Error(t, err, "unexpected status code")
 }
