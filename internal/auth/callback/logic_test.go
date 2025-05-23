@@ -1,6 +1,7 @@
 package callback
 
 import (
+	"encoding/base64"
 	"net/url"
 	"testing"
 
@@ -26,4 +27,19 @@ func TestBuildTokenRequestBody(t *testing.T) {
 	assert.Equal(t, "xyz789", values.Get("code"))
 	assert.Equal(t, "abc123", values.Get("client_id"))
 	assert.Equal(t, "https://example.com/callback", values.Get("redirect_uri"))
+}
+
+func TestBuildBasicAuthHeader(t *testing.T) {
+	cfg := &config.Config{
+		UserPoolClientID: "my-client-id",
+		ClientSecret:     "super-secret",
+	}
+
+	expectedRaw := "my-client-id:super-secret"
+	expectedEncoded := base64.StdEncoding.EncodeToString([]byte(expectedRaw))
+	expectedHeader := "Basic " + expectedEncoded
+
+	actualHeader := BuildBasicAuthHeader(cfg)
+
+	assert.Equal(t, expectedHeader, actualHeader)
 }
