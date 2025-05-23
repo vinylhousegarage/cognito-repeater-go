@@ -1,10 +1,8 @@
 package login
 
 import (
-	"io"
 	"net/http"
 	"net/http/httptest"
-	"strings"
 	"testing"
 
 	"cognito-repeater-go/test/testhelpers"
@@ -25,19 +23,8 @@ func TestGetLoginURLReturnsExpectedEndpoint(t *testing.T) {
 
 	mock := &testhelpers.MockMetadataURL{URL: ts.URL}
 
-	mockClient := &testhelpers.MockHTTPClient{
-		DoFunc: func(req *http.Request) (*http.Response, error) {
-			body := `{"authorization_endpoint":"https://example.com/oauth2/authorize"}`
-			return &http.Response{
-				StatusCode: 200,
-				Body:       io.NopCloser(strings.NewReader(body)),
-				Header:     make(http.Header),
-			}, nil
-		},
-	}
-
-	svc := NewLoginClient(mockClient)
-	endpoint, err := svc.GetLoginURL(mock)
+	client := NewLoginClient(http.DefaultClient)
+	endpoint, err := client.GetLoginURL(mock)
 
 	assert.NoError(t, err, "failed to fetch authorization endpoint")
 	assert.Equal(t, "https://example.com/oauth2/authorize", endpoint)
@@ -56,5 +43,5 @@ func TestGetLoginURLStatusCode500(t *testing.T) {
 	svc := NewLoginClient(http.DefaultClient)
 	_, err := svc.GetLoginURL(mock)
 
-	assert.Error(t, err)
+	assert.Error(t, err, "unexpected status code")
 }
