@@ -45,5 +45,5 @@ func TestGetLoginURLStatusCode500(t *testing.T) {
 	svc := NewLoginClient(http.DefaultClient)
 	_, err := svc.GetLoginURL(mock)
 
-	assert.Error(t, err)
+	assert.Error(t, err, "unexpected status code")
 }
