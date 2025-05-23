@@ -1,4 +1,4 @@
-package auth
+package deps
 
 import (
 	"cognito-repeater-go/internal/auth/config"
