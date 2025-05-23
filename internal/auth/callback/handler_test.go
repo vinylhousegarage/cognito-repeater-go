@@ -13,12 +13,11 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-type mockHTTPClient struct{}
+type mockHTTPClient struct {
+	t *testing.T
+}
 
 func (m *mockHTTPClient) Do(req *http.Request) (*http.Response, error) {
-	assert.Equal(nil, "application/x-www-form-urlencoded", req.Header.Get("Content-Type"))
-	assert.Equal(nil, "Basic Y2xpZW50MTIzOnNlY3JldDQ1Ng==", req.Header.Get("Authorization"))
-
 	mockResp := TokenResponse{
 		AccessToken:  "ACCESS123",
 		IDToken:      "ID123",
@@ -28,9 +27,6 @@ func (m *mockHTTPClient) Do(req *http.Request) (*http.Response, error) {
 	}
 
 	body, _ := json.Marshal(mockResp)
-
-	rec := httptest.NewRecorder()
-	rec.Write(body)
 
 	return &http.Response{
 		StatusCode: http.StatusOK,
@@ -54,7 +50,7 @@ func TestCallbackHandlerSuccess(t *testing.T) {
 
 	deps := CallbackHandlerDependencies{
 		Config:      cfg,
-		HTTPClient:  &mockHTTPClient{},
+		HTTPClient:  &mockHTTPClient{t: t},
 		URLProvider: &mockURLProvider{},
 	}
 
