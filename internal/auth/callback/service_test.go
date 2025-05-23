@@ -114,3 +114,35 @@ func TestGetCallbackURLStatusCode500(t *testing.T) {
 
 	assert.Error(t, err, "unexpected status code")
 }
+
+func TestGetCallbackURLMalformedJSON(t *testing.T) {
+	t.Parallel()
+
+	ts := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		w.WriteHeader(http.StatusOK)
+		_, _ = w.Write([]byte(`{"token_endpoint":`)) // ← JSON構文エラー
+	}))
+	defer ts.Close()
+
+	mock := &testhelpers.MockMetadataURL{URL: ts.URL}
+	client := NewCallbackClient(http.DefaultClient)
+
+	_, err := client.GetCallbackURL(mock)
+	assert.Error(t, err, "expected JSON decode error")
+}
+
+func TestGetCallbackURLMissingTokenEndpoint(t *testing.T) {
+	t.Parallel()
+
+	ts := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		w.WriteHeader(http.StatusOK)
+		_, _ = w.Write([]byte(`{"issuer": "https://example.com"}`))
+	}))
+	defer ts.Close()
+
+	mock := &testhelpers.MockMetadataURL{URL: ts.URL}
+	client := NewCallbackClient(http.DefaultClient)
+
+	_, err := client.GetCallbackURL(mock)
+	assert.Error(t, err, "expected missing token_endpoint error")
+}
