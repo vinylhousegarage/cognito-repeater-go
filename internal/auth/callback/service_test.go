@@ -81,7 +81,7 @@ func TestValidateCallbackRequestStateMismatch(t *testing.T) {
 	}
 }
 
-var _ callbackURLProvider = (*callbackClient)(nil)
+var _ CallbackURLProvider = (*callbackClient)(nil)
 
 func TestGetCallbackURLReturnsExpectedEndpoint(t *testing.T) {
 	t.Parallel()
