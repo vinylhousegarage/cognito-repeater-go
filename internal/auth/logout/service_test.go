@@ -25,19 +25,8 @@ func TestGetLogoutURLReturnsExpectedEndpoint(t *testing.T) {
 
 	mock := &testhelpers.MockMetadataURL{URL: ts.URL}
 
-	mockClient := &testhelpers.MockHTTPClient{
-		DoFunc: func(req *http.Request) (*http.Response, error) {
-			body := `{"end_session_endpoint":"https://example.com/logout"}`
-			return &http.Response{
-				StatusCode: 200,
-				Body:       io.NopCloser(strings.NewReader(body)),
-				Header:     make(http.Header),
-			}, nil
-		},
-	}
-
-	svc := NewLogoutClient(mockClient)
-	endpoint, err := svc.GetLogoutURL(mock)
+	client := NewLogoutClient(http.DefaultClient)
+	endpoint, err := client.GetLogoutURL(mock)
 
 	assert.NoError(t, err)
 	assert.Equal(t, "https://example.com/logout", endpoint)
