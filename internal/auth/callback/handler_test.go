@@ -1,7 +1,9 @@
 package callback
 
 import (
+	"bytes"
 	"encoding/json"
+	"io"
 	"net/http"
 	"net/http/httptest"
 	"testing"
@@ -17,7 +19,7 @@ func (m *mockHTTPClient) Do(req *http.Request) (*http.Response, error) {
 	assert.Equal(nil, "application/x-www-form-urlencoded", req.Header.Get("Content-Type"))
 	assert.Equal(nil, "Basic Y2xpZW50MTIzOnNlY3JldDQ1Ng==", req.Header.Get("Authorization"))
 
-	mockResp := callback.TokenResponse{
+	mockResp := TokenResponse{
 		AccessToken:  "ACCESS123",
 		IDToken:      "ID123",
 		RefreshToken: "REFRESH123",
@@ -32,7 +34,7 @@ func (m *mockHTTPClient) Do(req *http.Request) (*http.Response, error) {
 
 	return &http.Response{
 		StatusCode: http.StatusOK,
-		Body:       httptest.NewBody(body),
+		Body:       io.NopCloser(bytes.NewBufferString(body)),
 		Header:     make(http.Header),
 	}, nil
 }
@@ -50,13 +52,13 @@ func TestCallbackHandlerSuccess(t *testing.T) {
 		RedirectURI:      "https://example.com/callback",
 	}
 
-	deps := callback.CallbackHandlerDependencies{
+	deps := CallbackHandlerDependencies{
 		Config:      cfg,
 		HTTPClient:  &mockHTTPClient{},
 		URLProvider: &mockURLProvider{},
 	}
 
-	handler := callback.CallbackHandler(deps)
+	handler := CallbackHandler(deps)
 
 	req := httptest.NewRequest("GET", "/callback?code=testcode&state=xyz", nil)
 	req.AddCookie(&http.Cookie{Name: "oauth_state", Value: "xyz"})
@@ -67,7 +69,7 @@ func TestCallbackHandlerSuccess(t *testing.T) {
 	resp := w.Result()
 	assert.Equal(t, http.StatusOK, resp.StatusCode)
 
-	var result callback.TokenResponse
+	var result TokenResponse
 	err := json.NewDecoder(resp.Body).Decode(&result)
 	assert.NoError(t, err)
 
