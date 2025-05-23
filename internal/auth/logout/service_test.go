@@ -1,10 +1,8 @@
 package logout
 
 import (
-	"io"
 	"net/http"
 	"net/http/httptest"
-	"strings"
 	"testing"
 
 	"cognito-repeater-go/test/testhelpers"
