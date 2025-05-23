@@ -1,9 +1,15 @@
 package callback
 
 import (
+	"io"
 	"net/http"
 	"net/http/httptest"
+	"strings"
 	"testing"
+
+	"cognito-repeater-go/test/testhelpers"
+
+	"github.com/stretchr/testify/assert"
 )
 
 func TestValidateCallbackRequestValidInput(t *testing.T) {
@@ -73,4 +79,37 @@ func TestValidateCallbackRequestStateMismatch(t *testing.T) {
 	if err == nil || err.Error() != "invalid state" {
 		t.Errorf("expected error 'invalid state', got %v", err)
 	}
+}
+
+var _ CallbackURLProvider = (*callbackClient)(nil)
+
+func TestGetCallbackURLReturnsExpectedEndpoint(t *testing.T) {
+	t.Parallel()
+
+	const responseBody = `{"token_endpoint":"https://example.com/oauth2/token"}`
+
+	ts := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		w.WriteHeader(http.StatusOK)
+		_, _ = w.Write([]byte(responseBody))
+	}))
+	defer ts.Close()
+
+	mock := &testhelpers.MockMetadataURL{URL: ts.URL}
+
+	mockClient := &testhelpers.MockHTTPClient{
+		DoFunc: func(req *http.Request) (*http.Response, error) {
+			body := responseBody
+			return &http.Response{
+				StatusCode: 200,
+				Body:       io.NopCloser(strings.NewReader(body)),
+				Header:     make(http.Header),
+			}, nil
+		},
+	}
+
+	client := NewCallbackClient(mockClient)
+	endpoint, err := client.GetCallbackURL(mock)
+
+	assert.NoError(t, err, "failed to fetch token endpoint")
+	assert.Equal(t, "https://example.com/oauth2/token", endpoint)
 }
