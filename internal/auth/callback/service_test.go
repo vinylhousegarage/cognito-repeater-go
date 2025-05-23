@@ -86,30 +86,33 @@ var _ CallbackURLProvider = (*callbackClient)(nil)
 func TestGetCallbackURLReturnsExpectedEndpoint(t *testing.T) {
 	t.Parallel()
 
-	const responseBody = `{"token_endpoint":"https://example.com/oauth2/token"}`
-
 	ts := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(http.StatusOK)
-		_, _ = w.Write([]byte(responseBody))
+		_, _ = w.Write([]byte(`{"token_endpoint":"https://example.com/oauth2/token"}`))
 	}))
 	defer ts.Close()
 
 	mock := &testhelpers.MockMetadataURL{URL: ts.URL}
 
-	mockClient := &testhelpers.MockHTTPClient{
-		DoFunc: func(req *http.Request) (*http.Response, error) {
-			body := responseBody
-			return &http.Response{
-				StatusCode: 200,
-				Body:       io.NopCloser(strings.NewReader(body)),
-				Header:     make(http.Header),
-			}, nil
-		},
-	}
-
-	client := NewCallbackClient(mockClient)
+	client := NewCallbackClient(http.DefaultClient)
 	endpoint, err := client.GetCallbackURL(mock)
 
 	assert.NoError(t, err, "failed to fetch token endpoint")
 	assert.Equal(t, "https://example.com/oauth2/token", endpoint)
+}
+
+func TestGetCallbackURLStatusCode500(t *testing.T) {
+	t.Parallel()
+
+	ts := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		http.Error(w, "server error", http.StatusInternalServerError)
+	}))
+	defer ts.Close()
+
+	mock := &testhelpers.MockMetadataURL{URL: ts.URL}
+
+	client := NewCallbackClient(http.DefaultClient)
+	_, err := client.GetCallbackURL(mock)
+
+	assert.Error(t, err, "unexpected status code")
 }
