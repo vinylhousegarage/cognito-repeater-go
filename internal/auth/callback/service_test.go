@@ -5,7 +5,7 @@ import (
 	"net/http/httptest"
 	"testing"
 
-	"cognito-repeater-go/test/testhelpers"
+	"cognito-repeater-go/internal/auth/config"
 
 	"github.com/stretchr/testify/assert"
 )
@@ -88,7 +88,7 @@ func TestGetCallbackURLReturnsExpectedEndpoint(t *testing.T) {
 	}))
 	defer ts.Close()
 
-	provider := &testhelpers.MockMetadataURL{URL: ts.URL}
+	provider := &config.Config{MetadataEndpoint: ts.URL}
 
 	endpoint, err := GetCallbackURL(http.DefaultClient, provider)
 
@@ -104,7 +104,7 @@ func TestGetCallbackURLStatusCode500(t *testing.T) {
 	}))
 	defer ts.Close()
 
-	provider := &testhelpers.MockMetadataURL{URL: ts.URL}
+	provider := &config.Config{MetadataEndpoint: ts.URL}
 
 	_, err := GetCallbackURL(http.DefaultClient, provider)
 
@@ -120,7 +120,7 @@ func TestGetCallbackURLMalformedJSON(t *testing.T) {
 	}))
 	defer ts.Close()
 
-	provider := &testhelpers.MockMetadataURL{URL: ts.URL}
+	provider := &config.Config{MetadataEndpoint: ts.URL}
 
 	_, err := GetCallbackURL(http.DefaultClient, provider)
 
@@ -136,7 +136,7 @@ func TestGetCallbackURLMissingTokenEndpoint(t *testing.T) {
 	}))
 	defer ts.Close()
 
-	provider := &testhelpers.MockMetadataURL{URL: ts.URL}
+	provider := &config.Config{MetadataEndpoint: ts.URL}
 
 	_, err := GetCallbackURL(http.DefaultClient, provider)
 
