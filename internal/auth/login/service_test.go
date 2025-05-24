@@ -31,7 +31,7 @@ func TestGetLoginURLStatusCode500(t *testing.T) {
 	}))
 	defer ts.Close()
 
-	endpoint, err := GetLoginURL(http.DefaultClient, ts.URL)
+	_, err := GetLoginURL(http.DefaultClient, ts.URL)
 
 	assert.Error(t, err, "unexpected status code")
 }
