@@ -6,27 +6,32 @@ import (
 	"net/url"
 	"testing"
 
-	"cognito-repeater-go/internal/config"
+	"cognito-repeater-go/internal/auth/deps"
 	"cognito-repeater-go/test/testhelpers"
 
 	"github.com/stretchr/testify/assert"
 )
 
-type mockLoginURLProvider struct{}
-
-func (m *mockLoginURLProvider) GetLoginURL(p config.MetadataURLProvider) (string, error) {
-	return "https://example.com/oauth2/authorize", nil
-}
-
 func TestLoginHandlerRedirectsToLoginEndpoint(t *testing.T) {
 	t.Parallel()
 
-	handler := LoginHandler(&mockLoginURLProvider{}, &testhelpers.MockMetadataURLProvider{})
+	d := deps.HandlerDependencies{
+		Config: &testhelpers.MockMetadataURL{URL: "https://mock.metadata.url"},
+		HTTPClient: &testhelpers.MockHTTPClient{
+			DoFunc: func(req *http.Request) (*http.Response, error) {
+				rec := httptest.NewRecorder()
+				rec.WriteHeader(http.StatusOK)
+				_, _ = rec.Write([]byte(`{"authorization_endpoint": "https://example.com/oauth2/authorize"}`))
+				return rec.Result(), nil
+			},
+		},
+	}
 
 	req := httptest.NewRequest(http.MethodGet, "/login", nil)
 	w := httptest.NewRecorder()
 
-	handler(w, req)
+	LoginHandler(d)(w, req)
+
 	resp := w.Result()
 
 	assert.Equal(t, http.StatusFound, resp.StatusCode)
@@ -45,11 +50,23 @@ func TestLoginHandlerRedirectsToLoginEndpoint(t *testing.T) {
 func TestLoginHandlerSetsStateCookie(t *testing.T) {
 	t.Parallel()
 
-	handler := LoginHandler(&mockLoginURLProvider{}, &testhelpers.MockMetadataURLProvider{})
+	d := deps.HandlerDependencies{
+		Config: &testhelpers.MockMetadataURL{URL: "https://mock.metadata.url"},
+		HTTPClient: &testhelpers.MockHTTPClient{
+			DoFunc: func(req *http.Request) (*http.Response, error) {
+				rec := httptest.NewRecorder()
+				rec.WriteHeader(http.StatusOK)
+				_, _ = rec.Write([]byte(`{"authorization_endpoint": "https://example.com/oauth2/authorize"}`))
+				return rec.Result(), nil
+			},
+		},
+	}
+
 	req := httptest.NewRequest(http.MethodGet, "/login", nil)
 	w := httptest.NewRecorder()
 
-	handler(w, req)
+	LoginHandler(d)(w, req)
+
 	resp := w.Result()
 
 	cookies := resp.Cookies()
