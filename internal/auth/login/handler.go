@@ -11,7 +11,8 @@ func LoginHandler(d deps.HandlerDependencies) http.HandlerFunc {
 		state := GenerateState()
 		http.SetCookie(w, BuildStateCookie(state))
 
-		endpoint, err := GetLoginURL(d.HTTPClient, d.Config)
+		metadataURL := d.Config.MetadataURL()
+		endpoint, err := GetLoginURL(d.HTTPClient, metadataURL)
 		if err != nil {
 			http.Error(w, err.Error(), http.StatusInternalServerError)
 			return

@@ -50,8 +50,10 @@ func TestLoginHandlerRedirectsToLoginEndpoint(t *testing.T) {
 func TestLoginHandlerSetsStateCookie(t *testing.T) {
 	t.Parallel()
 
+	mockMetadataURL := "https://mock.metadata.url"
+
 	d := deps.HandlerDependencies{
-		Config: &testhelpers.MockMetadataURL{URL: "https://mock.metadata.url"},
+		Config: testhelpers.MockConfig,
 		HTTPClient: &testhelpers.MockHTTPClient{
 			DoFunc: func(req *http.Request) (*http.Response, error) {
 				rec := httptest.NewRecorder()

@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"net/http"
 
-	"cognito-repeater-go/internal/config"
 	"cognito-repeater-go/internal/httpclient"
 )
 
@@ -13,10 +12,8 @@ type LoginMetadata struct {
 	AuthorizationEndpoint string `json:"authorization_endpoint"`
 }
 
-func GetLoginURL(client httpclient.HTTPClient, cfg *config.Config) (string, error) {
-	url := cfg.MetadataURL()
-
-	req, err := http.NewRequest("GET", url, nil)
+func GetLoginURL(client httpclient.HTTPClient, metadataURL string) (string, error) {
+	req, err := http.NewRequest("GET", metadataURL, nil)
 	if err != nil {
 		return "", fmt.Errorf("failed to create request: %w", err)
 	}
