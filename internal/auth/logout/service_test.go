@@ -5,8 +5,6 @@ import (
 	"net/http/httptest"
 	"testing"
 
-	"cognito-repeater-go/internal/config"
-
 	"github.com/stretchr/testify/assert"
 )
 
@@ -19,9 +17,7 @@ func TestGetLogoutURLReturnsExpectedEndpoint(t *testing.T) {
 	}))
 	defer ts.Close()
 
-	provider := &config.Config{MetadataEndpoint: ts.URL}
-
-	endpoint, err := GetLogoutURL(http.DefaultClient, mock)
+	endpoint, err := GetLogoutURL(http.DefaultClient, ts.url)
 
 	assert.NoError(t, err)
 	assert.Equal(t, "https://example.com/logout", endpoint)
@@ -35,9 +31,7 @@ func TestGetLogoutURLStatusCode500(t *testing.T) {
 	}))
 	defer ts.Close()
 
-	provider := &config.Config{MetadataEndpoint: ts.URL}
-
-	endpoint, err := GetLogoutURL(http.DefaultClient, provider)
+	endpoint, err := GetLogoutURL(http.DefaultClient, ts.url)
 
 	assert.Error(t, err, "unexpected status code")
 	assert.Contains(t, err.Error(), "unexpected status code: 500")

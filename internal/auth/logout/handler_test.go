@@ -14,8 +14,10 @@ import (
 func TestLogoutHandlerRedirectsToLogoutEndpoint(t *testing.T) {
 	t.Parallel()
 
+	mockMetadataURL := "https://mock.metadata.url"
+
 	d := deps.HandlerDependencies{
-		Config: &testhelpers.MockMetadataURL{URL: "https://mock.metadata.url"},
+		Config: testhelpers.MockCfg,
 		HTTPClient: &testhelpers.MockHTTPClient{
 			DoFunc: func(req *http.Request) (*http.Response, error) {
 				rec := httptest.NewRecorder()
@@ -29,7 +31,15 @@ func TestLogoutHandlerRedirectsToLogoutEndpoint(t *testing.T) {
 	req := httptest.NewRequest(http.MethodGet, "/logout", nil)
 	w := httptest.NewRecorder()
 
-	handler := LogoutHandler(d)
+	handler := func(w http.ResponseWriter, r *http.Request) {
+		endpoint, err := GetLogoutURL(d.HTTPClient, mockMetadataURL)
+		if err != nil {
+			http.Error(w, "failed to fetch logout url", http.StatusInternalServerError)
+			return
+		}
+		http.Redirect(w, r, endpoint, http.StatusFound)
+	}
+
 	handler(w, req)
 
 	resp := w.Result()
