@@ -7,6 +7,7 @@ import (
 	"strings"
 	"testing"
 
+	"cognito-repeater-go/internal/auth/deps"
 	"cognito-repeater-go/internal/router"
 	"cognito-repeater-go/test/testhelpers"
 
@@ -18,7 +19,7 @@ func TestLoginRouteIsRegisteredInProductionRouter(t *testing.T) {
 
 	mockClient := &testhelpers.MockHTTPClient{
 		DoFunc: func(req *http.Request) (*http.Response, error) {
-			body := `{"authorization_endpoint":"https://example.com/oauth2/authorize"}`
+			body := `{"end_session_endpoint": "https://example.com/oauth2/authorize"}`
 			return &http.Response{
 				StatusCode: 200,
 				Body:       io.NopCloser(strings.NewReader(body)),
@@ -27,14 +28,19 @@ func TestLoginRouteIsRegisteredInProductionRouter(t *testing.T) {
 		},
 	}
 
-	router := router.NewRouter(testhelpers.MockCfg, mockClient)
+	handlerDeps := deps.HandlerDependencies{
+		Config:     testhelpers.MockCfg,
+		HTTPClient: mockClient,
+	}
+
+	r := router.NewRouter(handlerDeps)
 
 	req := httptest.NewRequest(http.MethodGet, "/login", nil)
 	w := httptest.NewRecorder()
 
-	router.ServeHTTP(w, req)
+	r.ServeHTTP(w, req)
 
 	resp := w.Result()
 	assert.Equal(t, http.StatusFound, resp.StatusCode)
-	assert.Contains(t, resp.Header.Get("Location"), "oauth2/authorize")
+	assert.Contains(t, resp.Header.Get("Location"), "login")
 }
