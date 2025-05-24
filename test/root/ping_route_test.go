@@ -21,7 +21,7 @@ func TestPingRouteReturnsPlainTextPong(t *testing.T) {
 		HTTPClient: http.DefaultClient,
 	}
 
-	r := router.NewRouter(handlerDeps)
+	r := router.NewRouter(handlerDeps.Config, handlerDeps.HTTPClient)
 
 	req := httptest.NewRequest(http.MethodGet, "/ping", nil)
 	w := httptest.NewRecorder()
