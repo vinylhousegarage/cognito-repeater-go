@@ -7,6 +7,7 @@ import (
 	"strings"
 	"testing"
 
+	"cognito-repeater-go/internal/auth/deps"
 	"cognito-repeater-go/internal/router"
 	"cognito-repeater-go/test/testhelpers"
 
@@ -27,12 +28,17 @@ func TestLogoutRouteIsRegisteredInProductionRouter(t *testing.T) {
 		},
 	}
 
-	router := router.NewRouter(testhelpers.MockCfg, mockClient)
+	handlerDeps := deps.HandlerDependencies{
+		Config:     testhelpers.MockCfg,
+		HTTPClient: mockClient,
+	}
+
+	r := router.NewRouter(handlerDeps)
 
 	req := httptest.NewRequest(http.MethodGet, "/logout", nil)
 	w := httptest.NewRecorder()
 
-	router.ServeHTTP(w, req)
+	r.ServeHTTP(w, req)
 
 	resp := w.Result()
 	assert.Equal(t, http.StatusFound, resp.StatusCode)
