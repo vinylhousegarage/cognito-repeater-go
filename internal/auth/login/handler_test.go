@@ -16,7 +16,7 @@ func TestLoginHandlerRedirectsToLoginEndpoint(t *testing.T) {
 	t.Parallel()
 
 	d := deps.HandlerDependencies{
-		Config: &testhelpers.MockCfg,
+		Config: testhelpers.MockCfg,
 		HTTPClient: &testhelpers.MockHTTPClient{
 			DoFunc: func(req *http.Request) (*http.Response, error) {
 				rec := httptest.NewRecorder()
