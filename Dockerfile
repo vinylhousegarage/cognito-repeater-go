@@ -9,4 +9,9 @@ RUN go install github.com/air-verse/air@latest \
 
 ENV PATH=$PATH:/go/bin
 
+COPY go.mod go.sum ./
+RUN go mod tidy
+
+COPY . .
+
 CMD ["air"]
