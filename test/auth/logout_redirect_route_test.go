@@ -14,7 +14,7 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func TestRouter_LogoutRedirectRoute_ReturnsExpectedJSON(t *testing.T) {
+func TestRouterLogoutRedirectRouteReturnsExpectedJSON(t *testing.T) {
 	t.Parallel()
 
 	handlerDeps := deps.HandlerDependencies{
