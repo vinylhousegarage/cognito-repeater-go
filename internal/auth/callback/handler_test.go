@@ -8,37 +8,37 @@ import (
 
 	"cognito-repeater-go/internal/auth/config"
 	"cognito-repeater-go/internal/auth/deps"
-	"cognito-repeater-go/internal/httpclient"
 
 	"github.com/stretchr/testify/assert"
 )
 
-type mockHTTPClient struct {
-	DoFunc func(req *http.Request) (*http.Response, error)
-}
-
-func (m *mockHTTPClient) Do(req *http.Request) (*http.Response, error) {
-	return m.DoFunc(req)
-}
-
 func TestCallbackHandlerSuccess(t *testing.T) {
 	t.Parallel()
 
-	mockResp := TokenResponse{
+	mockTokenResp := TokenResponse{
 		AccessToken:  "ACCESS123",
 		IDToken:      "ID123",
 		RefreshToken: "REFRESH123",
 		ExpiresIn:    3600,
 		TokenType:    "Bearer",
 	}
-
-	body, _ := json.Marshal(mockResp)
+	tokenBody, _ := json.Marshal(mockTokenResp)
 
 	mockClient := &mockHTTPClient{
 		DoFunc: func(req *http.Request) (*http.Response, error) {
 			rec := httptest.NewRecorder()
-			rec.WriteHeader(http.StatusOK)
-			_, _ = rec.Write(body)
+
+			switch req.Method {
+			case http.MethodGet:
+				rec.WriteHeader(http.StatusOK)
+				_, _ = rec.Write([]byte(`{"token_endpoint": "https://example.com/oauth2/token"}`))
+			case http.MethodPost:
+				rec.WriteHeader(http.StatusOK)
+				_, _ = rec.Write(tokenBody)
+			default:
+				rec.WriteHeader(http.StatusMethodNotAllowed)
+			}
+
 			return rec.Result(), nil
 		},
 	}
@@ -47,12 +47,13 @@ func TestCallbackHandlerSuccess(t *testing.T) {
 		UserPoolClientID: "client123",
 		ClientSecret:     "secret456",
 		RedirectURI:      "https://example.com/callback",
-		MetadataEndpoint: "https://example.com/.well-known/openid-configuration",
+		Region:           "ap-northeast-1",
+		UserPoolID:       "pool-id",
 	}
 
 	handlerDeps := deps.HandlerDependencies{
 		Config:     cfg,
-		HTTPClient: httpclient.HTTPClient(mockClient),
+		HTTPClient: mockClient,
 	}
 
 	handler := CallbackHandler(handlerDeps)

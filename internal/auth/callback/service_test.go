@@ -5,8 +5,6 @@ import (
 	"net/http/httptest"
 	"testing"
 
-	"cognito-repeater-go/internal/auth/config"
-
 	"github.com/stretchr/testify/assert"
 )
 
@@ -88,9 +86,7 @@ func TestGetCallbackURLReturnsExpectedEndpoint(t *testing.T) {
 	}))
 	defer ts.Close()
 
-	provider := &config.Config{MetadataEndpoint: ts.URL}
-
-	endpoint, err := GetCallbackURL(http.DefaultClient, provider)
+	endpoint, err := GetCallbackURL(http.DefaultClient, ts.URL)
 
 	assert.NoError(t, err, "failed to fetch token endpoint")
 	assert.Equal(t, "https://example.com/oauth2/token", endpoint)
@@ -104,9 +100,7 @@ func TestGetCallbackURLStatusCode500(t *testing.T) {
 	}))
 	defer ts.Close()
 
-	provider := &config.Config{MetadataEndpoint: ts.URL}
-
-	_, err := GetCallbackURL(http.DefaultClient, provider)
+	_, err := GetCallbackURL(http.DefaultClient, ts.URL)
 
 	assert.Error(t, err, "unexpected status code")
 }
@@ -120,9 +114,7 @@ func TestGetCallbackURLMalformedJSON(t *testing.T) {
 	}))
 	defer ts.Close()
 
-	provider := &config.Config{MetadataEndpoint: ts.URL}
-
-	_, err := GetCallbackURL(http.DefaultClient, provider)
+	_, err := GetCallbackURL(http.DefaultClient, ts.URL)
 
 	assert.Error(t, err, "expected JSON decode error")
 }
@@ -136,9 +128,7 @@ func TestGetCallbackURLMissingTokenEndpoint(t *testing.T) {
 	}))
 	defer ts.Close()
 
-	provider := &config.Config{MetadataEndpoint: ts.URL}
-
-	_, err := GetCallbackURL(http.DefaultClient, provider)
+	_, err := GetCallbackURL(http.DefaultClient, ts.URL)
 
 	assert.Error(t, err, "expected missing token_endpoint error")
 }

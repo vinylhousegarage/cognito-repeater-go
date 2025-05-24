@@ -23,7 +23,8 @@ func CallbackHandler(d deps.HandlerDependencies) http.HandlerFunc {
 			return
 		}
 
-		tokenEndpoint, err := GetCallbackURL(d.HTTPClient, d.Config)
+		metadataURL := d.Config.MetadataURL()
+		tokenEndpoint, err := GetCallbackURL(d.HTTPClient, metadataURL)
 		if err != nil {
 			http.Error(w, "failed to get token endpoint", http.StatusInternalServerError)
 			return
