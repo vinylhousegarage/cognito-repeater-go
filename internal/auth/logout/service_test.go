@@ -17,7 +17,7 @@ func TestGetLogoutURLReturnsExpectedEndpoint(t *testing.T) {
 	}))
 	defer ts.Close()
 
-	endpoint, err := GetLogoutURL(http.DefaultClient, ts.url)
+	endpoint, err := GetLogoutURL(http.DefaultClient, ts.URL)
 
 	assert.NoError(t, err)
 	assert.Equal(t, "https://example.com/logout", endpoint)
@@ -31,7 +31,7 @@ func TestGetLogoutURLStatusCode500(t *testing.T) {
 	}))
 	defer ts.Close()
 
-	endpoint, err := GetLogoutURL(http.DefaultClient, ts.url)
+	endpoint, err := GetLogoutURL(http.DefaultClient, ts.URL)
 
 	assert.Error(t, err, "unexpected status code")
 	assert.Contains(t, err.Error(), "unexpected status code: 500")
