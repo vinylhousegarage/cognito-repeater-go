@@ -79,8 +79,6 @@ func TestValidateCallbackRequestStateMismatch(t *testing.T) {
 	}
 }
 
-var _ CallbackURLProvider = (*callbackClient)(nil)
-
 func TestGetCallbackURLReturnsExpectedEndpoint(t *testing.T) {
 	t.Parallel()
 
@@ -90,10 +88,9 @@ func TestGetCallbackURLReturnsExpectedEndpoint(t *testing.T) {
 	}))
 	defer ts.Close()
 
-	mock := &testhelpers.MockMetadataURL{URL: ts.URL}
+	provider := &testhelpers.MockMetadataURL{URL: ts.URL}
 
-	client := NewCallbackClient(http.DefaultClient)
-	endpoint, err := client.GetCallbackURL(mock)
+	endpoint, err := GetCallbackURL(http.DefaultClient, provider)
 
 	assert.NoError(t, err, "failed to fetch token endpoint")
 	assert.Equal(t, "https://example.com/oauth2/token", endpoint)
@@ -107,10 +104,9 @@ func TestGetCallbackURLStatusCode500(t *testing.T) {
 	}))
 	defer ts.Close()
 
-	mock := &testhelpers.MockMetadataURL{URL: ts.URL}
+	provider := &testhelpers.MockMetadataURL{URL: ts.URL}
 
-	client := NewCallbackClient(http.DefaultClient)
-	_, err := client.GetCallbackURL(mock)
+	_, err := GetCallbackURL(http.DefaultClient, provider)
 
 	assert.Error(t, err, "unexpected status code")
 }
@@ -120,14 +116,14 @@ func TestGetCallbackURLMalformedJSON(t *testing.T) {
 
 	ts := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(http.StatusOK)
-		_, _ = w.Write([]byte(`{"token_endpoint":`)) // ← JSON構文エラー
+		_, _ = w.Write([]byte(`{"token_endpoint":`))
 	}))
 	defer ts.Close()
 
-	mock := &testhelpers.MockMetadataURL{URL: ts.URL}
-	client := NewCallbackClient(http.DefaultClient)
+	provider := &testhelpers.MockMetadataURL{URL: ts.URL}
 
-	_, err := client.GetCallbackURL(mock)
+	_, err := GetCallbackURL(http.DefaultClient, provider)
+
 	assert.Error(t, err, "expected JSON decode error")
 }
 
@@ -140,9 +136,9 @@ func TestGetCallbackURLMissingTokenEndpoint(t *testing.T) {
 	}))
 	defer ts.Close()
 
-	mock := &testhelpers.MockMetadataURL{URL: ts.URL}
-	client := NewCallbackClient(http.DefaultClient)
+	provider := &testhelpers.MockMetadataURL{URL: ts.URL}
 
-	_, err := client.GetCallbackURL(mock)
+	_, err := GetCallbackURL(http.DefaultClient, provider)
+
 	assert.Error(t, err, "expected missing token_endpoint error")
 }
