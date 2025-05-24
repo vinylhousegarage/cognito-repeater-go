@@ -5,26 +5,31 @@ import (
 	"net/http/httptest"
 	"testing"
 
-	"cognito-repeater-go/internal/config"
+	"cognito-repeater-go/internal/auth/deps"
 	"cognito-repeater-go/test/testhelpers"
 
 	"github.com/stretchr/testify/assert"
 )
 
-type mockLogoutURLProvider struct{}
-
-func (m *mockLogoutURLProvider) GetLogoutURL(p config.MetadataURLProvider) (string, error) {
-	return "https://example.com/logout", nil
-}
-
 func TestLogoutHandlerRedirectsToLogoutEndpoint(t *testing.T) {
 	t.Parallel()
 
-	handler := LogoutHandler(&mockLogoutURLProvider{}, &testhelpers.MockMetadataURLProvider{})
+	d := deps.HandlerDependencies{
+		Config: &testhelpers.MockMetadataURL{URL: "https://mock.metadata.url"},
+		HTTPClient: &testhelpers.MockHTTPClient{
+			DoFunc: func(req *http.Request) (*http.Response, error) {
+				rec := httptest.NewRecorder()
+				rec.WriteHeader(http.StatusOK)
+				_, _ = rec.Write([]byte(`{"end_session_endpoint": "https://example.com/logout"}`))
+				return rec.Result(), nil
+			},
+		},
+	}
 
-	req := httptest.NewRequest(http.MethodGet, "/logout/redirect", nil)
+	req := httptest.NewRequest(http.MethodGet, "/logout", nil)
 	w := httptest.NewRecorder()
 
+	handler := LogoutHandler(d)
 	handler(w, req)
 
 	resp := w.Result()
