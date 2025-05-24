@@ -1,10 +1,11 @@
 package callback
 
 import (
-	"cognito-repeater-go/internal/auth/deps"
 	"encoding/json"
 	"net/http"
 	"strings"
+
+	"cognito-repeater-go/internal/auth/deps"
 )
 
 type TokenResponse struct {
