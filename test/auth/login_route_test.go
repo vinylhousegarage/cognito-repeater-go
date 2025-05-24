@@ -19,7 +19,7 @@ func TestLoginRouteIsRegisteredInProductionRouter(t *testing.T) {
 
 	mockClient := &testhelpers.MockHTTPClient{
 		DoFunc: func(req *http.Request) (*http.Response, error) {
-			body := `{"end_session_endpoint": "https://example.com/oauth2/authorize"}`
+			body := `{"authorization_endpoint": "https://example.com/oauth2/authorize"}`
 			return &http.Response{
 				StatusCode: 200,
 				Body:       io.NopCloser(strings.NewReader(body)),
@@ -42,5 +42,7 @@ func TestLoginRouteIsRegisteredInProductionRouter(t *testing.T) {
 
 	resp := w.Result()
 	assert.Equal(t, http.StatusFound, resp.StatusCode)
-	assert.Contains(t, resp.Header.Get("Location"), "login")
+
+	location := resp.Header.Get("Location")
+	assert.Contains(t, location, "https://example.com/oauth2/authorize")
 }
