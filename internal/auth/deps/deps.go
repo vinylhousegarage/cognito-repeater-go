@@ -1,7 +1,7 @@
 package deps
 
 import (
-	"cognito-repeater-go/internal/auth/config"
+	"cognito-repeater-go/internal/config"
 	"cognito-repeater-go/internal/httpclient"
 )
 
