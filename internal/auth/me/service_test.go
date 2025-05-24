@@ -1,3 +1,5 @@
+package me
+
 import (
 	"net/http/httptest"
 	"testing"
