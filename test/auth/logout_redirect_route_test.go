@@ -7,16 +7,22 @@ import (
 	"net/http/httptest"
 	"testing"
 
+	"cognito-repeater-go/internal/auth/deps"
 	"cognito-repeater-go/internal/router"
 	"cognito-repeater-go/test/testhelpers"
 
 	"github.com/stretchr/testify/assert"
 )
 
-func TestRouter_LogoutRedirectRoute_ReturnsExpectedJSON(t *testing.T) {
+func TestRouterLogoutRedirectRouteReturnsExpectedJSON(t *testing.T) {
 	t.Parallel()
 
-	r := router.NewRouter(testhelpers.MockCfg, http.DefaultClient)
+	handlerDeps := deps.HandlerDependencies{
+		Config:     testhelpers.MockCfg,
+		HTTPClient: http.DefaultClient,
+	}
+
+	r := router.NewRouter(handlerDeps.Config, handlerDeps.HTTPClient)
 
 	req := httptest.NewRequest(http.MethodGet, "/logout/redirect", nil)
 	w := httptest.NewRecorder()

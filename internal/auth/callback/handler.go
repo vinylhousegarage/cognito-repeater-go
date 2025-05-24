@@ -5,8 +5,7 @@ import (
 	"net/http"
 	"strings"
 
-	"cognito-repeater-go/internal/config"
-	"cognito-repeater-go/internal/httpclient"
+	"cognito-repeater-go/internal/auth/deps"
 )
 
 type TokenResponse struct {
@@ -17,13 +16,7 @@ type TokenResponse struct {
 	TokenType    string `json:"token_type"`
 }
 
-type CallbackHandlerDependencies struct {
-	Config      *config.Config
-	HTTPClient  httpclient.HTTPClient
-	URLProvider CallbackURLProvider
-}
-
-func CallbackHandler(deps CallbackHandlerDependencies) http.HandlerFunc {
+func CallbackHandler(d deps.HandlerDependencies) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		code, err := ValidateCallbackRequest(r)
 		if err != nil {
@@ -31,22 +24,23 @@ func CallbackHandler(deps CallbackHandlerDependencies) http.HandlerFunc {
 			return
 		}
 
-		tokenEndpoint, err := deps.URLProvider.GetCallbackURL(deps.Config)
+		metadataURL := d.Config.MetadataURL()
+		tokenEndpoint, err := GetCallbackURL(d.HTTPClient, metadataURL)
 		if err != nil {
 			http.Error(w, "failed to get token endpoint", http.StatusInternalServerError)
 			return
 		}
 
-		bodyStr := BuildTokenRequestBody(code, deps.Config)
+		bodyStr := BuildTokenRequestBody(code, d.Config)
 		req, err := http.NewRequest("POST", tokenEndpoint, strings.NewReader(bodyStr))
 		if err != nil {
 			http.Error(w, "failed to create request", http.StatusInternalServerError)
 			return
 		}
 		req.Header.Set("Content-Type", "application/x-www-form-urlencoded")
-		req.Header.Set("Authorization", BuildBasicAuthHeader(deps.Config))
+		req.Header.Set("Authorization", BuildBasicAuthHeader(d.Config))
 
-		resp, err := deps.HTTPClient.Do(req)
+		resp, err := d.HTTPClient.Do(req)
 		if err != nil {
 			http.Error(w, "failed to send token request", http.StatusBadGateway)
 			return

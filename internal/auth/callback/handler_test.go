@@ -1,68 +1,73 @@
 package callback
 
 import (
-	"bytes"
 	"encoding/json"
-	"io"
 	"net/http"
 	"net/http/httptest"
 	"testing"
 
+	"cognito-repeater-go/internal/auth/deps"
 	"cognito-repeater-go/internal/config"
+	"cognito-repeater-go/test/testhelpers"
 
 	"github.com/stretchr/testify/assert"
 )
 
-type mockHTTPClient struct {
-	t *testing.T
-}
+func TestCallbackHandlerSuccess(t *testing.T) {
+	t.Parallel()
 
-func (m *mockHTTPClient) Do(req *http.Request) (*http.Response, error) {
-	mockResp := TokenResponse{
+	mockTokenResp := TokenResponse{
 		AccessToken:  "ACCESS123",
 		IDToken:      "ID123",
 		RefreshToken: "REFRESH123",
 		ExpiresIn:    3600,
 		TokenType:    "Bearer",
 	}
+	tokenBody, _ := json.Marshal(mockTokenResp)
 
-	body, _ := json.Marshal(mockResp)
+	mockClient := &testhelpers.MockHTTPClient{
+		DoFunc: func(req *http.Request) (*http.Response, error) {
+			rec := httptest.NewRecorder()
 
-	return &http.Response{
-		StatusCode: http.StatusOK,
-		Body:       io.NopCloser(bytes.NewBuffer(body)),
-		Header:     make(http.Header),
-	}, nil
-}
+			switch req.Method {
+			case http.MethodGet:
+				rec.WriteHeader(http.StatusOK)
+				_, _ = rec.Write([]byte(`{"token_endpoint": "https://example.com/oauth2/token"}`))
+			case http.MethodPost:
+				rec.WriteHeader(http.StatusOK)
+				_, _ = rec.Write(tokenBody)
+			default:
+				rec.WriteHeader(http.StatusMethodNotAllowed)
+			}
 
-type mockURLProvider struct{}
+			return rec.Result(), nil
+		},
+	}
 
-func (m *mockURLProvider) GetCallbackURL(p config.MetadataURLProvider) (string, error) {
-	return "https://example.com/oauth2/token", nil
-}
-
-func TestCallbackHandlerSuccess(t *testing.T) {
 	cfg := &config.Config{
 		UserPoolClientID: "client123",
 		ClientSecret:     "secret456",
 		RedirectURI:      "https://example.com/callback",
+		Region:           "ap-northeast-1",
+		UserPoolID:       "pool-id",
 	}
 
-	deps := CallbackHandlerDependencies{
-		Config:      cfg,
-		HTTPClient:  &mockHTTPClient{t: t},
-		URLProvider: &mockURLProvider{},
+	handlerDeps := deps.HandlerDependencies{
+		Config:     cfg,
+		HTTPClient: mockClient,
 	}
 
-	handler := CallbackHandler(deps)
+	handler := CallbackHandler(handlerDeps)
 
-	req := httptest.NewRequest("GET", "/callback?code=testcode&state=xyz", nil)
+	req := httptest.NewRequest(http.MethodGet, "/callback?code=testcode&state=xyz", nil)
 	req.AddCookie(&http.Cookie{Name: "oauth_state", Value: "xyz"})
 
 	w := httptest.NewRecorder()
 	handler(w, req)
 
 	resp := w.Result()
+	defer resp.Body.Close()
+
 	assert.Equal(t, http.StatusOK, resp.StatusCode)
 
 	var result TokenResponse

@@ -5,12 +5,8 @@ import (
 	"net/http/httptest"
 	"testing"
 
-	"cognito-repeater-go/test/testhelpers"
-
 	"github.com/stretchr/testify/assert"
 )
-
-var _ LogoutURLProvider = (*logoutClient)(nil)
 
 func TestGetLogoutURLReturnsExpectedEndpoint(t *testing.T) {
 	t.Parallel()
@@ -21,10 +17,7 @@ func TestGetLogoutURLReturnsExpectedEndpoint(t *testing.T) {
 	}))
 	defer ts.Close()
 
-	mock := &testhelpers.MockMetadataURL{URL: ts.URL}
-
-	client := NewLogoutClient(http.DefaultClient)
-	endpoint, err := client.GetLogoutURL(mock)
+	endpoint, err := GetLogoutURL(http.DefaultClient, ts.URL)
 
 	assert.NoError(t, err)
 	assert.Equal(t, "https://example.com/logout", endpoint)
@@ -38,10 +31,7 @@ func TestGetLogoutURLStatusCode500(t *testing.T) {
 	}))
 	defer ts.Close()
 
-	mock := &testhelpers.MockMetadataURL{URL: ts.URL}
-
-	client := NewLogoutClient(http.DefaultClient)
-	_, err := client.GetLogoutURL(mock)
+	_, err := GetLogoutURL(http.DefaultClient, ts.URL)
 
 	assert.Error(t, err, "unexpected status code")
 	assert.Contains(t, err.Error(), "unexpected status code: 500")

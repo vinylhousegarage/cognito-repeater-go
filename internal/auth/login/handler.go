@@ -3,15 +3,16 @@ package login
 import (
 	"net/http"
 
-	"cognito-repeater-go/internal/config"
+	"cognito-repeater-go/internal/auth/deps"
 )
 
-func LoginHandler(provider LoginURLProvider, p config.MetadataURLProvider) http.HandlerFunc {
+func LoginHandler(d deps.HandlerDependencies) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		state := GenerateState()
 		http.SetCookie(w, BuildStateCookie(state))
 
-		endpoint, err := provider.GetLoginURL(p)
+		metadataURL := d.Config.MetadataURL()
+		endpoint, err := GetLoginURL(d.HTTPClient, metadataURL)
 		if err != nil {
 			http.Error(w, err.Error(), http.StatusInternalServerError)
 			return

@@ -5,12 +5,8 @@ import (
 	"net/http/httptest"
 	"testing"
 
-	"cognito-repeater-go/test/testhelpers"
-
 	"github.com/stretchr/testify/assert"
 )
-
-var _ LoginURLProvider = (*loginClient)(nil)
 
 func TestGetLoginURLReturnsExpectedEndpoint(t *testing.T) {
 	t.Parallel()
@@ -21,10 +17,7 @@ func TestGetLoginURLReturnsExpectedEndpoint(t *testing.T) {
 	}))
 	defer ts.Close()
 
-	mock := &testhelpers.MockMetadataURL{URL: ts.URL}
-
-	client := NewLoginClient(http.DefaultClient)
-	endpoint, err := client.GetLoginURL(mock)
+	endpoint, err := GetLoginURL(http.DefaultClient, ts.URL)
 
 	assert.NoError(t, err, "failed to fetch authorization endpoint")
 	assert.Equal(t, "https://example.com/oauth2/authorize", endpoint)
@@ -38,10 +31,7 @@ func TestGetLoginURLStatusCode500(t *testing.T) {
 	}))
 	defer ts.Close()
 
-	mock := &testhelpers.MockMetadataURL{URL: ts.URL}
-
-	client := NewLoginClient(http.DefaultClient)
-	_, err := client.GetLoginURL(mock)
+	_, err := GetLoginURL(http.DefaultClient, ts.URL)
 
 	assert.Error(t, err, "unexpected status code")
 }
