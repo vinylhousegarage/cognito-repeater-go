@@ -6,6 +6,7 @@ import (
 	"net/http/httptest"
 	"testing"
 
+	"cognito-repeater-go/internal/auth/deps"
 	"cognito-repeater-go/internal/router"
 	"cognito-repeater-go/test/testhelpers"
 
@@ -15,7 +16,12 @@ import (
 func TestError404RouteReturnsPlainTextNotFound(t *testing.T) {
 	t.Parallel()
 
-	r := router.NewRouter(testhelpers.MockCfg, http.DefaultClient)
+	handlerDeps := deps.HandlerDependencies{
+		Config:     testhelpers.MockCfg,
+		HTTPClient: http.DefaultClient,
+	}
+
+	r := router.NewRouter(handlerDeps)
 
 	req := httptest.NewRequest(http.MethodGet, "/error/404", nil)
 	w := httptest.NewRecorder()
