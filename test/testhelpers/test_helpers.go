@@ -16,17 +16,9 @@ var MockCfg = &config.Config{
 	UserPoolID:       "pool-id",
 }
 
-type MockMetadataURL struct {
-	URL string
-}
+type MockMetadataURL struct{}
 
 func (m *MockMetadataURL) MetadataURL() string {
-	return m.URL
-}
-
-type MockMetadataURLProvider struct{}
-
-func (m *MockMetadataURLProvider) MetadataURL() string {
 	return "https://mock.metadata.url"
 }
 
