@@ -8,6 +8,7 @@ import (
 
 	"cognito-repeater-go/internal/auth/config"
 	"cognito-repeater-go/internal/auth/deps"
+	"cognito-repeater-go/test/testhelpers"
 
 	"github.com/stretchr/testify/assert"
 )
@@ -24,7 +25,7 @@ func TestCallbackHandlerSuccess(t *testing.T) {
 	}
 	tokenBody, _ := json.Marshal(mockTokenResp)
 
-	mockClient := &mockHTTPClient{
+	mockClient := &testhelpers.MockHTTPClient{
 		DoFunc: func(req *http.Request) (*http.Response, error) {
 			rec := httptest.NewRecorder()
 
