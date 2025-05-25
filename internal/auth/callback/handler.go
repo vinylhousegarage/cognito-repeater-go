@@ -2,6 +2,7 @@ package callback
 
 import (
 	"encoding/json"
+	"fmt"
 	"net/http"
 	"strings"
 
@@ -45,7 +46,11 @@ func CallbackHandler(d deps.HandlerDependencies) http.HandlerFunc {
 			http.Error(w, "failed to send token request", http.StatusBadGateway)
 			return
 		}
-		defer resp.Body.Close()
+		defer func() {
+			if err := resp.Body.Close(); err != nil {
+				fmt.Printf("failed to close response body: %v\n", err)
+			}
+		}()
 
 		if resp.StatusCode != http.StatusOK {
 			http.Error(w, "token endpoint returned error", http.StatusBadGateway)
