@@ -10,10 +10,6 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-type MyClaims struct {
-	jwt.RegisteredClaims
-}
-
 func generateTestToken(t *testing.T, claims jwt.RegisteredClaims, privateKey *rsa.PrivateKey) string {
 	t.Helper()
 	t.Parallel()
