@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"math/big"
 	"strings"
 )
 
@@ -55,4 +56,16 @@ func FindJWKByKID(kid string, set *JWKSet) (*JWK, error) {
 		}
 	}
 	return nil, fmt.Errorf("JWK with kid %s not found: %w", kid, ErrJWKNotFound)
+}
+
+var ErrInvalidBase64URL = errors.New("invalid base64url encoding")
+
+func Base64URLToBigInt(b64 string) (*big.Int, error) {
+	decoded, err := base64.RawURLEncoding.DecodeString(b64)
+	if err != nil {
+		return nil, ErrInvalidBase64URL
+	}
+
+	n := new(big.Int).SetBytes(decoded)
+	return n, nil
 }
