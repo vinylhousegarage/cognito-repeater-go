@@ -2,6 +2,7 @@ package me
 
 import (
 	"encoding/base64"
+	"math/big"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -75,4 +76,13 @@ func TestFindJWKByKID_NilSet(t *testing.T) {
 	_, err := FindJWKByKID("any", nil)
 	assert.Error(t, err)
 	assert.Contains(t, err.Error(), "JWKSet is nil")
+}
+
+func TestBase64URLToBigInt(t *testing.T) {
+	result, err := Base64URLToBigInt("AQAB")
+	assert.NoError(t, err)
+	assert.Equal(t, big.NewInt(65537), result)
+
+	_, err = Base64URLToBigInt("!!invalid!!")
+	assert.ErrorIs(t, err, ErrInvalidBase64URL)
 }
