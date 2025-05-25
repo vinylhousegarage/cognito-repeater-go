@@ -1,4 +1,4 @@
-make check-format:
+check-format:
 	@unformatted=$$(goimports -l .); \
 	if [ -n "$$unformatted" ]; then \
 		echo "Unformatted files:"; \
