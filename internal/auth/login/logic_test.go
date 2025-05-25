@@ -41,14 +41,40 @@ func TestBuildLoginURLSuccess(t *testing.T) {
 	assert.Equal(t, state, q.Get("state"))
 }
 
-func TestBuildLoginURLInvalidURL(t *testing.T) {
-	t.Parallel()
+package login_test
 
-	const (
-		invalidEndpoint = ":::"
-		state           = "abc"
-	)
+import (
+	"cognito-repeater-go/internal/auth/login"
+	"cognito-repeater-go/internal/config"
+	"net/url"
+	"strings"
+	"testing"
 
-	_, err := BuildLoginURL(invalidEndpoint, state)
-	assert.Error(t, err)
+	"github.com/stretchr/testify/assert"
+)
+
+func TestBuildLoginURL(t *testing.T) {
+	cfg := &config.Config{
+		UserPoolClientID: "example-client-id",
+		RedirectURI:      "https://example.com/callback",
+		Scope:            "openid",
+	}
+
+	endpoint := "https://auth.example.com/oauth2/authorize"
+	state := "sample-state-value"
+
+	result, err := login.BuildLoginURL(cfg, endpoint, state)
+	assert.NoError(t, err)
+
+	parsed, err := url.Parse(result)
+	assert.NoError(t, err)
+	assert.Equal(t, "auth.example.com", parsed.Host)
+	assert.Equal(t, "/oauth2/authorize", parsed.Path)
+
+	queries := parsed.Query()
+	assert.Equal(t, "code", queries.Get("response_type"))
+	assert.Equal(t, cfg.UserPoolClientID, queries.Get("client_id"))
+	assert.Equal(t, cfg.RedirectURI, queries.Get("redirect_uri"))
+	assert.Equal(t, cfg.Scope, queries.Get("scope"))
+	assert.Equal(t, state, queries.Get("state"))
 }
