@@ -70,3 +70,9 @@ func TestFindJWKByKID(t *testing.T) {
 	_, err = FindJWKByKID("missing", set)
 	assert.ErrorIs(t, err, ErrJWKNotFound)
 }
+
+func TestFindJWKByKID_NilSet(t *testing.T) {
+	_, err := FindJWKByKID("any", nil)
+	assert.Error(t, err)
+	assert.Contains(t, err.Error(), "JWKSet is nil")
+}
