@@ -53,3 +53,30 @@ func GetJWKSURI(client httpclient.HTTPClient, metadataURL string) (string, error
 
 	return meta.JWKSURI, nil
 }
+
+type JWK struct {
+	Kid string `json:"kid"`
+	Kty string `json:"kty"`
+	Alg string `json:"alg"`
+	Use string `json:"use"`
+	N   string `json:"n"`
+	E   string `json:"e"`
+}
+
+type JWKSet struct {
+	Keys []JWK `json:"keys"`
+}
+
+func FetchJWKSet(client http.Client, jwksURL string) (*JWKSet, error) {
+	resp, err := client.Get(jwksURL)
+	if err != nil {
+		return nil, fmt.Errorf("failed to fetch jwks: %w", err)
+	}
+	defer resp.Body.Close()
+
+	var set JWKSet
+	if err := json.NewDecoder(resp.Body).Decode(&set); err != nil {
+		return nil, fmt.Errorf("failed to parse jwks JSON: %w", err)
+	}
+	return &set, nil
+}
