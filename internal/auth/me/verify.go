@@ -14,7 +14,7 @@ type MyClaims struct {
 func ParseAndVerifyJWT(tokenStr string, pubKey *rsa.PublicKey, expectedIss, expectedAud string) (*MyClaims, error) {
 	claims := &MyClaims{}
 
-	token, err := jwt.ParseWithClaims(tokenStr, claims, func(token *jwt.Token) (interface{}, error) {
+	_, err := jwt.ParseWithClaims(tokenStr, claims, func(token *jwt.Token) (interface{}, error) {
 		if token.Method.Alg() != jwt.SigningMethodRS256.Alg() {
 			return nil, fmt.Errorf("unexpected signing method: %v", token.Header["alg"])
 		}
