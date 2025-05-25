@@ -27,7 +27,7 @@ jobs:
         run: make check-format
 
       - name: Run Linter
-        uses: golangci/golangci-lint-action@v4
+        uses: golangci/golangci-lint-action@v5
         with:
           version: v2.1.6
 
