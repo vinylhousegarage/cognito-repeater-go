@@ -3,6 +3,8 @@ package me
 import (
 	"net/http/httptest"
 	"testing"
+
+	"github.com/stretchr/testify/assert"
 )
 
 func TestExtractAccessToken(t *testing.T) {
@@ -34,4 +36,19 @@ func TestExtractAccessToken(t *testing.T) {
 			t.Errorf("%s: expected token %q but got %q", c.name, c.wantToken, token)
 		}
 	}
+}
+
+func TestGetJWKSURI_Success(t *testing.T) {
+	t.Parallel()
+
+	ts := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		w.WriteHeader(http.StatusOK)
+		_, _ = w.Write([]byte(`{"jwks_uri":"https://example.com/dummy/.well-known/jwks.json"}`))
+	}))
+	defer ts.Close()
+
+	endpoint, err := GetJWKSURI(http.DefaultClient, ts.URL)
+
+	assert.NoError(t, err, "failed to fetch jwks_uri")
+	assert.Equal(t, "https://example.com/dummy/.well-known/jwks.json", endpoint)
 }
