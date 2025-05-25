@@ -5,6 +5,8 @@ import (
 	"net/url"
 	"testing"
 
+	"cognito-repeater-go/internal/config"
+
 	"github.com/stretchr/testify/assert"
 )
 
@@ -40,18 +42,6 @@ func TestBuildLoginURLSuccess(t *testing.T) {
 	q := parsed.Query()
 	assert.Equal(t, state, q.Get("state"))
 }
-
-package login_test
-
-import (
-	"cognito-repeater-go/internal/auth/login"
-	"cognito-repeater-go/internal/config"
-	"net/url"
-	"strings"
-	"testing"
-
-	"github.com/stretchr/testify/assert"
-)
 
 func TestBuildLoginURL(t *testing.T) {
 	cfg := &config.Config{
