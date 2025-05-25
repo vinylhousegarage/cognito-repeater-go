@@ -2,7 +2,7 @@ root = "."
 tmp_dir = "tmp"
 
 [build]
-cmd = "goimports -w . && go build -o ./tmp/main ./cmd/dev"
+cmd = "go build -o ./tmp/main ./cmd/dev"
 bin = "tmp/main"
 
 [include]

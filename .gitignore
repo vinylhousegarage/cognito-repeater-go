@@ -11,6 +11,7 @@ dist/
 .vscode/*
 !.vscode/tasks.json
 !.vscode/settings.json
+!.vscode/runonsave.json
 
 # OS
 .DS_Store

@@ -1,0 +1,8 @@
+{
+  "commands": [
+    {
+      "match": "\\.go$",
+      "cmd": "make format"
+    }
+  ]
+}
