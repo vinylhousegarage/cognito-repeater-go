@@ -2,6 +2,7 @@ package logoutredirect
 
 import (
 	"encoding/json"
+	"fmt"
 	"io"
 	"net/http"
 	"net/http/httptest"
@@ -19,7 +20,11 @@ func TestMetadataHandler_ReturnsExpectedStatusAndJSONBody(t *testing.T) {
 	LogoutRedirectHandler(w, req)
 
 	resp := w.Result()
-	defer resp.Body.Close()
+	defer func() {
+		if err := resp.Body.Close(); err != nil {
+			fmt.Printf("failed to close response body: %v\n", err)
+		}
+	}()
 
 	assert.Equal(t, http.StatusOK, resp.StatusCode)
 
