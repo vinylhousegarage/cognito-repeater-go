@@ -1,6 +1,7 @@
 package me
 
 import (
+	"crypto/rsa"
 	"encoding/base64"
 	"encoding/json"
 	"errors"
@@ -68,4 +69,25 @@ func Base64URLToBigInt(b64 string) (*big.Int, error) {
 
 	n := new(big.Int).SetBytes(decoded)
 	return n, nil
+}
+
+var (
+	ErrExponentTooLarge = errors.New("exponent too large to fit in int")
+	ErrInvalidExponent  = errors.New("invalid exponent value")
+)
+
+func BuildRSAPublicKey(n *big.Int, e *big.Int) (*rsa.PublicKey, error) {
+	if !e.IsInt64() {
+		return nil, ErrExponentTooLarge
+	}
+	eInt := int(e.Int64())
+
+	if eInt <= 1 {
+		return nil, ErrInvalidExponent
+	}
+
+	return &rsa.PublicKey{
+		N: n,
+		E: eInt,
+	}, nil
 }
