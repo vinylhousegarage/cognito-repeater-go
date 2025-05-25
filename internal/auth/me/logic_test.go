@@ -54,3 +54,19 @@ func TestExtractKIDFromToken(t *testing.T) {
 		assert.Contains(t, err.Error(), "kid not found in JWT header")
 	})
 }
+
+func TestFindJWKByKID(t *testing.T) {
+	set := &JWKSet{
+		Keys: []JWK{
+			{Kid: "key1"},
+			{Kid: "key2"},
+		},
+	}
+
+	jwk, err := FindJWKByKID("key2", set)
+	assert.NoError(t, err)
+	assert.Equal(t, "key2", jwk.Kid)
+
+	_, err = FindJWKByKID("missing", set)
+	assert.ErrorIs(t, err, ErrJWKNotFound)
+}

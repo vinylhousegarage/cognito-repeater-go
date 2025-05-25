@@ -38,3 +38,21 @@ func ExtractKIDFromToken(token string) (string, error) {
 
 	return header.Kid, nil
 }
+
+var (
+	ErrJWKNotFound = errors.New("JWK not found")
+	ErrJWKSetNil   = errors.New("JWKSet is nil")
+)
+
+func FindJWKByKID(kid string, set *JWKSet) (*JWK, error) {
+	if set == nil {
+		return nil, ErrJWKSetNil
+	}
+
+	for _, key := range set.Keys {
+		if key.Kid == kid {
+			return &key, nil
+		}
+	}
+	return nil, fmt.Errorf("JWK with kid %s not found: %w", kid, ErrJWKNotFound)
+}
