@@ -25,25 +25,6 @@ func TestBuildStateCookie(t *testing.T) {
 }
 
 func TestBuildLoginURLSuccess(t *testing.T) {
-	t.Parallel()
-
-	endpoint := "https://example.com/oauth2/authorize"
-	const state = "xyz789"
-
-	result, err := BuildLoginURL(endpoint, state)
-	assert.NoError(t, err)
-
-	parsed, err := url.Parse(result)
-	assert.NoError(t, err)
-
-	assert.Equal(t, "example.com", parsed.Host)
-	assert.Equal(t, "/oauth2/authorize", parsed.Path)
-
-	q := parsed.Query()
-	assert.Equal(t, state, q.Get("state"))
-}
-
-func TestBuildLoginURL(t *testing.T) {
 	cfg := &config.Config{
 		UserPoolClientID: "example-client-id",
 		RedirectURI:      "https://example.com/callback",
