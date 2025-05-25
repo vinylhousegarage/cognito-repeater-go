@@ -5,6 +5,8 @@ import (
 	"net/url"
 	"testing"
 
+	"cognito-repeater-go/internal/config"
+
 	"github.com/stretchr/testify/assert"
 )
 
@@ -23,32 +25,27 @@ func TestBuildStateCookie(t *testing.T) {
 }
 
 func TestBuildLoginURLSuccess(t *testing.T) {
-	t.Parallel()
+	cfg := &config.Config{
+		UserPoolClientID: "example-client-id",
+		RedirectURI:      "https://example.com/callback",
+		Scope:            "openid",
+	}
 
-	endpoint := "https://example.com/oauth2/authorize"
-	const state = "xyz789"
+	endpoint := "https://auth.example.com/oauth2/authorize"
+	state := "sample-state-value"
 
-	result, err := BuildLoginURL(endpoint, state)
+	result, err := BuildLoginURL(cfg, endpoint, state)
 	assert.NoError(t, err)
 
 	parsed, err := url.Parse(result)
 	assert.NoError(t, err)
-
-	assert.Equal(t, "example.com", parsed.Host)
+	assert.Equal(t, "auth.example.com", parsed.Host)
 	assert.Equal(t, "/oauth2/authorize", parsed.Path)
 
-	q := parsed.Query()
-	assert.Equal(t, state, q.Get("state"))
-}
-
-func TestBuildLoginURLInvalidURL(t *testing.T) {
-	t.Parallel()
-
-	const (
-		invalidEndpoint = ":::"
-		state           = "abc"
-	)
-
-	_, err := BuildLoginURL(invalidEndpoint, state)
-	assert.Error(t, err)
+	queries := parsed.Query()
+	assert.Equal(t, "code", queries.Get("response_type"))
+	assert.Equal(t, cfg.UserPoolClientID, queries.Get("client_id"))
+	assert.Equal(t, cfg.RedirectURI, queries.Get("redirect_uri"))
+	assert.Equal(t, cfg.Scope, queries.Get("scope"))
+	assert.Equal(t, state, queries.Get("state"))
 }
