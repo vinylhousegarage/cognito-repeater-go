@@ -1,9 +1,12 @@
 package me
 
 import (
+	"errors"
 	"net/http"
 	"net/http/httptest"
 	"testing"
+
+	"cognito-repeater-go/test/testhelpers"
 
 	"github.com/stretchr/testify/assert"
 )
@@ -52,4 +55,69 @@ func TestGetJWKSURI_Success(t *testing.T) {
 
 	assert.NoError(t, err, "failed to fetch jwks_uri")
 	assert.Equal(t, "https://example.com/dummy/.well-known/jwks.json", endpoint)
+}
+
+func TestGetJWKSURI_HTTPClientError(t *testing.T) {
+	t.Parallel()
+
+	mockClient := &testhelpers.MockHTTPClient{
+		DoFunc: func(req *http.Request) (*http.Response, error) {
+			return nil, errors.New("simulated network failure")
+		},
+	}
+
+	_, err := GetJWKSURI(mockClient, "https://example.com")
+	assert.Error(t, err)
+	assert.Contains(t, err.Error(), "failed to fetch metadata")
+}
+
+func TestGetJWKSURI_StatusCodeError(t *testing.T) {
+	t.Parallel()
+
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, _ *http.Request) {
+		http.Error(w, "internal error", http.StatusInternalServerError)
+	}))
+	defer server.Close()
+
+	client := &http.Client{}
+	_, err := GetJWKSURI(client, server.URL)
+	assert.Error(t, err)
+	assert.Contains(t, err.Error(), "unexpected status code")
+}
+
+func TestGetJWKSURI_InvalidJSON(t *testing.T) {
+	t.Parallel()
+
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, _ *http.Request) {
+		_, _ = w.Write([]byte(`{ "jwks_uri": `))
+	}))
+	defer server.Close()
+
+	client := &http.Client{}
+	_, err := GetJWKSURI(client, server.URL)
+	assert.Error(t, err)
+	assert.Contains(t, err.Error(), "failed to decode metadata")
+}
+
+func TestGetJWKSURI_EmptyJWKSURI(t *testing.T) {
+	t.Parallel()
+
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, _ *http.Request) {
+		_, _ = w.Write([]byte(`{ "jwks_uri": "" }`))
+	}))
+	defer server.Close()
+
+	client := &http.Client{}
+	_, err := GetJWKSURI(client, server.URL)
+	assert.Error(t, err)
+	assert.Contains(t, err.Error(), "jwks_uri is empty")
+}
+
+func TestGetJWKSURI_InvalidURL(t *testing.T) {
+	t.Parallel()
+
+	client := &http.Client{}
+	_, err := GetJWKSURI(client, "http://[::1]:namedport")
+	assert.Error(t, err)
+	assert.Contains(t, err.Error(), "failed to create request")
 }
