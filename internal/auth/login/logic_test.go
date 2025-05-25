@@ -34,7 +34,7 @@ func TestBuildLoginURLSuccess(t *testing.T) {
 	endpoint := "https://auth.example.com/oauth2/authorize"
 	state := "sample-state-value"
 
-	result, err := login.BuildLoginURL(cfg, endpoint, state)
+	result, err := BuildLoginURL(cfg, endpoint, state)
 	assert.NoError(t, err)
 
 	parsed, err := url.Parse(result)
