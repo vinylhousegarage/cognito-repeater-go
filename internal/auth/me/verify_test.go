@@ -110,7 +110,7 @@ func TestParseAndVerifyJWT_MissingSub(t *testing.T) {
 
 	token := generateTestToken(t, claims, privKey)
 
-	_, err := ParseAndVerifyJWT(token, &privKey.PublicKey, "test-issuer", "test-aud")
+	err = ParseAndVerifyJWT(token, &privKey.PublicKey, "test-issuer", "test-aud")
 	assert.Error(t, err)
 	assert.Contains(t, err.Error(), "missing subject")
 }
