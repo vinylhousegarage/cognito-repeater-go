@@ -86,3 +86,32 @@ func TestBase64URLToBigInt(t *testing.T) {
 	_, err = Base64URLToBigInt("!!invalid!!")
 	assert.ErrorIs(t, err, ErrInvalidBase64URL)
 }
+
+func TestBuildRSAPublicKey_Success(t *testing.T) {
+	n := big.NewInt(1234567890)
+	e := big.NewInt(65537)
+
+	pubKey, err := BuildRSAPublicKey(n, e)
+	assert.NoError(t, err)
+	assert.Equal(t, n, pubKey.N)
+	assert.Equal(t, 65537, pubKey.E)
+}
+
+func TestBuildRSAPublicKey_ExponentTooLarge(t *testing.T) {
+	e := new(big.Int).Lsh(big.NewInt(1), 63)
+	n := big.NewInt(987654321)
+
+	_, err := BuildRSAPublicKey(n, e)
+	assert.ErrorIs(t, err, ErrExponentTooLarge)
+}
+
+func TestBuildRSAPublicKey_InvalidExponentValue(t *testing.T) {
+	n := big.NewInt(1234567890)
+
+	for _, exp := range []int64{0, 1} {
+		e := big.NewInt(exp)
+		_, err := BuildRSAPublicKey(n, e)
+		assert.Error(t, err)
+		assert.Contains(t, err.Error(), "invalid exponent value")
+	}
+}
