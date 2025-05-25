@@ -30,7 +30,6 @@ jobs:
         uses: golangci/golangci-lint-action@v5
         with:
           version: v2.1.6
-          args: run --out-format=line-number
           annotations: false
 
       - name: Run tests
