@@ -76,7 +76,11 @@ func FetchJWKSet(client http.Client, jwksURL string) (*JWKSet, error) {
 	if err != nil {
 		return nil, fmt.Errorf("failed to fetch jwks: %w", err)
 	}
-	defer resp.Body.Close()
+	defer func() {
+		if err := resp.Body.Close(); err != nil {
+			fmt.Printf("failed to close response body: %v\n", err)
+		}
+	}()
 
 	var set JWKSet
 	if err := json.NewDecoder(resp.Body).Decode(&set); err != nil {
