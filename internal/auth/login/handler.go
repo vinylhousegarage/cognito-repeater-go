@@ -18,7 +18,7 @@ func LoginHandler(d deps.HandlerDependencies) http.HandlerFunc {
 			return
 		}
 
-		url, err := BuildLoginURL(endpoint, state)
+		url, err := BuildLoginURL(d.Config, endpoint, state)
 		if err != nil {
 			http.Error(w, "invalid login URL", http.StatusInternalServerError)
 			return
