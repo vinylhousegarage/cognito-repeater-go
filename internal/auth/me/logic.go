@@ -91,3 +91,15 @@ func BuildRSAPublicKey(n *big.Int, e *big.Int) (*rsa.PublicKey, error) {
 		E: eInt,
 	}, nil
 }
+
+func JWKToRSAPublicKey(jwk *JWK) (*rsa.PublicKey, error) {
+	n, err := Base64URLToBigInt(jwk.N)
+	if err != nil {
+		return nil, fmt.Errorf("invalid n: %w", err)
+	}
+	e, err := Base64URLToBigInt(jwk.E)
+	if err != nil {
+		return nil, fmt.Errorf("invalid e: %w", err)
+	}
+	return BuildRSAPublicKey(n, e)
+}

@@ -115,3 +115,40 @@ func TestBuildRSAPublicKey_InvalidExponentValue(t *testing.T) {
 		assert.Contains(t, err.Error(), "invalid exponent value")
 	}
 }
+
+func TestJWKToRSAPublicKey_Success(t *testing.T) {
+	// "AQAB" = 65537（公開指数）
+	// "sXch4w" = 任意の base64url（模擬的な n 値として使用）
+	jwk := &JWK{
+		N: "sXch4w", // base64url of []byte{0xb1, 0x77, 0x21, 0xe3}
+		E: "AQAB",   // 65537
+	}
+
+	pubKey, err := JWKToRSAPublicKey(jwk)
+	assert.NoError(t, err)
+	assert.NotNil(t, pubKey)
+	assert.Equal(t, 65537, pubKey.E)
+	assert.Equal(t, new(big.Int).SetBytes([]byte{0xb1, 0x77, 0x21, 0xe3}), pubKey.N)
+}
+
+func TestJWKToRSAPublicKey_InvalidN(t *testing.T) {
+	jwk := &JWK{
+		N: "!!invalid!!",
+		E: "AQAB",
+	}
+
+	_, err := JWKToRSAPublicKey(jwk)
+	assert.Error(t, err)
+	assert.Contains(t, err.Error(), "invalid n")
+}
+
+func TestJWKToRSAPublicKey_InvalidE(t *testing.T) {
+	jwk := &JWK{
+		N: "sXch4w", // valid base64url
+		E: "!!invalid!!",
+	}
+
+	_, err := JWKToRSAPublicKey(jwk)
+	assert.Error(t, err)
+	assert.Contains(t, err.Error(), "invalid e")
+}
