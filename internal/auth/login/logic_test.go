@@ -3,6 +3,7 @@ package login
 import (
 	"net/http"
 	"net/url"
+	"strings"
 	"testing"
 
 	"cognito-repeater-go/internal/config"
@@ -48,4 +49,11 @@ func TestBuildLoginURLSuccess(t *testing.T) {
 	assert.Equal(t, cfg.RedirectURI, queries.Get("redirect_uri"))
 	assert.Equal(t, cfg.Scope, queries.Get("scope"))
 	assert.Equal(t, state, queries.Get("state"))
+}
+
+func TestBuildLoginURLInvalidEndpoint(t *testing.T) {
+	cfg := &config.Config{}
+	_, err := BuildLoginURL(cfg, "://invalid-url", "state")
+	assert.Error(t, err)
+	assert.True(t, strings.Contains(err.Error(), "missing protocol"))
 }
