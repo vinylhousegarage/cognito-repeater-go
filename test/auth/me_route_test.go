@@ -42,7 +42,7 @@ func TestMeHandler_Integration_Success(t *testing.T) {
 						"kty": "RSA",
 						"alg": "RS256",
 						"use": "sig",
-						"n": "sXchVbAjD7CJD7RQzLHRcUFi4Ho0yMvJmn6iGT3RmMNJkNa_7Xdk1_JmZ_rNIlZCOgkt2uKwRGqWrXJyykrnxEMnJ7a8UZ2qECFZ1pPLrhDJEBNqMHlqZ_G60Pq7vhRjHUk2gHaZz9CVmW2l6rnpadp0aL1pMG96zV2vSzMzRmNk",
+						"n": "vGOQ4c4pOqZ0s6ek3bXzHeYsn9JMGVEJ9qdA-5CvfbQ3r3RxdcEu4QgRChokIldQ4BQxEADAGlYXr_fR9Eq_ThhNo-LVRhvGnnEXckc3e4prN7iFEeFdNKJUBBTrB7PTMug4xWxX3RCFfAwFHiqJHyRuS8Ev8jIuRIbwDkFvssK7PDWl5YiWDRHEKq2M2qFCrhv0fqUgOV-TGC7Apklb5aM0ly5kN_Z7KXvIwvTni-4g_ZLUOEmdbEAmL0qll9IMQ88nNnMcBHD5U9ku9ZCcc8t7cP1d4hO7nIbCjViVZsdfO2hfB7jAJscpk-c_TF04Zvl9vAwavHj7eNqvTVnOZWvq6fw",
 						"e": "AQAB"
 					}]
 				}`); err != nil {
