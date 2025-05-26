@@ -3,6 +3,7 @@ package me
 import (
 	"crypto/rsa"
 	"fmt"
+	"time"
 
 	"github.com/golang-jwt/jwt/v5"
 )
@@ -20,19 +21,36 @@ func ParseAndVerifyJWT(tokenStr string, pubKey *rsa.PublicKey, expectedIss, expe
 		}
 		return pubKey, nil
 	})
+
 	if err != nil {
 		return nil, fmt.Errorf("JWT parse error: %w", err)
 	}
 
-	if err := claims.Valid(); err != nil {
-		return nil, fmt.Errorf("claims validation failed: %w", err)
+	now := time.Now()
+
+	if claims.ExpiresAt == nil || !claims.ExpiresAt.After(now) {
+		return nil, fmt.Errorf("token is expired")
 	}
+
 	if claims.Issuer != expectedIss {
 		return nil, fmt.Errorf("unexpected issuer: %s", claims.Issuer)
 	}
-	if !claims.VerifyAudience(expectedAud, true) {
-		return nil, fmt.Errorf("invalid audience")
+
+	if len(claims.Audience) == 0 {
+		return nil, fmt.Errorf("audience claim is missing")
 	}
+
+	validAud := false
+	for _, aud := range claims.Audience {
+		if aud == expectedAud {
+			validAud = true
+			break
+		}
+	}
+	if !validAud {
+		return nil, fmt.Errorf("invalid audience: expected %q", expectedAud)
+	}
+
 	if claims.Subject == "" {
 		return nil, fmt.Errorf("missing subject (sub)")
 	}
