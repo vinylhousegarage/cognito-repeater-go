@@ -54,7 +54,7 @@ func TestParseAndVerifyJWT_Expired(t *testing.T) {
 
 	_, err := ParseAndVerifyJWT(token, &privKey.PublicKey, "test-issuer", "test-aud")
 	assert.Error(t, err)
-	assert.Contains(t, err.Error(), "claims validation failed")
+	assert.Contains(t, err.Error(), "token is expired")
 }
 
 func TestParseAndVerifyJWT_InvalidIssuer(t *testing.T) {
