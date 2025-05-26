@@ -1,4 +1,4 @@
-package me_test
+package auth_test
 
 import (
 	"encoding/base64"
