@@ -10,15 +10,9 @@ import (
 	"cognito-repeater-go/test/testhelpers"
 )
 
-type mockConfig struct{}
-
-func (m *mockConfig) MetadataURL() string { return "https://example.com/.well-known/jwks.json" }
-func (m *mockConfig) Issuer() string      { return "test-issuer" }
-func (m *mockConfig) Audience() string    { return "test-audience" }
-
 func TestMeHandler_MissingAuthorizationHeader(t *testing.T) {
 	handler := MeHandler(deps.HandlerDependencies{
-		Config:     &mockConfig{},
+		Config:     &testhelpers.MockCfg{},
 		HTTPClient: &testhelpers.MockHTTPClient{},
 	})
 
