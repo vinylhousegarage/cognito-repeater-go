@@ -43,7 +43,7 @@ func TestMeHandler_Integration_Success(t *testing.T) {
 						"alg": "RS256",
 						"use": "sig",
 						"n": "vYy1yk3nLfNDFY-9XYMGhW-m1q5vJiwxDsPeHcYRhG3JuL2Rkxn5HDZ_Kr-WD1CTGjhdOBhnGlm9M7tRkhWbyU8c_OvY7nXU2PlNWdI3RuXb9hxCD6yXv_T7pHeKjdO6uT0vZ0DOZyMG8OdSfaCtb-Kdlh6UMtURO--OE1sMjj3SuBlRm6TYEkAM7Gv36k8b5kDp2uDtj_l_WnDZf81-fCVPvHfU1UmgRRfL_UWT1ZLkZADKHZlSgOXrPK2aD4eQmTIpNj03kpct8rzoC0XyCqKPyO8W3PoYk6ytAPk7NV8og8JTx17C3_Mqz02GZud7FneX9XZ8ReXBfBqAfXYL9UQ",
-						"e": "AQAB",
+						"e": "AQAB"
 					}]
 				}`); err != nil {
 					log.Printf("failed to write mock jwks response: %v", err)
