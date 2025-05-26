@@ -148,7 +148,7 @@ func TestFetchJWKSet_Success(t *testing.T) {
 	}))
 	defer server.Close()
 
-	client := http.Client{}
+	client := &http.Client{}
 	jwks, err := FetchJWKSet(client, server.URL)
 
 	assert.NoError(t, err)
@@ -165,7 +165,7 @@ func (f roundTripFunc) RoundTrip(req *http.Request) (*http.Response, error) {
 func TestFetchJWKSet_HTTPError(t *testing.T) {
 	t.Parallel()
 
-	brokenClient := http.Client{
+	brokenClient := &http.Client{
 		Transport: roundTripFunc(func(*http.Request) (*http.Response, error) {
 			return nil, errors.New("network error")
 		}),
@@ -184,7 +184,7 @@ func TestFetchJWKSet_InvalidJSON(t *testing.T) {
 	}))
 	defer server.Close()
 
-	client := http.Client{}
+	client := &http.Client{}
 	_, err := FetchJWKSet(client, server.URL)
 	assert.Error(t, err)
 	assert.Contains(t, err.Error(), "failed to parse jwks JSON")

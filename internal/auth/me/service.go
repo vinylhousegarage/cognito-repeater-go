@@ -1,11 +1,12 @@
 package me
 
 import (
-	"cognito-repeater-go/internal/httpclient"
 	"encoding/json"
 	"fmt"
 	"net/http"
 	"strings"
+
+	"cognito-repeater-go/internal/httpclient"
 )
 
 func extractAccessToken(r *http.Request) (string, error) {
@@ -71,8 +72,13 @@ type JWKSet struct {
 	Keys []JWK `json:"keys"`
 }
 
-func FetchJWKSet(client http.Client, jwksURL string) (*JWKSet, error) {
-	resp, err := client.Get(jwksURL)
+func FetchJWKSet(client httpclient.HTTPClient, jwksURL string) (*JWKSet, error) {
+	req, err := http.NewRequest("GET", jwksURL, nil)
+	if err != nil {
+		return nil, fmt.Errorf("failed to create request: %w", err)
+	}
+
+	resp, err := client.Do(req)
 	if err != nil {
 		return nil, fmt.Errorf("failed to fetch jwks: %w", err)
 	}
