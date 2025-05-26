@@ -21,7 +21,7 @@ func TestMeHandler_Integration_Success(t *testing.T) {
 
 	header := base64.RawURLEncoding.EncodeToString([]byte(`{"alg":"RS256","kid":"example-kid"}`))
 	payload := base64.RawURLEncoding.EncodeToString([]byte(`{"sub":"test-sub"}`))
-	dummyToken := header + "." + payload + ".signature"
+	dummyToken := header + "." + payload + ".c2lnbmF0dXJl"
 
 	client := &testhelpers.MockHTTPClient{
 		DoFunc: func(req *http.Request) (*http.Response, error) {
