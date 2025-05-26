@@ -6,7 +6,6 @@ import (
 	"net/http/httptest"
 	"testing"
 
-	"cognito-repeater-go/internal/httpclient"
 	"cognito-repeater-go/test/testhelpers"
 
 	"github.com/stretchr/testify/assert"
@@ -149,7 +148,7 @@ func TestFetchJWKSet_Success(t *testing.T) {
 	}))
 	defer server.Close()
 
-	client := httpclient.HTTPClient
+	client := &http.Client{}
 	jwks, err := FetchJWKSet(client, server.URL)
 
 	assert.NoError(t, err)
