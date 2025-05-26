@@ -42,8 +42,8 @@ func TestMeHandler_Integration_Success(t *testing.T) {
 						"kty": "RSA",
 						"alg": "RS256",
 						"use": "sig",
-						"n": "vGOQ4c4pOqZ0s6ek3bXzHeYsn9JMGVEJ9qdA-5CvfbQ3r3RxdcEu4QgRChokIldQ4BQxEADAGlYXr_fR9Eq_ThhNo-LVRhvGnnEXckc3e4prN7iFEeFdNKJUBBTrB7PTMug4xWxX3RCFfAwFHiqJHyRuS8Ev8jIuRIbwDkFvssK7PDWl5YiWDRHEKq2M2qFCrhv0fqUgOV-TGC7Apklb5aM0ly5kN_Z7KXvIwvTni-4g_ZLUOEmdbEAmL0qll9IMQ88nNnMcBHD5U9ku9ZCcc8t7cP1d4hO7nIbCjViVZsdfO2hfB7jAJscpk-c_TF04Zvl9vAwavHj7eNqvTVnOZWvq6fw",
-						"e": "AQAB"
+						"n": "vYy1yk3nLfNDFY-9XYMGhW-m1q5vJiwxDsPeHcYRhG3JuL2Rkxn5HDZ_Kr-WD1CTGjhdOBhnGlm9M7tRkhWbyU8c_OvY7nXU2PlNWdI3RuXb9hxCD6yXv_T7pHeKjdO6uT0vZ0DOZyMG8OdSfaCtb-Kdlh6UMtURO--OE1sMjj3SuBlRm6TYEkAM7Gv36k8b5kDp2uDtj_l_WnDZf81-fCVPvHfU1UmgRRfL_UWT1ZLkZADKHZlSgOXrPK2aD4eQmTIpNj03kpct8rzoC0XyCqKPyO8W3PoYk6ytAPk7NV8og8JTx17C3_Mqz02GZud7FneX9XZ8ReXBfBqAfXYL9UQ",
+						"e": "AQAB",
 					}]
 				}`); err != nil {
 					log.Printf("failed to write mock jwks response: %v", err)
