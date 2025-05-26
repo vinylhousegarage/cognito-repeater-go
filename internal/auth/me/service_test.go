@@ -165,7 +165,7 @@ func (f roundTripFunc) RoundTrip(req *http.Request) (*http.Response, error) {
 func TestFetchJWKSet_HTTPError(t *testing.T) {
 	t.Parallel()
 
-	brokenClient := http.Client{
+	brokenClient := &http.Client{
 		Transport: roundTripFunc(func(*http.Request) (*http.Response, error) {
 			return nil, errors.New("network error")
 		}),
