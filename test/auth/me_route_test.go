@@ -3,6 +3,7 @@ package auth_test
 import (
 	"encoding/base64"
 	"encoding/json"
+	"log"
 	"net/http"
 	"net/http/httptest"
 	"strings"
@@ -29,11 +30,13 @@ func TestMeHandler_Integration_Success(t *testing.T) {
 			switch {
 			case strings.Contains(req.URL.String(), "/.well-known/openid-configuration"):
 				rec.WriteHeader(http.StatusOK)
-				rec.WriteString(`{"jwks_uri": "https://example.com/jwks"}`)
+				if _, err := rec.WriteString(`{"jwks_uri": "https://example.com/jwks"}`); err != nil {
+					log.Printf("failed to write mock jwks_uri response: %v", err)
+				}
 
 			case strings.Contains(req.URL.String(), "/jwks"):
 				rec.WriteHeader(http.StatusOK)
-				rec.WriteString(`{
+				if _, err := rec.WriteString(`{
 					"keys": [{
 						"kid": "example-kid",
 						"kty": "RSA",
@@ -42,7 +45,9 @@ func TestMeHandler_Integration_Success(t *testing.T) {
 						"n": "example-n",
 						"e": "AQAB"
 					}]
-				}`)
+				}`); err != nil {
+					log.Printf("failed to write mock jwks response: %v", err)
+				}
 
 			default:
 				rec.WriteHeader(http.StatusNotFound)
