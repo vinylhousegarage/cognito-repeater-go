@@ -184,7 +184,7 @@ func TestFetchJWKSet_InvalidJSON(t *testing.T) {
 	}))
 	defer server.Close()
 
-	client := http.Client{}
+	client := &http.Client{}
 	_, err := FetchJWKSet(client, server.URL)
 	assert.Error(t, err)
 	assert.Contains(t, err.Error(), "failed to parse jwks JSON")
