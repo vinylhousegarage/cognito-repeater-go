@@ -8,6 +8,7 @@ import (
 	"cognito-repeater-go/internal/auth/login"
 	"cognito-repeater-go/internal/auth/logout"
 	"cognito-repeater-go/internal/auth/logoutredirect"
+	"cognito-repeater-go/internal/auth/me"
 )
 
 func RegisterAuthRoutes(mux *http.ServeMux, d deps.HandlerDependencies) {
@@ -15,4 +16,5 @@ func RegisterAuthRoutes(mux *http.ServeMux, d deps.HandlerDependencies) {
 	mux.HandleFunc("/login", login.LoginHandler(d))
 	mux.HandleFunc("/logout", logout.LogoutHandler(d))
 	mux.HandleFunc("/logout/redirect", logoutredirect.LogoutRedirectHandler)
+	mux.HandleFunc("/me", me.MeHandler(d))
 }
