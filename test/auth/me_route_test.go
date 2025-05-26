@@ -42,7 +42,7 @@ func TestMeHandler_Integration_Success(t *testing.T) {
 						"kty": "RSA",
 						"alg": "RS256",
 						"use": "sig",
-						"n": "example-n",
+						"n": "sXchVbAjD7CJD7RQzLHRcUFi4Ho0yMvJmn6iGT3RmMNJkNa_7Xdk1_JmZ_rNIlZCOgkt2uKwRGqWrXJyykrnxEMnJ7a8UZ2qECFZ1pPLrhDJEBNqMHlqZ_G60Pq7vhRjHUk2gHaZz9CVmW2l6rnpadp0aL1pMG96zV2vSzMzRmNk",
 						"e": "AQAB"
 					}]
 				}`); err != nil {
