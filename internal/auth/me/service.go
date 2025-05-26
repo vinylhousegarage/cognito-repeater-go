@@ -73,7 +73,12 @@ type JWKSet struct {
 }
 
 func FetchJWKSet(client httpclient.HTTPClient, jwksURL string) (*JWKSet, error) {
-	resp, err := client.Get(jwksURL)
+	req, err := http.NewRequest("GET", jwksURL, nil)
+	if err != nil {
+		return nil, fmt.Errorf("failed to create request: %w", err)
+	}
+
+	resp, err := client.Do(req)
 	if err != nil {
 		return nil, fmt.Errorf("failed to fetch jwks: %w", err)
 	}
