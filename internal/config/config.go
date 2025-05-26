@@ -54,3 +54,11 @@ func (c *Config) MetadataURL() string {
 type MetadataURLProvider interface {
 	MetadataURL() string
 }
+
+func (c *Config) Issuer() string {
+	return fmt.Sprintf("https://cognito-idp.%s.amazonaws.com/%s", c.Region, c.UserPoolID)
+}
+
+func (c *Config) Audience() string {
+	return c.UserPoolClientID
+}
