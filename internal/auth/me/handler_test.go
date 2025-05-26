@@ -12,7 +12,7 @@ import (
 
 func TestMeHandler_MissingAuthorizationHeader(t *testing.T) {
 	handler := MeHandler(deps.HandlerDependencies{
-		Config:     &testhelpers.MockCfg{},
+		Config:     testhelpers.MockCfg,
 		HTTPClient: &testhelpers.MockHTTPClient{},
 	})
 
