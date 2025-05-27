@@ -5,6 +5,7 @@ import (
 	"crypto/rsa"
 	"encoding/base64"
 	"encoding/json"
+	"log"
 	"math/big"
 	"net/http"
 	"net/http/httptest"
@@ -76,15 +77,22 @@ func TestMeHandler_Integration_Success(t *testing.T) {
 			switch {
 			case strings.Contains(req.URL.String(), "/.well-known/openid-configuration"):
 				rec.WriteHeader(http.StatusOK)
-				rec.WriteString(`{"jwks_uri": "https://example.com/jwks"}`)
+				if _, err := rec.WriteString(`{"jwks_uri": "https://example.com/jwks"}`); err != nil {
+					log.Printf("failed to write jwks_uri: %v", err)
+				}
+
 			case strings.Contains(req.URL.String(), "/jwks"):
 				rec.WriteHeader(http.StatusOK)
+
 				data, err := json.Marshal(jwks)
 				if err != nil {
 					rec.WriteHeader(http.StatusInternalServerError)
 					return rec.Result(), nil
 				}
-				rec.Write(data)
+				if _, err := rec.Write(data); err != nil {
+					log.Printf("failed to write jwks JSON: %v", err)
+				}
+
 			default:
 				rec.WriteHeader(http.StatusNotFound)
 			}
