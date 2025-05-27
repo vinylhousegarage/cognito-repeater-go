@@ -56,6 +56,8 @@ func GenerateTestJWKS() (*JWKS, *rsa.PrivateKey, error) {
 }
 
 func GenerateSignedToken(privateKey *rsa.PrivateKey) (string, error) {
+	now := time.Now()
+
 	token := jwt.NewWithClaims(jwt.SigningMethodRS256, jwt.MapClaims{
 		"sub": "test-sub",
 		"exp": now.Add(5 * time.Minute).Unix(),
