@@ -11,6 +11,7 @@ import (
 	"net/http/httptest"
 	"strings"
 	"testing"
+	"time"
 
 	"cognito-repeater-go/internal/config"
 	"cognito-repeater-go/internal/router"
@@ -57,6 +58,8 @@ func GenerateTestJWKS() (*JWKS, *rsa.PrivateKey, error) {
 func GenerateSignedToken(privateKey *rsa.PrivateKey) (string, error) {
 	token := jwt.NewWithClaims(jwt.SigningMethodRS256, jwt.MapClaims{
 		"sub": "test-sub",
+		"exp": now.Add(5 * time.Minute).Unix(),
+		"iat": now.Unix(),
 	})
 	token.Header["kid"] = "test-kid"
 	return token.SignedString(privateKey)
