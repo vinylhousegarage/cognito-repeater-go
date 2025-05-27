@@ -59,7 +59,7 @@ func GenerateTestJWKS() (*JWKSSet, *rsa.PrivateKey, error) {
 	e := base64.RawURLEncoding.EncodeToString(big.NewInt(int64(key.PublicKey.E)).Bytes())
 
 	jwk := JWK{
-		Kid: "test-key",
+		Kid: "test-kid",
 		Kty: "RSA",
 		Alg: "RS256",
 		Use: "sig",

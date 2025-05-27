@@ -19,7 +19,7 @@ import (
 func TestMeHandler_Integration_Success(t *testing.T) {
 	t.Parallel()
 
-	header := base64.RawURLEncoding.EncodeToString([]byte(`{"alg":"RS256","kid":"example-kid"}`))
+	header := base64.RawURLEncoding.EncodeToString([]byte(`{"alg":"RS256","kid":"test-kid"}`))
 	payload := base64.RawURLEncoding.EncodeToString([]byte(`{"sub":"test-sub"}`))
 	dummyToken := header + "." + payload + ".c2lnbmF0dXJl"
 
