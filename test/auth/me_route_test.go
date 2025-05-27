@@ -55,25 +55,36 @@ func GenerateTestJWKS() (*JWKS, *rsa.PrivateKey, error) {
 	return &JWKS{Keys: []JWK{jwk}}, key, nil
 }
 
-func GenerateSignedToken(privateKey *rsa.PrivateKey) (string, error) {
+func GenerateSignedToken(privateKey *rsa.PrivateKey, issuer, audience string) (string, error) {
 	now := time.Now()
 
-	token := jwt.NewWithClaims(jwt.SigningMethodRS256, jwt.MapClaims{
-		"sub": "test-sub",
-		"exp": now.Add(5 * time.Minute).Unix(),
-		"iat": now.Unix(),
-	})
+	claims := jwt.RegisteredClaims{
+		Subject:   "test-sub",
+		ExpiresAt: jwt.NewNumericDate(now.Add(5 * time.Minute)),
+		IssuedAt:  jwt.NewNumericDate(now),
+		Issuer:    issuer,
+		Audience:  jwt.ClaimStrings{audience},
+	}
+
+	token := jwt.NewWithClaims(jwt.SigningMethodRS256, claims)
 	token.Header["kid"] = "test-kid"
+
 	return token.SignedString(privateKey)
 }
 
 func TestMeHandler_Integration_Success(t *testing.T) {
 	t.Parallel()
 
+	cfg := &config.Config{
+		Region:           "ap-northeast-1",
+		UserPoolID:       "test-pool",
+		UserPoolClientID: "test-client",
+	}
+
 	jwks, privateKey, err := GenerateTestJWKS()
 	assert.NoError(t, err)
 
-	token, err := GenerateSignedToken(privateKey)
+	token, err := GenerateSignedToken(privateKey, cfg.Issuer(), cfg.Audience())
 	assert.NoError(t, err)
 
 	client := &testhelpers.MockHTTPClient{
@@ -103,12 +114,6 @@ func TestMeHandler_Integration_Success(t *testing.T) {
 			}
 			return rec.Result(), nil
 		},
-	}
-
-	cfg := &config.Config{
-		Region:           "ap-northeast-1",
-		UserPoolID:       "test-pool",
-		UserPoolClientID: "test-client",
 	}
 
 	router := router.NewRouter(cfg, client)
