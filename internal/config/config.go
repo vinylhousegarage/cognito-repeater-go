@@ -7,10 +7,11 @@ import (
 
 type CognitoMetadataProvider interface {
 	Audience() string
-	Issuer() string
 	ClientSecretValue() string
+	Issuer() string
 	MetadataURL() string
 	RedirectURIValue() string
+	ScopeValue() string
 	UserPoolClientIDValue() string
 }
 
@@ -46,6 +47,10 @@ type MetadataURLProvider interface {
 
 func (c *Config) RedirectURIValue() string {
 	return c.RedirectURI
+}
+
+func (c *Config) ScopeValue() string {
+	return c.Scope
 }
 
 func (c *Config) UserPoolClientIDValue() string {
