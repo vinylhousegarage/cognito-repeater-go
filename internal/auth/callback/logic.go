@@ -7,7 +7,7 @@ import (
 	"cognito-repeater-go/internal/config"
 )
 
-func BuildTokenRequestBody(code string, cfg *config.Config) string {
+func BuildTokenRequestBody(code string, cfg config.CognitoMetadataProvider) string {
 	form := url.Values{}
 	form.Set("grant_type", "authorization_code")
 	form.Set("code", code)
