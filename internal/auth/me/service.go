@@ -9,7 +9,7 @@ import (
 	"cognito-repeater-go/internal/httpclient"
 )
 
-func extractAccessToken(r *http.Request) (string, error) {
+func extractAuthHeaderToken(r *http.Request) (string, error) {
 	authHeader := r.Header.Get("Authorization")
 	if authHeader == "" {
 		return "", fmt.Errorf("authorization header is missing")

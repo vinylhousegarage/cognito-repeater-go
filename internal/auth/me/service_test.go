@@ -11,7 +11,7 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func TestExtractAccessToken(t *testing.T) {
+func TestExtractAuthHeaderToken(t *testing.T) {
 	t.Parallel()
 
 	cases := []struct {
@@ -34,7 +34,7 @@ func TestExtractAccessToken(t *testing.T) {
 				req.Header.Set("Authorization", c.header)
 			}
 
-			token, err := extractAccessToken(req)
+			token, err := extractAuthHeaderToken(req)
 
 			if c.wantErr {
 				assert.Error(t, err)
