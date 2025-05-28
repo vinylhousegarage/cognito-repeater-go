@@ -11,7 +11,7 @@ import (
 	"testing"
 
 	"cognito-repeater-go/internal/auth/deps"
-	"cognito-repeater-go/internal/test/testhelpers"
+	"cognito-repeater-go/test/testhelpers"
 
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
