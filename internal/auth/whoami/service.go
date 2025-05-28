@@ -43,3 +43,32 @@ func GetUserinfoURL(client httpclient.HTTPClient, metadataURL string) (string, e
 
 	return meta.UserinfoEndpoint, nil
 }
+
+func FetchUserinfo(client httpclient.HTTPClient, userinfoURL, token string) (map[string]interface{}, error) {
+	req, err := http.NewRequest("GET", userinfoURL, nil)
+	if err != nil {
+		return nil, fmt.Errorf("failed to create userinfo request: %w", err)
+	}
+	req.Header.Set("Authorization", "Bearer "+token)
+
+	resp, err := client.Do(req)
+	if err != nil {
+		return nil, fmt.Errorf("failed to call userinfo endpoint: %w", err)
+	}
+	defer func() {
+		if cerr := resp.Body.Close(); cerr != nil {
+			fmt.Printf("failed to close userinfo response body: %v\n", cerr)
+		}
+	}()
+
+	if resp.StatusCode != http.StatusOK {
+		return nil, fmt.Errorf("userinfo endpoint returned status: %d", resp.StatusCode)
+	}
+
+	var result map[string]interface{}
+	if err := json.NewDecoder(resp.Body).Decode(&result); err != nil {
+		return nil, fmt.Errorf("failed to parse userinfo response: %w", err)
+	}
+
+	return result, nil
+}
