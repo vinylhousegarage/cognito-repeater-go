@@ -12,8 +12,8 @@ var MockCfg config.CognitoMetadataProvider = &config.Config{
 	LogoutURI:        "https://example.com/logout",
 	RedirectURI:      "https://localhost/callback",
 	Scope:            "openid",
-	UserPoolClientID: "client-id",
-	UserPoolID:       "pool-id",
+	UserPoolClientID: "abc123clientidxyz4567890123",
+	UserPoolID:       "ap-northeast-1_Abc123XYZ",
 }
 
 type MockMetadataURL struct {
