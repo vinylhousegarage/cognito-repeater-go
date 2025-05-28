@@ -11,7 +11,7 @@ import (
 	"cognito-repeater-go/internal/simulatederrors"
 )
 
-func NewRouter(cfg *config.Config, client httpclient.HTTPClient) http.Handler {
+func NewRouter(cfg config.CognitoMetadataProvider, client httpclient.HTTPClient) http.Handler {
 	mux := http.NewServeMux()
 
 	handlerDeps := deps.HandlerDependencies{
