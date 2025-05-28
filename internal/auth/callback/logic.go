@@ -17,7 +17,7 @@ func BuildTokenRequestBody(code string, cfg config.CognitoMetadataProvider) stri
 	return form.Encode()
 }
 
-func BuildBasicAuthHeader(cfg *config.Config) string {
+func BuildBasicAuthHeader(cfg config.CognitoMetadataProvider) string {
 	raw := cfg.UserPoolClientID + ":" + cfg.ClientSecret
 	return "Basic " + base64.StdEncoding.EncodeToString([]byte(raw))
 }
