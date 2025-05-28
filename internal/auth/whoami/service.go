@@ -3,6 +3,7 @@ package whoami
 import (
 	"encoding/json"
 	"fmt"
+	"io"
 	"net/http"
 
 	"cognito-repeater-go/internal/httpclient"
@@ -29,6 +30,9 @@ func GetUserinfoURL(client httpclient.HTTPClient, metadataURL string) (string, e
 	}()
 
 	if resp.StatusCode != http.StatusOK {
+		bodyBytes, _ := io.ReadAll(resp.Body)
+		fmt.Printf("unexpected status code: %d\n", resp.StatusCode)
+		fmt.Printf("response body: %s\n", string(bodyBytes))
 		return "", fmt.Errorf("unexpected status code: %d", resp.StatusCode)
 	}
 
@@ -62,6 +66,9 @@ func FetchUserinfo(client httpclient.HTTPClient, userinfoURL, token string) (map
 	}()
 
 	if resp.StatusCode != http.StatusOK {
+		bodyBytes, _ := io.ReadAll(resp.Body)
+		fmt.Printf("userinfo endpoint returned status: %d\n", resp.StatusCode)
+		fmt.Printf("userinfo response body: %s\n", string(bodyBytes))
 		return nil, fmt.Errorf("userinfo endpoint returned status: %d", resp.StatusCode)
 	}
 
