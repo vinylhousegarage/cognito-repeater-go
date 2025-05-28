@@ -6,7 +6,7 @@ import (
 	"net/http"
 
 	"cognito-repeater-go/internal/auth/deps"
-	"cognito-repeater-go/internal/utils"
+	"cognito-repeater-go/internal/auth/utils"
 )
 
 func writeJSONError(w http.ResponseWriter, status int, msg string) {
