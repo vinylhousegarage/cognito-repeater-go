@@ -8,6 +8,7 @@ import (
 type CognitoMetadataProvider interface {
 	Audience() string
 	Issuer() string
+	ClientSecret() string
 	MetadataURL() string
 	RedirectURI() string
 	UserPoolClientID() string
@@ -23,20 +24,24 @@ type Config struct {
 	UserPoolID       string
 }
 
-func (c *Config) MetadataURL() string {
-	return fmt.Sprintf("https://cognito-idp.%s.amazonaws.com/%s/.well-known/openid-configuration", c.Region, c.UserPoolID)
+func (c *Config) Audience() string {
+	return c.UserPoolClientID
 }
 
-type MetadataURLProvider interface {
-	MetadataURL() string
+func (c *Config) ClientSecret() string {
+	return c.ClientSecret
 }
 
 func (c *Config) Issuer() string {
 	return fmt.Sprintf("https://cognito-idp.%s.amazonaws.com/%s", c.Region, c.UserPoolID)
 }
 
-func (c *Config) Audience() string {
-	return c.UserPoolClientID
+func (c *Config) MetadataURL() string {
+	return fmt.Sprintf("https://cognito-idp.%s.amazonaws.com/%s/.well-known/openid-configuration", c.Region, c.UserPoolID)
+}
+
+type MetadataURLProvider interface {
+	MetadataURL() string
 }
 
 func (c *Config) RedirectURI() string {
