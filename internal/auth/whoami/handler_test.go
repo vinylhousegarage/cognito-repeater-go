@@ -106,7 +106,7 @@ func TestWhoamiHandler_MetadataFetchError(t *testing.T) {
 
 	body, err := io.ReadAll(resp.Body)
 	require.NoError(t, err)
-	assert.Contains(t, string(body), "internal server error")
+	assert.Contains(t, string(body), "failed to get userinfo endpoint")
 }
 
 func TestWhoamiHandler_UserinfoFetchUnauthorized(t *testing.T) {
