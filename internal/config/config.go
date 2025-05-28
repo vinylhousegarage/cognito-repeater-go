@@ -8,10 +8,10 @@ import (
 type CognitoMetadataProvider interface {
 	Audience() string
 	Issuer() string
-	ClientSecret() string
+	ClientSecretValue() string
 	MetadataURL() string
-	RedirectURI() string
-	UserPoolClientID() string
+	RedirectURIValue() string
+	UserPoolClientIDValue() string
 }
 
 type Config struct {
@@ -28,7 +28,7 @@ func (c *Config) Audience() string {
 	return c.UserPoolClientID
 }
 
-func (c *Config) ClientSecret() string {
+func (c *Config) ClientSecretValue() string {
 	return c.ClientSecret
 }
 
@@ -44,11 +44,11 @@ type MetadataURLProvider interface {
 	MetadataURL() string
 }
 
-func (c *Config) RedirectURI() string {
+func (c *Config) RedirectURIValue() string {
 	return c.RedirectURI
 }
 
-func (c *Config) UserPoolClientID() string {
+func (c *Config) UserPoolClientIDValue() string {
 	return c.UserPoolClientID
 }
 
