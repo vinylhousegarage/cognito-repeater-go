@@ -32,14 +32,18 @@ func TestWhoamiHandler_Success(t *testing.T) {
 			body := `{"userinfo_endpoint":"https://mock/userinfo"}`
 			rec := httptest.NewRecorder()
 			rec.WriteHeader(http.StatusOK)
-			rec.WriteString(body)
+			if _, err := rec.WriteString(body); err != nil {
+				return nil, fmt.Errorf("failed to write response body: %w", err)
+			}
 			return rec.Result(), nil
 		}
 		if strings.Contains(req.URL.String(), "userinfo") {
 			body := `{"sub":"abc123","email":"user@example.com"}`
 			rec := httptest.NewRecorder()
 			rec.WriteHeader(http.StatusOK)
-			rec.WriteString(body)
+			if _, err := rec.WriteString(body); err != nil {
+				return nil, fmt.Errorf("failed to write response body: %w", err)
+			}
 			return rec.Result(), nil
 		}
 		return nil, fmt.Errorf("unexpected request: %s", req.URL.String())
@@ -112,13 +116,17 @@ func TestWhoamiHandler_UserinfoFetchUnauthorized(t *testing.T) {
 		if strings.Contains(req.URL.String(), "openid-configuration") {
 			rec := httptest.NewRecorder()
 			rec.WriteHeader(http.StatusOK)
-			rec.WriteString(`{"userinfo_endpoint":"https://mock/userinfo"}`)
+			if _, err := rec.WriteString(`{"userinfo_endpoint":"https://mock/userinfo"}`); err != nil {
+				return nil, fmt.Errorf("failed to write metadata: %w", err)
+			}
 			return rec.Result(), nil
 		}
 		if strings.Contains(req.URL.String(), "userinfo") {
 			rec := httptest.NewRecorder()
 			rec.WriteHeader(http.StatusUnauthorized)
-			rec.WriteString(`{"error":"unauthorized"}`)
+			if _, err := rec.WriteString(`{"error":"unauthorized"}`); err != nil {
+				return nil, fmt.Errorf("failed to write userinfo error: %w", err)
+			}
 			return rec.Result(), nil
 		}
 		return nil, fmt.Errorf("unexpected request: %s", req.URL.String())
