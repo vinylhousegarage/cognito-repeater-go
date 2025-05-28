@@ -36,9 +36,9 @@ func BuildLoginURL(c config.CognitoMetadataProvider, endpoint, state string) (st
 	}
 	q := loginURL.Query()
 	q.Set("response_type", "code")
-	q.Set("client_id", c.UserPoolClientID())
-	q.Set("redirect_uri", c.RedirectURI())
-	q.Set("scope", c.Scope())
+	q.Set("client_id", c.UserPoolClientIDValue())
+	q.Set("redirect_uri", c.RedirectURIValue())
+	q.Set("scope", c.ScopeValue())
 	q.Set("state", state)
 	loginURL.RawQuery = q.Encode()
 	return loginURL.String(), nil
