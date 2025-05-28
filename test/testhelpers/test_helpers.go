@@ -6,7 +6,7 @@ import (
 	"cognito-repeater-go/internal/config"
 )
 
-var MockCfg = &config.Config{
+var MockCfg config.CognitoMetadataProvider = &config.Config{
 	Region:           "ap-northeast-1",
 	ClientSecret:     "client-secret",
 	LogoutURI:        "https://example.com/logout",
