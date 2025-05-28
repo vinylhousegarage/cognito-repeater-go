@@ -6,9 +6,11 @@ import (
 )
 
 type CognitoMetadataProvider interface {
-	MetadataURL() string
-	Issuer() string
 	Audience() string
+	Issuer() string
+	MetadataURL() string
+	RedirectURI() string
+	UserPoolClientID() string
 }
 
 type Config struct {
@@ -34,6 +36,14 @@ func (c *Config) Issuer() string {
 }
 
 func (c *Config) Audience() string {
+	return c.UserPoolClientID
+}
+
+func (c *Config) RedirectURI() string {
+	return c.RedirectURI
+}
+
+func (c *Config) UserPoolClientID() string {
 	return c.UserPoolClientID
 }
 
