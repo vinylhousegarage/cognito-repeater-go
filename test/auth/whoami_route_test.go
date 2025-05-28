@@ -30,7 +30,7 @@ func TestWhoamiRoute_Success(t *testing.T) {
 	defer metadataServer.Close()
 
 	deps := deps.HandlerDependencies{
-		Config:     testhelpers.MockCfg,
+		Config:     &testhelpers.MockMetadataURL{URL: metadataServer.URL},
 		HTTPClient: &testhelpers.MockHTTPClient{DoFunc: http.DefaultClient.Do},
 	}
 
