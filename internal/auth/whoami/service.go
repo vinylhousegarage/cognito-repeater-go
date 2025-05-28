@@ -24,20 +24,25 @@ func GetUserinfoURL(client httpclient.HTTPClient, metadataURL string) (string, e
 		return "", fmt.Errorf("failed to fetch metadata: %w", err)
 	}
 	defer func() {
-		if err := resp.Body.Close(); err != nil {
-			fmt.Printf("failed to close response body: %v\n", err)
+		if cerr := resp.Body.Close(); cerr != nil {
+			fmt.Printf("failed to close response body: %v\n", cerr)
 		}
 	}()
 
+	bodyBytes, err := io.ReadAll(resp.Body)
+	if err != nil {
+		return "", fmt.Errorf("failed to read metadata response: %w", err)
+	}
+
 	if resp.StatusCode != http.StatusOK {
-		bodyBytes, _ := io.ReadAll(resp.Body)
 		fmt.Printf("unexpected status code: %d\n", resp.StatusCode)
 		fmt.Printf("response body: %s\n", string(bodyBytes))
 		return "", fmt.Errorf("unexpected status code: %d", resp.StatusCode)
 	}
 
 	var meta UserinfoMetadata
-	if err := json.NewDecoder(resp.Body).Decode(&meta); err != nil {
+	if err := json.Unmarshal(bodyBytes, &meta); err != nil {
+		fmt.Printf("failed to decode metadata body: %s\n", string(bodyBytes))
 		return "", fmt.Errorf("failed to decode metadata: %w", err)
 	}
 
@@ -65,15 +70,20 @@ func FetchUserinfo(client httpclient.HTTPClient, userinfoURL, token string) (map
 		}
 	}()
 
+	bodyBytes, err := io.ReadAll(resp.Body)
+	if err != nil {
+		return nil, fmt.Errorf("failed to read userinfo response: %w", err)
+	}
+
 	if resp.StatusCode != http.StatusOK {
-		bodyBytes, _ := io.ReadAll(resp.Body)
 		fmt.Printf("userinfo endpoint returned status: %d\n", resp.StatusCode)
 		fmt.Printf("userinfo response body: %s\n", string(bodyBytes))
 		return nil, fmt.Errorf("userinfo endpoint returned status: %d", resp.StatusCode)
 	}
 
 	var result map[string]interface{}
-	if err := json.NewDecoder(resp.Body).Decode(&result); err != nil {
+	if err := json.Unmarshal(bodyBytes, &result); err != nil {
+		fmt.Printf("failed to decode userinfo body: %s\n", string(bodyBytes))
 		return nil, fmt.Errorf("failed to parse userinfo response: %w", err)
 	}
 
