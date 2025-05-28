@@ -5,6 +5,16 @@ import (
 	"os"
 )
 
+type CognitoMetadataProvider interface {
+	Audience() string
+	ClientSecretValue() string
+	Issuer() string
+	MetadataURL() string
+	RedirectURIValue() string
+	ScopeValue() string
+	UserPoolClientIDValue() string
+}
+
 type Config struct {
 	Region           string
 	ClientSecret     string
@@ -13,6 +23,38 @@ type Config struct {
 	Scope            string
 	UserPoolClientID string
 	UserPoolID       string
+}
+
+func (c *Config) Audience() string {
+	return c.UserPoolClientID
+}
+
+func (c *Config) ClientSecretValue() string {
+	return c.ClientSecret
+}
+
+func (c *Config) Issuer() string {
+	return fmt.Sprintf("https://cognito-idp.%s.amazonaws.com/%s", c.Region, c.UserPoolID)
+}
+
+func (c *Config) MetadataURL() string {
+	return fmt.Sprintf("https://cognito-idp.%s.amazonaws.com/%s/.well-known/openid-configuration", c.Region, c.UserPoolID)
+}
+
+type MetadataURLProvider interface {
+	MetadataURL() string
+}
+
+func (c *Config) RedirectURIValue() string {
+	return c.RedirectURI
+}
+
+func (c *Config) ScopeValue() string {
+	return c.Scope
+}
+
+func (c *Config) UserPoolClientIDValue() string {
+	return c.UserPoolClientID
 }
 
 func LoadConfig() (*Config, error) {
@@ -45,20 +87,4 @@ func LoadConfig() (*Config, error) {
 		UserPoolClientID: os.Getenv("AWS_COGNITO_USER_POOL_CLIENT_ID"),
 		UserPoolID:       os.Getenv("AWS_COGNITO_USER_POOL_ID"),
 	}, nil
-}
-
-func (c *Config) MetadataURL() string {
-	return fmt.Sprintf("https://cognito-idp.%s.amazonaws.com/%s/.well-known/openid-configuration", c.Region, c.UserPoolID)
-}
-
-type MetadataURLProvider interface {
-	MetadataURL() string
-}
-
-func (c *Config) Issuer() string {
-	return fmt.Sprintf("https://cognito-idp.%s.amazonaws.com/%s", c.Region, c.UserPoolID)
-}
-
-func (c *Config) Audience() string {
-	return c.UserPoolClientID
 }

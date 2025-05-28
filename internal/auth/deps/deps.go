@@ -6,6 +6,6 @@ import (
 )
 
 type HandlerDependencies struct {
-	Config     *config.Config
+	Config     config.CognitoMetadataProvider
 	HTTPClient httpclient.HTTPClient
 }
