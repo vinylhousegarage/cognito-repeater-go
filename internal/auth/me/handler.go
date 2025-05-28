@@ -6,6 +6,7 @@ import (
 	"net/http"
 
 	"cognito-repeater-go/internal/auth/deps"
+	"cognito-repeater-go/internal/auth/utils"
 )
 
 func writeJSONError(w http.ResponseWriter, status int, msg string) {
@@ -18,7 +19,7 @@ func writeJSONError(w http.ResponseWriter, status int, msg string) {
 
 func MeHandler(d deps.HandlerDependencies) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		tokenStr, err := extractAuthHeaderToken(r)
+		tokenStr, err := utils.ExtractAuthHeaderToken(r)
 		if err != nil {
 			log.Printf("token extraction error: %v", err)
 			writeJSONError(w, http.StatusBadRequest, "missing or malformed access token")

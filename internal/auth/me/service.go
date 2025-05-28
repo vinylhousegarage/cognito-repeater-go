@@ -4,24 +4,9 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
-	"strings"
 
 	"cognito-repeater-go/internal/httpclient"
 )
-
-func extractAuthHeaderToken(r *http.Request) (string, error) {
-	authHeader := r.Header.Get("Authorization")
-	if authHeader == "" {
-		return "", fmt.Errorf("authorization header is missing")
-	}
-
-	parts := strings.SplitN(authHeader, " ", 2)
-	if len(parts) != 2 || strings.ToLower(parts[0]) != "bearer" {
-		return "", fmt.Errorf("invalid authorization header format")
-	}
-
-	return parts[1], nil
-}
 
 type JWKSMetadata struct {
 	JWKSURI string `json:"jwks_uri"`

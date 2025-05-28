@@ -6,6 +6,7 @@ import (
 	"net/http/httptest"
 	"testing"
 
+	"cognito-repeater-go/internal/auth/utils"
 	"cognito-repeater-go/test/testhelpers"
 
 	"github.com/stretchr/testify/assert"
@@ -34,7 +35,7 @@ func TestExtractAuthHeaderToken(t *testing.T) {
 				req.Header.Set("Authorization", c.header)
 			}
 
-			token, err := extractAuthHeaderToken(req)
+			token, err := utils.ExtractAuthHeaderToken(req)
 
 			if c.wantErr {
 				assert.Error(t, err)
