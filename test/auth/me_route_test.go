@@ -72,16 +72,16 @@ func GenerateSignedToken(privateKey *rsa.PrivateKey, issuer, audience string) (s
 	return token.SignedString(privateKey)
 }
 
+type mockAllProviders struct {
+	*config.Config
+}
+
+func (m *mockAllProviders) GetJWKSURI() string {
+	return "https://example.com/jwks"
+}
+
 func TestMeHandler_Integration_Success(t *testing.T) {
 	t.Parallel()
-
-	type mockAllProviders struct {
-		*config.Config
-	}
-
-	func (m *mockAllProviders) GetJWKSURI() string {
-		return "https://example.com/jwks"
-	}
 
 	cfg := &config.Config{
 		Region:           "ap-northeast-1",
