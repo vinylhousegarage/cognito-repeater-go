@@ -16,7 +16,7 @@ import (
 func NewRouter(
 	cfg config.CognitoMetadataProvider,
 	callbackCfg callback.CallbackHandlerProvider,
-	logoutCfg logout.LogoutEndpointProvider,
+	logoutCfg logout.LogoutHandlerProvider,
 	client httpclient.HTTPClient,
 ) http.Handler {
 	mux := http.NewServeMux()
