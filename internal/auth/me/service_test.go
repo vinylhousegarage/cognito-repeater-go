@@ -150,7 +150,7 @@ func TestFetchJWKSet_Success(t *testing.T) {
 	defer server.Close()
 
 	client := &http.Client{}
-	jwks, err := FetchJWKSet(client, server.URL)
+	jwks, err := FetchJWKSet(server.URL, client)
 
 	assert.NoError(t, err)
 	assert.Len(t, jwks.Keys, 1)
@@ -172,7 +172,7 @@ func TestFetchJWKSet_HTTPError(t *testing.T) {
 		}),
 	}
 
-	_, err := FetchJWKSet(brokenClient, "https://example.com/jwks")
+	_, err := FetchJWKSet("https://example.com/jwks", brokenClient)
 	assert.Error(t, err)
 	assert.Contains(t, err.Error(), "failed to fetch jwks")
 }
@@ -186,7 +186,7 @@ func TestFetchJWKSet_InvalidJSON(t *testing.T) {
 	defer server.Close()
 
 	client := &http.Client{}
-	_, err := FetchJWKSet(client, server.URL)
+	_, err := FetchJWKSet(server.URL, client)
 	assert.Error(t, err)
 	assert.Contains(t, err.Error(), "failed to parse jwks JSON")
 }

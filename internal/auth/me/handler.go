@@ -40,7 +40,7 @@ func MeHandler(p MeHandlerProvider, c httpclient.HTTPClient) http.HandlerFunc {
 			return
 		}
 
-		jwkSet, err := FetchJWKSet(c, jwksURL)
+		jwkSet, err := FetchJWKSet(jwksURL, c)
 		if err != nil {
 			log.Printf("failed to fetch JWKS: %v", err)
 			writeJSONError(w, http.StatusInternalServerError, "internal server error")
