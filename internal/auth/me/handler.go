@@ -10,10 +10,10 @@ import (
 )
 
 type MeHandlerProvider interface {
-	Audience() string,
-	GetJWKSURI() string,
-	Issuer() string,
-	MetadataURL() string,
+	Audience() string
+	GetJWKSURI() string
+	Issuer() string
+	MetadataURL() string
 }
 
 func writeJSONError(w http.ResponseWriter, status int, msg string) {
