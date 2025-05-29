@@ -8,6 +8,7 @@ import (
 type CognitoMetadataProvider interface {
 	Audience() string
 	ClientSecretValue() string
+	GetJWKSURI() string
 	Issuer() string
 	MetadataURL() string
 	RedirectURIValue() string
