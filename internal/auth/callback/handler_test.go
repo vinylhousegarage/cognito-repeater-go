@@ -7,8 +7,8 @@ import (
 	"net/http/httptest"
 	"testing"
 
-	"cognito-repeater-go/internal/auth/deps"
 	"cognito-repeater-go/internal/config"
+	"cognito-repeater-go/internal/httpclient"
 	"cognito-repeater-go/test/testhelpers"
 
 	"github.com/stretchr/testify/assert"
@@ -53,12 +53,7 @@ func TestCallbackHandlerSuccess(t *testing.T) {
 		UserPoolID:       "pool-id",
 	}
 
-	handlerDeps := deps.HandlerDependencies{
-		Config:     cfg,
-		HTTPClient: mockClient,
-	}
-
-	handler := CallbackHandler(handlerDeps)
+	handler := CallbackHandler(cfg, mockClient)
 
 	req := httptest.NewRequest(http.MethodGet, "/callback?code=testcode&state=xyz", nil)
 	req.AddCookie(&http.Cookie{Name: "oauth_state", Value: "xyz"})
