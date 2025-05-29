@@ -23,6 +23,10 @@ func (m *mockCallbackHandlerProvider) ClientSecretValue() string {
 	return "mock-client-secret"
 }
 
+func (m *mockCallbackHandlerProvider) GetJWKSURI() string {
+	return "https://example.com/jwks"
+}
+
 func (m *mockCallbackHandlerProvider) Issuer() string {
 	region := "ap-northeast-1"
 	userPoolID := "mock-user-pool-id"
@@ -75,7 +79,7 @@ func TestCallbackRouteReturnsTokenJSON(t *testing.T) {
 
 	provider := &mockCallbackHandlerProvider{}
 
-	r := router.NewRouter(provider, provider, provider, client)
+	r := router.NewRouter(provider, provider, provider, provider, client)
 
 	req := httptest.NewRequest(http.MethodGet, "/callback?code=abc123&state=xyz", nil)
 	req.AddCookie(&http.Cookie{Name: "oauth_state", Value: "xyz"})

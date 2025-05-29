@@ -56,7 +56,7 @@ func TestGetJWKSURI_Success(t *testing.T) {
 	}))
 	defer ts.Close()
 
-	endpoint, err := GetJWKSURI(http.DefaultClient, ts.URL)
+	endpoint, err := GetJWKSURI(ts.URL, http.DefaultClient)
 
 	assert.NoError(t, err, "failed to fetch jwks_uri")
 	assert.Equal(t, "https://example.com/dummy/.well-known/jwks.json", endpoint)
@@ -71,7 +71,7 @@ func TestGetJWKSURI_HTTPClientError(t *testing.T) {
 		},
 	}
 
-	_, err := GetJWKSURI(mockClient, "https://example.com")
+	_, err := GetJWKSURI("https://example.com", mockClient)
 	assert.Error(t, err)
 	assert.Contains(t, err.Error(), "failed to fetch metadata")
 }
@@ -85,7 +85,7 @@ func TestGetJWKSURI_StatusCodeError(t *testing.T) {
 	defer server.Close()
 
 	client := &http.Client{}
-	_, err := GetJWKSURI(client, server.URL)
+	_, err := GetJWKSURI(server.URL, client)
 	assert.Error(t, err)
 	assert.Contains(t, err.Error(), "unexpected status code")
 }
@@ -99,7 +99,7 @@ func TestGetJWKSURI_InvalidJSON(t *testing.T) {
 	defer server.Close()
 
 	client := &http.Client{}
-	_, err := GetJWKSURI(client, server.URL)
+	_, err := GetJWKSURI(server.URL, client)
 	assert.Error(t, err)
 	assert.Contains(t, err.Error(), "failed to decode metadata")
 }
@@ -113,7 +113,7 @@ func TestGetJWKSURI_EmptyJWKSURI(t *testing.T) {
 	defer server.Close()
 
 	client := &http.Client{}
-	_, err := GetJWKSURI(client, server.URL)
+	_, err := GetJWKSURI(server.URL, client)
 	assert.Error(t, err)
 	assert.Contains(t, err.Error(), "jwks_uri is empty")
 }
@@ -122,7 +122,7 @@ func TestGetJWKSURI_InvalidURL(t *testing.T) {
 	t.Parallel()
 
 	client := &http.Client{}
-	_, err := GetJWKSURI(client, "http://[::1]:namedport")
+	_, err := GetJWKSURI("http://[::1]:namedport", client)
 	assert.Error(t, err)
 	assert.Contains(t, err.Error(), "failed to create request")
 }
@@ -150,7 +150,7 @@ func TestFetchJWKSet_Success(t *testing.T) {
 	defer server.Close()
 
 	client := &http.Client{}
-	jwks, err := FetchJWKSet(client, server.URL)
+	jwks, err := FetchJWKSet(server.URL, client)
 
 	assert.NoError(t, err)
 	assert.Len(t, jwks.Keys, 1)
@@ -172,7 +172,7 @@ func TestFetchJWKSet_HTTPError(t *testing.T) {
 		}),
 	}
 
-	_, err := FetchJWKSet(brokenClient, "https://example.com/jwks")
+	_, err := FetchJWKSet("https://example.com/jwks", brokenClient)
 	assert.Error(t, err)
 	assert.Contains(t, err.Error(), "failed to fetch jwks")
 }
@@ -186,7 +186,7 @@ func TestFetchJWKSet_InvalidJSON(t *testing.T) {
 	defer server.Close()
 
 	client := &http.Client{}
-	_, err := FetchJWKSet(client, server.URL)
+	_, err := FetchJWKSet(server.URL, client)
 	assert.Error(t, err)
 	assert.Contains(t, err.Error(), "failed to parse jwks JSON")
 }

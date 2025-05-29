@@ -12,7 +12,7 @@ type JWKSMetadata struct {
 	JWKSURI string `json:"jwks_uri"`
 }
 
-func GetJWKSURI(client httpclient.HTTPClient, metadataURL string) (string, error) {
+func GetJWKSURI(metadataURL string, client httpclient.HTTPClient) (string, error) {
 	req, err := http.NewRequest("GET", metadataURL, nil)
 	if err != nil {
 		return "", fmt.Errorf("failed to create request: %w", err)
@@ -57,7 +57,7 @@ type JWKSet struct {
 	Keys []JWK `json:"keys"`
 }
 
-func FetchJWKSet(client httpclient.HTTPClient, jwksURL string) (*JWKSet, error) {
+func FetchJWKSet(jwksURL string, client httpclient.HTTPClient) (*JWKSet, error) {
 	req, err := http.NewRequest("GET", jwksURL, nil)
 	if err != nil {
 		return nil, fmt.Errorf("failed to create request: %w", err)

@@ -6,18 +6,24 @@ import (
 	"strings"
 	"testing"
 
-	"cognito-repeater-go/internal/auth/deps"
+	"cognito-repeater-go/internal/config"
 	"cognito-repeater-go/test/testhelpers"
 )
 
 func TestMeHandler_MissingAuthorizationHeader(t *testing.T) {
-	handler := MeHandler(deps.HandlerDependencies{
-		Config:     testhelpers.MockCfg,
-		HTTPClient: &testhelpers.MockHTTPClient{},
-	})
+	cfg := &config.Config{
+		Region:           "ap-northeast-1",
+		ClientSecret:     "client-secret",
+		LogoutURI:        "https://example.com/logout",
+		RedirectURI:      "https://localhost/callback",
+		Scope:            "openid",
+		UserPoolClientID: "abc123clientidxyz4567890123",
+		UserPoolID:       "ap-northeast-1_Abc123XYZ",
+	}
+
+	handler := MeHandler(cfg, &testhelpers.MockHTTPClient{})
 
 	req := httptest.NewRequest(http.MethodGet, "/me", nil)
-
 	rr := httptest.NewRecorder()
 
 	handler.ServeHTTP(rr, req)

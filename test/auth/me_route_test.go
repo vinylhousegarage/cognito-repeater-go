@@ -5,7 +5,6 @@ import (
 	"crypto/rsa"
 	"encoding/base64"
 	"encoding/json"
-	"log"
 	"math/big"
 	"net/http"
 	"net/http/httptest"
@@ -72,6 +71,14 @@ func GenerateSignedToken(privateKey *rsa.PrivateKey, issuer, audience string) (s
 	return token.SignedString(privateKey)
 }
 
+type mockAllProviders struct {
+	*config.Config
+}
+
+func (m *mockAllProviders) GetJWKSURI() string {
+	return "https://example.com/jwks"
+}
+
 func TestMeHandler_Integration_Success(t *testing.T) {
 	t.Parallel()
 
@@ -80,6 +87,8 @@ func TestMeHandler_Integration_Success(t *testing.T) {
 		UserPoolID:       "test-pool",
 		UserPoolClientID: "test-client",
 	}
+
+	provider := &mockAllProviders{Config: cfg}
 
 	jwks, privateKey, err := GenerateTestJWKS()
 	assert.NoError(t, err)
@@ -93,21 +102,15 @@ func TestMeHandler_Integration_Success(t *testing.T) {
 			switch {
 			case strings.Contains(req.URL.String(), "/.well-known/openid-configuration"):
 				rec.WriteHeader(http.StatusOK)
-				if _, err := rec.WriteString(`{"jwks_uri": "https://example.com/jwks"}`); err != nil {
-					log.Printf("failed to write jwks_uri: %v", err)
-				}
+				_, _ = rec.WriteString(`{"jwks_uri": "https://example.com/jwks"}`)
 
 			case strings.Contains(req.URL.String(), "/jwks"):
 				rec.WriteHeader(http.StatusOK)
-
 				data, err := json.Marshal(jwks)
 				if err != nil {
 					rec.WriteHeader(http.StatusInternalServerError)
-					return rec.Result(), nil
 				}
-				if _, err := rec.Write(data); err != nil {
-					log.Printf("failed to write jwks JSON: %v", err)
-				}
+				_, _ = rec.Write(data)
 
 			default:
 				rec.WriteHeader(http.StatusNotFound)
@@ -116,7 +119,7 @@ func TestMeHandler_Integration_Success(t *testing.T) {
 		},
 	}
 
-	router := router.NewRouter(cfg, cfg, cfg, client)
+	router := router.NewRouter(provider, provider, provider, provider, client)
 
 	req := httptest.NewRequest(http.MethodGet, "/me", nil)
 	req.Header.Set("Authorization", "Bearer "+token)

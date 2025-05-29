@@ -17,11 +17,12 @@ func RegisterAuthRoutes(
 	d deps.HandlerDependencies,
 	callbackCfg callback.CallbackHandlerProvider,
 	logoutCfg logout.LogoutHandlerProvider,
+	meCfg me.MeHandlerProvider,
 	h httpclient.HTTPClient,
 ) {
 	mux.HandleFunc("/callback", callback.CallbackHandler(callbackCfg, h))
 	mux.HandleFunc("/login", login.LoginHandler(d))
 	mux.HandleFunc("/logout", logout.LogoutHandler(logoutCfg, h))
 	mux.HandleFunc("/logout/redirect", logoutredirect.LogoutRedirectHandler)
-	mux.HandleFunc("/me", me.MeHandler(d))
+	mux.HandleFunc("/me", me.MeHandler(meCfg, h))
 }

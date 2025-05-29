@@ -17,6 +17,7 @@ type MockLogoutConfig struct{}
 
 func (m *MockLogoutConfig) Audience() string              { return "mock-audience" }
 func (m *MockLogoutConfig) ClientSecretValue() string     { return "mock-secret" }
+func (m *MockLogoutConfig) GetJWKSURI() string            { return "https://example.com/jwks" }
 func (m *MockLogoutConfig) Issuer() string                { return "https://mock-issuer" }
 func (m *MockLogoutConfig) MetadataURL() string           { return "https://mock.metadata.url" }
 func (m *MockLogoutConfig) RedirectURIValue() string      { return "https://example.com/callback" }
@@ -37,7 +38,7 @@ func TestLogoutRouteIsRegisteredInProductionRouter(t *testing.T) {
 		},
 	}
 
-	r := router.NewRouter(&MockLogoutConfig{}, &MockLogoutConfig{}, &MockLogoutConfig{}, mockClient)
+	r := router.NewRouter(&MockLogoutConfig{}, &MockLogoutConfig{}, &MockLogoutConfig{}, &MockLogoutConfig{}, mockClient)
 
 	req := httptest.NewRequest(http.MethodGet, "/logout", nil)
 	w := httptest.NewRecorder()

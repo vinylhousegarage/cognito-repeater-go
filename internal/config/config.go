@@ -8,6 +8,7 @@ import (
 type CognitoMetadataProvider interface {
 	Audience() string
 	ClientSecretValue() string
+	GetJWKSURI() string
 	Issuer() string
 	MetadataURL() string
 	RedirectURIValue() string
@@ -31,6 +32,10 @@ func (c *Config) Audience() string {
 
 func (c *Config) ClientSecretValue() string {
 	return c.ClientSecret
+}
+
+func (c *Config) GetJWKSURI() string {
+	return fmt.Sprintf("https://cognito-idp.%s.amazonaws.com/%s/.well-known/jwks.json", c.Region, c.UserPoolID)
 }
 
 func (c *Config) Issuer() string {
