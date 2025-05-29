@@ -12,11 +12,7 @@ import (
 
 type MockLogoutConfig struct{}
 
-func (m *MockLogoutConfig) MetadataURL() string           { return "https://mock.metadata.url" }
-func (m *MockLogoutConfig) ClientSecretValue() string     { return "secret" }
-func (m *MockLogoutConfig) RedirectURIValue() string      { return "https://example.com/callback" }
-func (m *MockLogoutConfig) ScopeValue() string            { return "openid" }
-func (m *MockLogoutConfig) UserPoolClientIDValue() string { return "client-id" }
+func (m *MockLogoutConfig) MetadataURL() string { return "https://mock.metadata.url" }
 
 func TestLogoutHandlerRedirectsToLogoutEndpoint(t *testing.T) {
 	t.Parallel()
