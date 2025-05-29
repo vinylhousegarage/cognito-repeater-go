@@ -7,11 +7,7 @@ import (
 )
 
 type LogoutEndpointProvider interface {
-	ClientSecretValue() string
 	MetadataURL() string
-	RedirectURIValue() string
-	ScopeValue() string
-	UserPoolClientIDValue() string
 }
 
 func LogoutHandler(p LogoutEndpointProvider, c httpclient.HTTPClient) http.HandlerFunc {
