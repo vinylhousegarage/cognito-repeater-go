@@ -12,7 +12,7 @@ type LogoutMetadata struct {
 	EndSessionEndpoint string `json:"end_session_endpoint"`
 }
 
-func GetLogoutURL(client httpclient.HTTPClient, metadataURL string) (string, error) {
+func GetLogoutURL(metadataURL string, client httpclient.HTTPClient) (string, error) {
 	req, err := http.NewRequest("GET", metadataURL, nil)
 	if err != nil {
 		return "", fmt.Errorf("failed to create request: %w", err)
