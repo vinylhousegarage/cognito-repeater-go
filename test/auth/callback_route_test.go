@@ -50,7 +50,7 @@ func TestCallbackRouteReturnsTokenJSON(t *testing.T) {
 		RedirectURI:      "https://localhost/callback",
 	}
 
-	r := router.NewRouter(cfg, client)
+	r := router.NewRouter(cfg, cfg, client)
 
 	req := httptest.NewRequest(http.MethodGet, "/callback?code=abc123&state=xyz", nil)
 	req.AddCookie(&http.Cookie{Name: "oauth_state", Value: "xyz"})
