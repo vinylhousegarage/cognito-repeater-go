@@ -6,7 +6,6 @@ import (
 	"net/http"
 	"strings"
 
-	"cognito-repeater-go/internal/auth/deps"
 	"cognito-repeater-go/internal/httpclient"
 )
 
