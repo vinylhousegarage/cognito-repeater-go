@@ -7,17 +7,23 @@ import (
 	"cognito-repeater-go/internal/config"
 )
 
-func BuildTokenRequestBody(code string, cfg config.CognitoMetadataProvider) string {
+type BuildTokenRequestBodyProvider interface {
+	ClientSecretValue() string
+	RedirectURIValue() string
+	UserPoolClientIDValue() string
+}
+
+func BuildTokenRequestBody(code string, p BuildTokenRequestBodyProvider) string {
 	form := url.Values{}
 	form.Set("grant_type", "authorization_code")
 	form.Set("code", code)
-	form.Set("client_id", cfg.UserPoolClientIDValue())
-	form.Set("redirect_uri", cfg.RedirectURIValue())
+	form.Set("client_id", p.UserPoolClientIDValue())
+	form.Set("redirect_uri", p.RedirectURIValue())
 
 	return form.Encode()
 }
 
-func BuildBasicAuthHeader(cfg config.CognitoMetadataProvider) string {
-	raw := cfg.UserPoolClientIDValue() + ":" + cfg.ClientSecretValue()
+func BuildBasicAuthHeader(p BuildTokenRequestBodyProvider) string {
+	raw := p.UserPoolClientIDValue() + ":" + p.ClientSecretValue()
 	return "Basic " + base64.StdEncoding.EncodeToString([]byte(raw))
 }
