@@ -75,7 +75,7 @@ func TestCallbackRouteReturnsTokenJSON(t *testing.T) {
 
 	provider := &mockCallbackHandlerProvider{}
 
-	r := router.NewRouter(provider, provider, provider, client)
+	r := router.NewRouter(provider, provider, provider, provider, client)
 
 	req := httptest.NewRequest(http.MethodGet, "/callback?code=abc123&state=xyz", nil)
 	req.AddCookie(&http.Cookie{Name: "oauth_state", Value: "xyz"})
