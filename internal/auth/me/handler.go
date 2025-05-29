@@ -5,9 +5,16 @@ import (
 	"log"
 	"net/http"
 
-	"cognito-repeater-go/internal/auth/deps"
 	"cognito-repeater-go/internal/auth/utils"
+	"cognito-repeater-go/internal/httpclient"
 )
+
+type MeHandlerProvider interface {
+	Audience() string,
+	GetJWKSURI() string,
+	Issuer() string,
+	MetadataURL() string,
+}
 
 func writeJSONError(w http.ResponseWriter, status int, msg string) {
 	w.Header().Set("Content-Type", "application/json")
@@ -17,7 +24,7 @@ func writeJSONError(w http.ResponseWriter, status int, msg string) {
 	})
 }
 
-func MeHandler(d deps.HandlerDependencies) http.HandlerFunc {
+func MeHandler(p MeHandlerProvider, c httpclient.HTTPClient) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		tokenStr, err := utils.ExtractAuthHeaderToken(r)
 		if err != nil {
@@ -26,14 +33,14 @@ func MeHandler(d deps.HandlerDependencies) http.HandlerFunc {
 			return
 		}
 
-		jwksURL, err := GetJWKSURI(d.HTTPClient, d.Config.MetadataURL())
+		jwksURL, err := GetJWKSURI(p.MetadataURL(), c)
 		if err != nil {
 			log.Printf("failed to fetch JWKS URI: %v", err)
 			writeJSONError(w, http.StatusInternalServerError, "internal server error")
 			return
 		}
 
-		jwkSet, err := FetchJWKSet(d.HTTPClient, jwksURL)
+		jwkSet, err := FetchJWKSet(c, jwksURL)
 		if err != nil {
 			log.Printf("failed to fetch JWKS: %v", err)
 			writeJSONError(w, http.StatusInternalServerError, "internal server error")
@@ -61,7 +68,7 @@ func MeHandler(d deps.HandlerDependencies) http.HandlerFunc {
 			return
 		}
 
-		claims, err := ParseAndVerifyJWT(tokenStr, pubKey, d.Config.Issuer(), d.Config.Audience())
+		claims, err := ParseAndVerifyJWT(tokenStr, pubKey, p.Issuer(), p.Audience())
 		if err != nil {
 			log.Printf("token verification failed: %v", err)
 			writeJSONError(w, http.StatusUnauthorized, "invalid token")
