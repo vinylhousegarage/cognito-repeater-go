@@ -7,12 +7,19 @@ import (
 	"strings"
 	"testing"
 
-	"cognito-repeater-go/internal/auth/deps"
 	"cognito-repeater-go/internal/router"
 	"cognito-repeater-go/test/testhelpers"
 
 	"github.com/stretchr/testify/assert"
 )
+
+type MockLogoutConfig struct{}
+
+func (m *MockLogoutConfig) MetadataURL() string           { return "https://mock.metadata.url" }
+func (m *MockLogoutConfig) ClientSecretValue() string     { return "mock-secret" }
+func (m *MockLogoutConfig) RedirectURIValue() string      { return "https://example.com/callback" }
+func (m *MockLogoutConfig) ScopeValue() string            { return "openid" }
+func (m *MockLogoutConfig) UserPoolClientIDValue() string { return "mock-client-id" }
 
 func TestLogoutRouteIsRegisteredInProductionRouter(t *testing.T) {
 	t.Parallel()
@@ -28,12 +35,7 @@ func TestLogoutRouteIsRegisteredInProductionRouter(t *testing.T) {
 		},
 	}
 
-	handlerDeps := deps.HandlerDependencies{
-		Config:     testhelpers.MockCfg,
-		HTTPClient: mockClient,
-	}
-
-	r := router.NewRouter(handlerDeps.Config, handlerDeps.HTTPClient)
+	r := router.NewRouter(&MockLogoutConfig{}, mockClient)
 
 	req := httptest.NewRequest(http.MethodGet, "/logout", nil)
 	w := httptest.NewRecorder()
