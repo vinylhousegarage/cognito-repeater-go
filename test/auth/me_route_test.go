@@ -5,7 +5,6 @@ import (
 	"crypto/rsa"
 	"encoding/base64"
 	"encoding/json"
-	"log"
 	"math/big"
 	"net/http"
 	"net/http/httptest"
