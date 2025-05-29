@@ -4,6 +4,7 @@ import (
 	"net/http"
 
 	"cognito-repeater-go/internal/auth"
+	"cognito-repeater-go/internal/auth/callback"
 	"cognito-repeater-go/internal/auth/deps"
 	"cognito-repeater-go/internal/auth/logout"
 	"cognito-repeater-go/internal/config"
