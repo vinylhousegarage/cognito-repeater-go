@@ -3,13 +3,21 @@ package logout
 import (
 	"net/http"
 
-	"cognito-repeater-go/internal/auth/deps"
+	"cognito-repeater-go/internal/httpclient"
 )
 
-func LogoutHandler(d deps.HandlerDependencies) http.HandlerFunc {
+type LogoutEndpointProvider interface {
+	ClientSecretValue() string
+	MetadataURL() string
+	RedirectURIValue() string
+	ScopeValue() string
+	UserPoolClientIDValue() string
+}
+
+func LogoutHandler(p LogoutEndpointProvider, c httpclient.HTTPClient) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		metadataURL := d.Config.MetadataURL()
-		endpoint, err := GetLogoutURL(d.HTTPClient, metadataURL)
+		metadataURL := p.MetadataURL()
+		endpoint, err := GetLogoutURL(c, metadataURL)
 		if err != nil {
 			http.Error(w, err.Error(), http.StatusInternalServerError)
 			return

@@ -11,6 +11,6 @@ import (
 func NewServer(cfg *config.Config, client httpclient.HTTPClient) *http.Server {
 	return &http.Server{
 		Addr:    ":8080",
-		Handler: router.NewRouter(cfg, client),
+		Handler: router.NewRouter(cfg, cfg, client),
 	}
 }

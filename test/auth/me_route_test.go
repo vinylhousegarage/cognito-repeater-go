@@ -116,7 +116,7 @@ func TestMeHandler_Integration_Success(t *testing.T) {
 		},
 	}
 
-	router := router.NewRouter(cfg, client)
+	router := router.NewRouter(cfg, cfg, client)
 
 	req := httptest.NewRequest(http.MethodGet, "/me", nil)
 	req.Header.Set("Authorization", "Bearer "+token)

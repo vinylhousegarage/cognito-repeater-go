@@ -9,12 +9,18 @@ import (
 	"cognito-repeater-go/internal/auth/logout"
 	"cognito-repeater-go/internal/auth/logoutredirect"
 	"cognito-repeater-go/internal/auth/me"
+	"cognito-repeater-go/internal/httpclient"
 )
 
-func RegisterAuthRoutes(mux *http.ServeMux, d deps.HandlerDependencies) {
+func RegisterAuthRoutes(
+	mux *http.ServeMux,
+	d deps.HandlerDependencies,
+	logoutCfg logout.LogoutEndpointProvider,
+	h httpclient.HTTPClient,
+) {
 	mux.HandleFunc("/callback", callback.CallbackHandler(d))
 	mux.HandleFunc("/login", login.LoginHandler(d))
-	mux.HandleFunc("/logout", logout.LogoutHandler(d))
+	mux.HandleFunc("/logout", logout.LogoutHandler(logoutCfg, h))
 	mux.HandleFunc("/logout/redirect", logoutredirect.LogoutRedirectHandler)
 	mux.HandleFunc("/me", me.MeHandler(d))
 }
