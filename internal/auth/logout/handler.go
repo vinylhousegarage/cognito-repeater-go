@@ -17,7 +17,7 @@ type LogoutEndpointProvider interface {
 func LogoutHandler(p LogoutEndpointProvider, c httpclient.HTTPClient) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		metadataURL := p.MetadataURL()
-		endpoint, err := GetLogoutURL(c, metadataURL)
+		endpoint, err := GetLogoutURL(metadataURL, c)
 		if err != nil {
 			http.Error(w, err.Error(), http.StatusInternalServerError)
 			return
