@@ -7,12 +7,29 @@ import (
 	"net/http/httptest"
 	"testing"
 
-	"cognito-repeater-go/internal/config"
 	"cognito-repeater-go/internal/router"
 	"cognito-repeater-go/test/testhelpers"
 
 	"github.com/stretchr/testify/assert"
 )
+
+type mockCallbackHandlerProvider struct{}
+
+func (m *mockCallbackHandlerProvider) MetadataURL() string {
+	return "https://mock.auth.ap-northeast-1.amazoncognito.com/.well-known/openid-configuration"
+}
+
+func (m *mockCallbackHandlerProvider) ClientSecretValue() string {
+	return "mock-client-secret"
+}
+
+func (m *mockCallbackHandlerProvider) RedirectURIValue() string {
+	return "https://localhost/callback"
+}
+
+func (m *mockCallbackHandlerProvider) UserPoolClientIDValue() string {
+	return "mock-client-id"
+}
 
 func TestCallbackRouteReturnsTokenJSON(t *testing.T) {
 	t.Parallel()
@@ -42,15 +59,9 @@ func TestCallbackRouteReturnsTokenJSON(t *testing.T) {
 		},
 	}
 
-	cfg := &config.Config{
-		Region:           "ap-northeast-1",
-		UserPoolID:       "test-pool",
-		UserPoolClientID: "client123",
-		ClientSecret:     "secret456",
-		RedirectURI:      "https://localhost/callback",
-	}
+	provider := &mockCallbackHandlerProvider{}
 
-	r := router.NewRouter(cfg, cfg, client)
+	r := router.NewRouter(provider, provider, client)
 
 	req := httptest.NewRequest(http.MethodGet, "/callback?code=abc123&state=xyz", nil)
 	req.AddCookie(&http.Cookie{Name: "oauth_state", Value: "xyz"})
@@ -70,6 +81,5 @@ func TestCallbackRouteReturnsTokenJSON(t *testing.T) {
 	var tokenResp map[string]interface{}
 	err := json.NewDecoder(resp.Body).Decode(&tokenResp)
 	assert.NoError(t, err)
-
 	assert.Equal(t, "ACCESS123", tokenResp["access_token"])
 }
