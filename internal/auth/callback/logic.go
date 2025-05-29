@@ -3,8 +3,6 @@ package callback
 import (
 	"encoding/base64"
 	"net/url"
-
-	"cognito-repeater-go/internal/config"
 )
 
 type BuildTokenRequestBodyProvider interface {
