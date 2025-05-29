@@ -86,7 +86,7 @@ func TestGetCallbackURLReturnsExpectedEndpoint(t *testing.T) {
 	}))
 	defer ts.Close()
 
-	endpoint, err := GetCallbackURL(http.DefaultClient, ts.URL)
+	endpoint, err := GetCallbackURL(ts.URL, http.DefaultClient)
 
 	assert.NoError(t, err, "failed to fetch token endpoint")
 	assert.Equal(t, "https://example.com/oauth2/token", endpoint)
@@ -100,7 +100,7 @@ func TestGetCallbackURLStatusCode500(t *testing.T) {
 	}))
 	defer ts.Close()
 
-	_, err := GetCallbackURL(http.DefaultClient, ts.URL)
+	_, err := GetCallbackURL(ts.URL, http.DefaultClient)
 
 	assert.Error(t, err, "unexpected status code")
 }
@@ -114,7 +114,7 @@ func TestGetCallbackURLMalformedJSON(t *testing.T) {
 	}))
 	defer ts.Close()
 
-	_, err := GetCallbackURL(http.DefaultClient, ts.URL)
+	_, err := GetCallbackURL(ts.URL, http.DefaultClient)
 
 	assert.Error(t, err, "expected JSON decode error")
 }
@@ -128,7 +128,7 @@ func TestGetCallbackURLMissingTokenEndpoint(t *testing.T) {
 	}))
 	defer ts.Close()
 
-	_, err := GetCallbackURL(http.DefaultClient, ts.URL)
+	_, err := GetCallbackURL(ts.URL, http.DefaultClient)
 
 	assert.Error(t, err, "expected missing token_endpoint error")
 }

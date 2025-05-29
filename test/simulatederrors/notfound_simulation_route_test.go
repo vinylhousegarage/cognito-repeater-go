@@ -21,7 +21,7 @@ func TestError404RouteReturnsPlainTextNotFound(t *testing.T) {
 		HTTPClient: http.DefaultClient,
 	}
 
-	r := router.NewRouter(handlerDeps.Config, handlerDeps.Config, handlerDeps.HTTPClient)
+	r := router.NewRouter(handlerDeps.Config, handlerDeps.Config, handlerDeps.Config, handlerDeps.HTTPClient)
 
 	req := httptest.NewRequest(http.MethodGet, "/error/404", nil)
 	w := httptest.NewRecorder()
