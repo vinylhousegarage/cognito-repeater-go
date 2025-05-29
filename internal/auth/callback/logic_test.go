@@ -12,9 +12,12 @@ import (
 )
 
 func TestBuildTokenRequestBody(t *testing.T) {
-	cfg := &config.Config{
+	var cfg CallbackHandlerProvider = &config.Config{
 		UserPoolClientID: "abc123",
 		RedirectURI:      "https://example.com/callback",
+		ClientSecret:     "dummy",
+		Region:           "ap-northeast-1",
+		UserPoolID:       "pool-id",
 	}
 	code := "xyz789"
 
@@ -24,15 +27,18 @@ func TestBuildTokenRequestBody(t *testing.T) {
 	require.NoError(t, err)
 
 	assert.Equal(t, "authorization_code", values.Get("grant_type"))
-	assert.Equal(t, "xyz789", values.Get("code"))
+	assert.Equal(t, code, values.Get("code"))
 	assert.Equal(t, "abc123", values.Get("client_id"))
 	assert.Equal(t, "https://example.com/callback", values.Get("redirect_uri"))
 }
 
 func TestBuildBasicAuthHeader(t *testing.T) {
-	cfg := &config.Config{
+	var cfg CallbackHandlerProvider = &config.Config{
 		UserPoolClientID: "my-client-id",
 		ClientSecret:     "super-secret",
+		RedirectURI:      "https://example.com/callback",
+		Region:           "ap-northeast-1",
+		UserPoolID:       "pool-id",
 	}
 
 	expectedRaw := "my-client-id:super-secret"
