@@ -14,6 +14,7 @@ import (
 
 func NewRouter(
 	cfg config.CognitoMetadataProvider,
+	callbackCfg callback.CallbackHandlerProvider,
 	logoutCfg logout.LogoutEndpointProvider,
 	client httpclient.HTTPClient,
 ) http.Handler {
@@ -24,7 +25,7 @@ func NewRouter(
 		HTTPClient: client,
 	}
 
-	auth.RegisterAuthRoutes(mux, d, logoutCfg, client)
+	auth.RegisterAuthRoutes(mux, d, callbackCfg, logoutCfg, client)
 	root.RegisterRootRoutes(mux)
 	simulatederrors.RegisterErrorRoutes(mux)
 
