@@ -23,6 +23,10 @@ func (m *mockCallbackHandlerProvider) ClientSecretValue() string {
 	return "mock-client-secret"
 }
 
+func (m *mockCallbackHandlerProvider) GetJWKSURI() string {
+	return "https://example.com/jwks"
+}
+
 func (m *mockCallbackHandlerProvider) Issuer() string {
 	region := "ap-northeast-1"
 	userPoolID := "mock-user-pool-id"
