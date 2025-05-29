@@ -37,7 +37,7 @@ func TestLogoutRouteIsRegisteredInProductionRouter(t *testing.T) {
 		},
 	}
 
-	r := router.NewRouter(&MockLogoutConfig{}, &MockLogoutConfig{}, mockClient)
+	r := router.NewRouter(&MockLogoutConfig{}, &MockLogoutConfig{}, &MockLogoutConfig{}, mockClient)
 
 	req := httptest.NewRequest(http.MethodGet, "/logout", nil)
 	w := httptest.NewRecorder()
