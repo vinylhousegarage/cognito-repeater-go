@@ -5,13 +5,14 @@ import (
 	"net/url"
 )
 
-type BuildTokenRequestBodyProvider interface {
+type CallbackHandlerProvider interface {
 	ClientSecretValue() string
+	MetadataURL() string
 	RedirectURIValue() string
 	UserPoolClientIDValue() string
 }
 
-func BuildTokenRequestBody(code string, p BuildTokenRequestBodyProvider) string {
+func BuildTokenRequestBody(code string, p CallbackHandlerProvider) string {
 	form := url.Values{}
 	form.Set("grant_type", "authorization_code")
 	form.Set("code", code)
@@ -21,7 +22,7 @@ func BuildTokenRequestBody(code string, p BuildTokenRequestBodyProvider) string 
 	return form.Encode()
 }
 
-func BuildBasicAuthHeader(p BuildTokenRequestBodyProvider) string {
+func BuildBasicAuthHeader(p CallbackHandlerProvider) string {
 	raw := p.UserPoolClientIDValue() + ":" + p.ClientSecretValue()
 	return "Basic " + base64.StdEncoding.EncodeToString([]byte(raw))
 }
