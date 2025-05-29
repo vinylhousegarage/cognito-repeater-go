@@ -5,13 +5,6 @@ import (
 	"net/url"
 )
 
-type CallbackHandlerProvider interface {
-	ClientSecretValue() string
-	MetadataURL() string
-	RedirectURIValue() string
-	UserPoolClientIDValue() string
-}
-
 func BuildTokenRequestBody(code string, p CallbackHandlerProvider) string {
 	form := url.Values{}
 	form.Set("grant_type", "authorization_code")
