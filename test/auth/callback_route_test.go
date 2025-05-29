@@ -15,16 +15,30 @@ import (
 
 type mockCallbackHandlerProvider struct{}
 
-func (m *mockCallbackHandlerProvider) MetadataURL() string {
-	return "https://mock.auth.ap-northeast-1.amazoncognito.com/.well-known/openid-configuration"
+func (m *mockCallbackHandlerProvider) Audience() string {
+	return m.UserPoolClientIDValue()
 }
 
 func (m *mockCallbackHandlerProvider) ClientSecretValue() string {
 	return "mock-client-secret"
 }
 
+func (m *mockCallbackHandlerProvider) Issuer() string {
+	region := "ap-northeast-1"
+	userPoolID := "mock-user-pool-id"
+	return fmt.Sprintf("https://cognito-idp.%s.amazonaws.com/%s", region, userPoolID)
+}
+
+func (m *mockCallbackHandlerProvider) MetadataURL() string {
+	return "https://mock.auth.ap-northeast-1.amazoncognito.com/.well-known/openid-configuration"
+}
+
 func (m *mockCallbackHandlerProvider) RedirectURIValue() string {
 	return "https://localhost/callback"
+}
+
+func (m *mockCallbackHandlerProvider) ScopeValue() string {
+	return "openid"
 }
 
 func (m *mockCallbackHandlerProvider) UserPoolClientIDValue() string {
