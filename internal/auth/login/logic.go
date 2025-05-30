@@ -5,6 +5,8 @@ import (
 	"encoding/base64"
 	"net/http"
 	"net/url"
+
+	"cognito-repeater-go/internal/auth/deps"
 )
 
 func GenerateState() string {
@@ -27,7 +29,7 @@ func BuildStateCookie(state string) *http.Cookie {
 	}
 }
 
-func BuildLoginURL(p LoginHandlerProvider, endpoint, state string) (string, error) {
+func BuildLoginURL(p deps.LoginHandlerProvider, endpoint, state string) (string, error) {
 	loginURL, err := url.Parse(endpoint)
 	if err != nil {
 		return "", err

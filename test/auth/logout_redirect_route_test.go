@@ -7,7 +7,6 @@ import (
 	"net/http/httptest"
 	"testing"
 
-	"cognito-repeater-go/internal/auth/deps"
 	"cognito-repeater-go/internal/router"
 	"cognito-repeater-go/test/testhelpers"
 
@@ -17,12 +16,10 @@ import (
 func TestRouterLogoutRedirectRouteReturnsExpectedJSON(t *testing.T) {
 	t.Parallel()
 
-	handlerDeps := deps.HandlerDependencies{
-		Config:     testhelpers.MockCfg,
-		HTTPClient: http.DefaultClient,
-	}
+	provider := testhelpers.NewMockRouteDependencies()
+	client := testhelpers.NewMockHTTPClientOK()
 
-	r := router.NewRouter(handlerDeps.Config, handlerDeps.Config, handlerDeps.Config, handlerDeps.Config, handlerDeps.Config, handlerDeps.HTTPClient)
+	r := router.NewRouter(provider, client)
 
 	req := httptest.NewRequest(http.MethodGet, "/logout/redirect", nil)
 	w := httptest.NewRecorder()

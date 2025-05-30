@@ -1,13 +1,11 @@
 package auth_test
 
 import (
-	"io"
 	"net/http"
 	"net/http/httptest"
 	"strings"
 	"testing"
 
-	"cognito-repeater-go/internal/auth/deps"
 	"cognito-repeater-go/internal/router"
 	"cognito-repeater-go/test/testhelpers"
 
@@ -19,21 +17,22 @@ func TestLoginRouteIsRegisteredInProductionRouter(t *testing.T) {
 
 	mockClient := &testhelpers.MockHTTPClient{
 		DoFunc: func(req *http.Request) (*http.Response, error) {
-			body := `{"authorization_endpoint": "https://example.com/oauth2/authorize"}`
-			return &http.Response{
-				StatusCode: 200,
-				Body:       io.NopCloser(strings.NewReader(body)),
-				Header:     make(http.Header),
-			}, nil
+			rec := httptest.NewRecorder()
+
+			switch {
+			case strings.Contains(req.URL.String(), "/.well-known/openid-configuration"):
+				rec.WriteHeader(http.StatusOK)
+				_, _ = rec.WriteString(`{"authorization_endpoint": "https://example.com/oauth2/authorize"}`)
+
+			default:
+				rec.WriteHeader(http.StatusNotFound)
+			}
+
+			return rec.Result(), nil
 		},
 	}
 
-	handlerDeps := deps.HandlerDependencies{
-		Config:     testhelpers.MockCfg,
-		HTTPClient: mockClient,
-	}
-
-	r := router.NewRouter(handlerDeps.Config, handlerDeps.Config, handlerDeps.Config, handlerDeps.Config, handlerDeps.Config, handlerDeps.HTTPClient)
+	r := router.NewRouter(testhelpers.NewMockRouteDependencies(), mockClient)
 
 	req := httptest.NewRequest(http.MethodGet, "/login", nil)
 	w := httptest.NewRecorder()

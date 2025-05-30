@@ -3,10 +3,11 @@ package login
 import (
 	"net/http"
 
+	"cognito-repeater-go/internal/auth/deps"
 	"cognito-repeater-go/internal/httpclient"
 )
 
-func LoginHandler(p LoginHandlerProvider, c httpclient.HTTPClient) http.HandlerFunc {
+func LoginHandler(p deps.LoginHandlerProvider, c httpclient.HTTPClient) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		state := GenerateState()
 		http.SetCookie(w, BuildStateCookie(state))

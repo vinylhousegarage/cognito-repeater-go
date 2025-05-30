@@ -5,16 +5,10 @@ import (
 	"log"
 	"net/http"
 
+	"cognito-repeater-go/internal/auth/deps"
 	"cognito-repeater-go/internal/auth/utils"
 	"cognito-repeater-go/internal/httpclient"
 )
-
-type MeHandlerProvider interface {
-	Audience() string
-	GetJWKSURI() string
-	Issuer() string
-	MetadataURL() string
-}
 
 func writeJSONError(w http.ResponseWriter, status int, msg string) {
 	w.Header().Set("Content-Type", "application/json")
@@ -24,7 +18,7 @@ func writeJSONError(w http.ResponseWriter, status int, msg string) {
 	})
 }
 
-func MeHandler(p MeHandlerProvider, c httpclient.HTTPClient) http.HandlerFunc {
+func MeHandler(p deps.MeHandlerProvider, c httpclient.HTTPClient) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		tokenStr, err := utils.ExtractAuthHeaderToken(r)
 		if err != nil {

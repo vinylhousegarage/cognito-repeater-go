@@ -12,7 +12,6 @@ import (
 	"testing"
 	"time"
 
-	"cognito-repeater-go/internal/config"
 	"cognito-repeater-go/internal/router"
 	"cognito-repeater-go/test/testhelpers"
 
@@ -71,29 +70,18 @@ func GenerateSignedToken(privateKey *rsa.PrivateKey, issuer, audience string) (s
 	return token.SignedString(privateKey)
 }
 
-type mockAllProviders struct {
-	*config.Config
-}
-
-func (m *mockAllProviders) GetJWKSURI() string {
-	return "https://example.com/jwks"
-}
-
 func TestMeHandler_Integration_Success(t *testing.T) {
 	t.Parallel()
-
-	cfg := &config.Config{
-		Region:           "ap-northeast-1",
-		UserPoolID:       "test-pool",
-		UserPoolClientID: "test-client",
-	}
-
-	provider := &mockAllProviders{Config: cfg}
 
 	jwks, privateKey, err := GenerateTestJWKS()
 	assert.NoError(t, err)
 
-	token, err := GenerateSignedToken(privateKey, cfg.Issuer(), cfg.Audience())
+	const (
+		testIssuer   = "https://cognito-idp.ap-northeast-1.amazonaws.com/test-pool"
+		testAudience = "test-client"
+	)
+
+	token, err := GenerateSignedToken(privateKey, testIssuer, testAudience)
 	assert.NoError(t, err)
 
 	client := &testhelpers.MockHTTPClient{
@@ -119,7 +107,7 @@ func TestMeHandler_Integration_Success(t *testing.T) {
 		},
 	}
 
-	router := router.NewRouter(provider, provider, provider, provider, provider, client)
+	router := router.NewRouter(testhelpers.NewMockRouteDependencies(), client)
 
 	req := httptest.NewRequest(http.MethodGet, "/me", nil)
 	req.Header.Set("Authorization", "Bearer "+token)

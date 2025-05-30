@@ -6,6 +6,7 @@ import (
 	"net/http"
 	"strings"
 
+	"cognito-repeater-go/internal/auth/deps"
 	"cognito-repeater-go/internal/httpclient"
 )
 
@@ -17,7 +18,7 @@ type TokenResponse struct {
 	TokenType    string `json:"token_type"`
 }
 
-func CallbackHandler(p CallbackHandlerProvider, c httpclient.HTTPClient) http.HandlerFunc {
+func CallbackHandler(p deps.CallbackHandlerProvider, c httpclient.HTTPClient) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		code, err := ValidateCallbackRequest(r)
 		if err != nil {

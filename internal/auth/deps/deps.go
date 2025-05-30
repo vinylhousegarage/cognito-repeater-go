@@ -1,11 +1,38 @@
 package deps
 
-import (
-	"cognito-repeater-go/internal/config"
-	"cognito-repeater-go/internal/httpclient"
-)
+type CallbackHandlerProvider interface {
+	ClientSecretValue() string
+	MetadataURL() string
+	RedirectURIValue() string
+	UserPoolClientIDValue() string
+}
 
-type HandlerDependencies struct {
-	Config     config.CognitoMetadataProvider
-	HTTPClient httpclient.HTTPClient
+type LoginHandlerProvider interface {
+	MetadataURL() string
+	RedirectURIValue() string
+	ScopeValue() string
+	UserPoolClientIDValue() string
+}
+
+type LogoutHandlerProvider interface {
+	MetadataURL() string
+}
+
+type MeHandlerProvider interface {
+	Audience() string
+	GetJWKSURI() string
+	Issuer() string
+	MetadataURL() string
+}
+
+type WhoamiHandlerProvider interface {
+	MetadataURL() string
+}
+
+type RouteDependencies struct {
+	CallbackProvider CallbackHandlerProvider
+	LoginProvider    LoginHandlerProvider
+	LogoutProvider   LogoutHandlerProvider
+	MeProvider       MeHandlerProvider
+	WhoamiProvider   WhoamiHandlerProvider
 }

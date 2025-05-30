@@ -5,17 +5,6 @@ import (
 	"os"
 )
 
-type CognitoMetadataProvider interface {
-	Audience() string
-	ClientSecretValue() string
-	GetJWKSURI() string
-	Issuer() string
-	MetadataURL() string
-	RedirectURIValue() string
-	ScopeValue() string
-	UserPoolClientIDValue() string
-}
-
 type Config struct {
 	Region           string
 	ClientSecret     string
@@ -44,10 +33,6 @@ func (c *Config) Issuer() string {
 
 func (c *Config) MetadataURL() string {
 	return fmt.Sprintf("https://cognito-idp.%s.amazonaws.com/%s/.well-known/openid-configuration", c.Region, c.UserPoolID)
-}
-
-type MetadataURLProvider interface {
-	MetadataURL() string
 }
 
 func (c *Config) RedirectURIValue() string {
@@ -80,7 +65,7 @@ func LoadConfig() (*Config, error) {
 		}
 	}
 	if len(missing) > 0 {
-		return nil, fmt.Errorf("missing required environment variables: %v", missing)
+		return nil, fmt.Errorf("missing required environment variables: %q", missing)
 	}
 
 	return &Config{

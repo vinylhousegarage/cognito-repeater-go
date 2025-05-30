@@ -5,6 +5,7 @@ import (
 	"net/url"
 	"testing"
 
+	"cognito-repeater-go/internal/auth/deps"
 	"cognito-repeater-go/internal/config"
 
 	"github.com/stretchr/testify/assert"
@@ -12,7 +13,7 @@ import (
 )
 
 func TestBuildTokenRequestBody(t *testing.T) {
-	var cfg CallbackHandlerProvider = &config.Config{
+	var cfg deps.CallbackHandlerProvider = &config.Config{
 		UserPoolClientID: "abc123",
 		RedirectURI:      "https://example.com/callback",
 		ClientSecret:     "dummy",
@@ -33,7 +34,7 @@ func TestBuildTokenRequestBody(t *testing.T) {
 }
 
 func TestBuildBasicAuthHeader(t *testing.T) {
-	var cfg CallbackHandlerProvider = &config.Config{
+	var cfg deps.CallbackHandlerProvider = &config.Config{
 		UserPoolClientID: "my-client-id",
 		ClientSecret:     "super-secret",
 		RedirectURI:      "https://example.com/callback",

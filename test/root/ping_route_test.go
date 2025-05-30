@@ -6,7 +6,6 @@ import (
 	"net/http/httptest"
 	"testing"
 
-	"cognito-repeater-go/internal/auth/deps"
 	"cognito-repeater-go/internal/router"
 	"cognito-repeater-go/test/testhelpers"
 
@@ -16,12 +15,10 @@ import (
 func TestPingRouteReturnsPlainTextPong(t *testing.T) {
 	t.Parallel()
 
-	handlerDeps := deps.HandlerDependencies{
-		Config:     testhelpers.MockCfg,
-		HTTPClient: http.DefaultClient,
-	}
+	deps := testhelpers.NewMockRouteDependencies()
+	cli := testhelpers.NewMockHTTPClientOK()
 
-	r := router.NewRouter(handlerDeps.Config, handlerDeps.Config, handlerDeps.Config, handlerDeps.Config, handlerDeps.Config, handlerDeps.HTTPClient)
+	r := router.NewRouter(deps, cli)
 
 	req := httptest.NewRequest(http.MethodGet, "/ping", nil)
 	w := httptest.NewRecorder()
