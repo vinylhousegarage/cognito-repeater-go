@@ -53,7 +53,7 @@ func GetUserinfoURL(metadataURL string, client httpclient.HTTPClient) (string, e
 	return meta.UserinfoEndpoint, nil
 }
 
-func FetchUserinfo(client httpclient.HTTPClient, userinfoURL, token string) (map[string]interface{}, error) {
+func FetchUserinfo(userinfoURL, client httpclient.HTTPClient, token string) (map[string]interface{}, error) {
 	req, err := http.NewRequest("GET", userinfoURL, nil)
 	if err != nil {
 		return nil, fmt.Errorf("failed to create userinfo request: %w", err)

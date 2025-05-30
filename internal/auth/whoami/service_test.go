@@ -53,7 +53,7 @@ func TestFetchUserinfo_Success(t *testing.T) {
 	defer server.Close()
 
 	client := &http.Client{}
-	data, err := FetchUserinfo(client, server.URL, "dummy-token")
+	data, err := FetchUserinfo(server.URL, client, "dummy-token")
 
 	assert.NoError(t, err)
 	assert.Equal(t, "abc123", data["sub"])
@@ -76,7 +76,7 @@ func TestFetchUserinfo_HTTPError(t *testing.T) {
 		}),
 	}
 
-	_, err := FetchUserinfo(brokenClient, "https://example.com/oauth2/userinfo", "dummy-token")
+	_, err := FetchUserinfo("https://example.com/oauth2/userinfo", brokenClient "dummy-token")
 
 	assert.Error(t, err)
 	assert.Contains(t, err.Error(), "failed to call userinfo endpoint")
@@ -91,7 +91,7 @@ func TestFetchUserinfo_InvalidJSON(t *testing.T) {
 	defer server.Close()
 
 	client := &http.Client{}
-	_, err := FetchUserinfo(client, server.URL, "dummy-token")
+	_, err := FetchUserinfo(server.URL, client, "dummy-token")
 	assert.Error(t, err)
 	assert.Contains(t, err.Error(), "failed to parse userinfo response")
 }
@@ -105,7 +105,7 @@ func TestFetchUserinfo_StatusCodeNotOK(t *testing.T) {
 	defer server.Close()
 
 	client := &http.Client{}
-	_, err := FetchUserinfo(client, server.URL, "dummy-token")
+	_, err := FetchUserinfo(server.URL, client, "dummy-token")
 
 	assert.Error(t, err)
 	assert.Contains(t, err.Error(), "userinfo endpoint returned status")

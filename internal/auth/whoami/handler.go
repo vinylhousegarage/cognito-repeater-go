@@ -22,7 +22,7 @@ func WhoamiHandler(d deps.HandlerDependencies) http.HandlerFunc {
 			return
 		}
 
-		userinfo, err := FetchUserinfo(d.HTTPClient, userinfoURL, accessToken)
+		userinfo, err := FetchUserinfo(userinfoURL, d.HTTPClient, accessToken)
 		if err != nil {
 			http.Error(w, "failed to fetch userinfo", http.StatusUnauthorized)
 			return
