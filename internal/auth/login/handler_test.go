@@ -6,40 +6,26 @@ import (
 	"net/url"
 	"testing"
 
-	"cognito-repeater-go/internal/auth/deps"
-	"cognito-repeater-go/test/testhelpers"
-
 	"github.com/stretchr/testify/assert"
 )
 
-func TestLoginHandlerRedirectsToLoginEndpoint(t *testing.T) {
+func TestLoginHandler_RedirectsToLoginEndpoint(t *testing.T) {
 	t.Parallel()
 
-	d := deps.HandlerDependencies{
-		Config: testhelpers.MockCfg,
-		HTTPClient: &testhelpers.MockHTTPClient{
-			DoFunc: func(req *http.Request) (*http.Response, error) {
-				rec := httptest.NewRecorder()
-				rec.WriteHeader(http.StatusOK)
-				_, _ = rec.Write([]byte(`{"authorization_endpoint": "https://example.com/oauth2/authorize"}`))
-				return rec.Result(), nil
-			},
-		},
-	}
+	p := newMockLoginHandlerProvider()
+	c := newMockHTTPClient()
 
 	req := httptest.NewRequest(http.MethodGet, "/login", nil)
 	w := httptest.NewRecorder()
 
-	LoginHandler(d)(w, req)
+	LoginHandler(p, c)(w, req)
 
 	resp := w.Result()
-
 	assert.Equal(t, http.StatusFound, resp.StatusCode)
 
 	location := resp.Header.Get("Location")
 	parsed, err := url.Parse(location)
 	assert.NoError(t, err)
-
 	assert.Equal(t, "example.com", parsed.Host)
 	assert.Equal(t, "/oauth2/authorize", parsed.Path)
 
@@ -50,22 +36,13 @@ func TestLoginHandlerRedirectsToLoginEndpoint(t *testing.T) {
 func TestLoginHandlerSetsStateCookie(t *testing.T) {
 	t.Parallel()
 
-	d := deps.HandlerDependencies{
-		Config: testhelpers.MockCfg,
-		HTTPClient: &testhelpers.MockHTTPClient{
-			DoFunc: func(req *http.Request) (*http.Response, error) {
-				rec := httptest.NewRecorder()
-				rec.WriteHeader(http.StatusOK)
-				_, _ = rec.Write([]byte(`{"authorization_endpoint": "https://example.com/oauth2/authorize"}`))
-				return rec.Result(), nil
-			},
-		},
-	}
+	p := newMockLoginHandlerProvider()
+	c := newMockHTTPClient()
 
 	req := httptest.NewRequest(http.MethodGet, "/login", nil)
 	w := httptest.NewRecorder()
 
-	LoginHandler(d)(w, req)
+	LoginHandler(p, c)(w, req)
 
 	resp := w.Result()
 

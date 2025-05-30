@@ -5,8 +5,6 @@ import (
 	"encoding/base64"
 	"net/http"
 	"net/url"
-
-	"cognito-repeater-go/internal/config"
 )
 
 func GenerateState() string {
@@ -29,16 +27,16 @@ func BuildStateCookie(state string) *http.Cookie {
 	}
 }
 
-func BuildLoginURL(c config.CognitoMetadataProvider, endpoint, state string) (string, error) {
+func BuildLoginURL(p LoginHandlerProvider, endpoint, state string) (string, error) {
 	loginURL, err := url.Parse(endpoint)
 	if err != nil {
 		return "", err
 	}
 	q := loginURL.Query()
 	q.Set("response_type", "code")
-	q.Set("client_id", c.UserPoolClientIDValue())
-	q.Set("redirect_uri", c.RedirectURIValue())
-	q.Set("scope", c.ScopeValue())
+	q.Set("client_id", p.UserPoolClientIDValue())
+	q.Set("redirect_uri", p.RedirectURIValue())
+	q.Set("scope", p.ScopeValue())
 	q.Set("state", state)
 	loginURL.RawQuery = q.Encode()
 	return loginURL.String(), nil

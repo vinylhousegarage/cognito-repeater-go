@@ -17,7 +17,7 @@ func TestGetLoginURLReturnsExpectedEndpoint(t *testing.T) {
 	}))
 	defer ts.Close()
 
-	endpoint, err := GetLoginURL(http.DefaultClient, ts.URL)
+	endpoint, err := GetLoginURL(ts.URL, http.DefaultClient)
 
 	assert.NoError(t, err, "failed to fetch authorization endpoint")
 	assert.Equal(t, "https://example.com/oauth2/authorize", endpoint)
@@ -31,7 +31,7 @@ func TestGetLoginURLStatusCode500(t *testing.T) {
 	}))
 	defer ts.Close()
 
-	_, err := GetLoginURL(http.DefaultClient, ts.URL)
+	_, err := GetLoginURL(ts.URL, http.DefaultClient)
 
 	assert.Error(t, err, "unexpected status code")
 }

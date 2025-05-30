@@ -3,10 +3,7 @@ package login
 import (
 	"net/http"
 	"net/url"
-	"strings"
 	"testing"
-
-	"cognito-repeater-go/internal/config"
 
 	"github.com/stretchr/testify/assert"
 )
@@ -25,17 +22,13 @@ func TestBuildStateCookie(t *testing.T) {
 	assert.Equal(t, http.SameSiteLaxMode, c.SameSite)
 }
 
-func TestBuildLoginURLSuccess(t *testing.T) {
-	cfg := &config.Config{
-		UserPoolClientID: "example-client-id",
-		RedirectURI:      "https://example.com/callback",
-		Scope:            "openid",
-	}
+func TestBuildLoginURL_Success(t *testing.T) {
+	provider := newMockLoginHandlerProvider()
 
 	endpoint := "https://auth.example.com/oauth2/authorize"
 	state := "sample-state-value"
 
-	result, err := BuildLoginURL(cfg, endpoint, state)
+	result, err := BuildLoginURL(provider, endpoint, state)
 	assert.NoError(t, err)
 
 	parsed, err := url.Parse(result)
@@ -45,15 +38,15 @@ func TestBuildLoginURLSuccess(t *testing.T) {
 
 	queries := parsed.Query()
 	assert.Equal(t, "code", queries.Get("response_type"))
-	assert.Equal(t, cfg.UserPoolClientID, queries.Get("client_id"))
-	assert.Equal(t, cfg.RedirectURI, queries.Get("redirect_uri"))
-	assert.Equal(t, cfg.Scope, queries.Get("scope"))
+	assert.Equal(t, provider.ClientID, queries.Get("client_id"))
+	assert.Equal(t, provider.RedirectURI, queries.Get("redirect_uri"))
+	assert.Equal(t, provider.Scope, queries.Get("scope"))
 	assert.Equal(t, state, queries.Get("state"))
 }
 
-func TestBuildLoginURLInvalidEndpoint(t *testing.T) {
-	cfg := &config.Config{}
-	_, err := BuildLoginURL(cfg, "://invalid-url", "state")
+func TestBuildLoginURL_InvalidEndpoint(t *testing.T) {
+	provider := newMockLoginHandlerProvider()
+	_, err := BuildLoginURL(provider, "://invalid-url", "state")
 	assert.Error(t, err)
-	assert.True(t, strings.Contains(err.Error(), "missing protocol"))
+	assert.Contains(t, err.Error(), "missing protocol")
 }

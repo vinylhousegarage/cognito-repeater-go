@@ -12,7 +12,7 @@ type LoginMetadata struct {
 	AuthorizationEndpoint string `json:"authorization_endpoint"`
 }
 
-func GetLoginURL(client httpclient.HTTPClient, metadataURL string) (string, error) {
+func GetLoginURL(metadataURL string, client httpclient.HTTPClient) (string, error) {
 	req, err := http.NewRequest("GET", metadataURL, nil)
 	if err != nil {
 		return "", fmt.Errorf("failed to create request: %w", err)
