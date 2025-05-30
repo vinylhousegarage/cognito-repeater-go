@@ -16,8 +16,8 @@ var MockCfg = config.Config{
 	LogoutURI:        "https://example.com/logout",
 	RedirectURI:      "https://localhost/callback",
 	Scope:            "openid",
-	UserPoolClientID: "abc123clientidxyz4567890123",
-	UserPoolID:       "ap-northeast-1_Abc123XYZ",
+	UserPoolClientID: "test-client",
+	UserPoolID:       "test-pool",
 }
 
 type MockAllHandlerProviders struct { *config.Config }
