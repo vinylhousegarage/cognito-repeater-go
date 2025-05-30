@@ -12,7 +12,6 @@ import (
 	"testing"
 	"time"
 
-	"cognito-repeater-go/internal/config"
 	"cognito-repeater-go/internal/router"
 	"cognito-repeater-go/test/testhelpers"
 
@@ -71,14 +70,6 @@ func GenerateSignedToken(privateKey *rsa.PrivateKey, issuer, audience string) (s
 	return token.SignedString(privateKey)
 }
 
-type mockAllProviders struct {
-	*config.Config
-}
-
-func (m *mockAllProviders) GetJWKSURI() string {
-	return "https://example.com/jwks"
-}
-
 func TestMeHandler_Integration_Success(t *testing.T) {
 	t.Parallel()
 
@@ -88,7 +79,7 @@ func TestMeHandler_Integration_Success(t *testing.T) {
 		UserPoolClientID: "test-client",
 	}
 
-	provider := &mockAllProviders{Config: cfg}
+	provider := &httpclient.MockAllProviders{Config: cfg}
 
 	jwks, privateKey, err := GenerateTestJWKS()
 	assert.NoError(t, err)
