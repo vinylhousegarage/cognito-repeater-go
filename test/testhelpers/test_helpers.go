@@ -23,7 +23,7 @@ var MockCfg = config.Config{
 type MockAllHandlerProviders struct { *config.Config }
 
 func NewMockRouteDependencies() deps.RouteDependencies {
-	return auth.RouteDependencies{
+	return deps.RouteDependencies{
 		CallbackHandlerProvider: &MockCfg,
 		LoginHandlerProvider:    &MockCfg,
 		LogoutHandlerProvider:   &MockCfg,
