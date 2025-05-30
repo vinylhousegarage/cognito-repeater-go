@@ -19,7 +19,7 @@ import (
 )
 
 func newTestDeps(doFunc func(*http.Request) (*http.Response, error)) (deps.WhoamiHandlerProvider, httpclient.HTTPClient) {
-	return testhelpers.MockCfg, &testhelpers.MockHTTPClient{DoFunc: doFunc}
+	return &testhelpers.MockCfg, &testhelpers.MockHTTPClient{DoFunc: doFunc}
 }
 
 func TestWhoamiHandler_Success(t *testing.T) {
