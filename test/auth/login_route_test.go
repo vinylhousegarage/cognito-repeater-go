@@ -33,7 +33,7 @@ func TestLoginRouteIsRegisteredInProductionRouter(t *testing.T) {
 		HTTPClient: mockClient,
 	}
 
-	r := router.NewRouter(handlerDeps.Config, handlerDeps.Config, handlerDeps.Config, handlerDeps.Config, handlerDeps.Config, handlerDeps.HTTPClient)
+	r := router.NewRouter(handlerDeps.Config, handlerDeps.HTTPClient)
 
 	req := httptest.NewRequest(http.MethodGet, "/login", nil)
 	w := httptest.NewRecorder()
