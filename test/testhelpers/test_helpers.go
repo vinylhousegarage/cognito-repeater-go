@@ -6,6 +6,7 @@ import (
 	"strings"
 
 	"cognito-repeater-go/internal/config"
+	"cognito-repeater-go/internal/httpclient"
 )
 
 var MockCfg = config.Config{
