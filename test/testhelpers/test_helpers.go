@@ -5,7 +5,7 @@ import (
 	"net/http"
 	"strings"
 
-	"cognito-repeater-go/internal/auth"
+	"cognito-repeater-go/internal/auth/deps"
 	"cognito-repeater-go/internal/config"
 	"cognito-repeater-go/internal/httpclient"
 )
@@ -22,7 +22,7 @@ var MockCfg = config.Config{
 
 type MockAllHandlerProviders struct { *config.Config }
 
-func NewMockRouteDependencies() auth.RouteDependencies {
+func NewMockRouteDependencies() deps.RouteDependencies {
 	return auth.RouteDependencies{
 		CallbackHandlerProvider: &MockCfg,
 		LoginHandlerProvider:    &MockCfg,
