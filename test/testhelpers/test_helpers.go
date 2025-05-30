@@ -57,7 +57,7 @@ func NewMockHTTPClientPanic() httpclient.HTTPClient {
 	}
 }
 
-func NewMockHTTPClientWithAuthEndpoint() httpclient.HTTPClient {
+func NewMockHTTPClientOKWithAuthEndpoint() httpclient.HTTPClient {
 	return &MockHTTPClient{
 		DoFunc: func(req *http.Request) (*http.Response, error) {
 			return &http.Response{
