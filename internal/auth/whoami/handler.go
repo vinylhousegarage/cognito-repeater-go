@@ -16,7 +16,7 @@ func WhoamiHandler(d deps.HandlerDependencies) http.HandlerFunc {
 			return
 		}
 
-		userinfoURL, err := GetUserinfoURL(d.HTTPClient, d.Config.MetadataURL())
+		userinfoURL, err := GetUserinfoURL(d.Config.MetadataURL(), d.HTTPClient)
 		if err != nil {
 			http.Error(w, "failed to get userinfo endpoint", http.StatusInternalServerError)
 			return

@@ -18,7 +18,7 @@ func TestGetUserinfoURLReturnsExpectedEndpoint(t *testing.T) {
 	}))
 	defer ts.Close()
 
-	endpoint, err := GetUserinfoURL(http.DefaultClient, ts.URL)
+	endpoint, err := GetUserinfoURL(ts.URL, http.DefaultClient)
 
 	assert.NoError(t, err, "failed to fetch userinfo_endpoint")
 	assert.Equal(t, "https://example.com/oauth2/userinfo", endpoint)
@@ -32,7 +32,7 @@ func TestGetUserinfoURLStatusCode500(t *testing.T) {
 	}))
 	defer ts.Close()
 
-	_, err := GetUserinfoURL(http.DefaultClient, ts.URL)
+	_, err := GetUserinfoURL(ts.URL, http.DefaultClient)
 
 	assert.Error(t, err, "unexpected status code")
 }

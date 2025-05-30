@@ -13,7 +13,7 @@ type UserinfoMetadata struct {
 	UserinfoEndpoint string `json:"userinfo_endpoint"`
 }
 
-func GetUserinfoURL(client httpclient.HTTPClient, metadataURL string) (string, error) {
+func GetUserinfoURL(metadataURL string, client httpclient.HTTPClient) (string, error) {
 	req, err := http.NewRequest("GET", metadataURL, nil)
 	if err != nil {
 		return "", fmt.Errorf("failed to create request: %w", err)
