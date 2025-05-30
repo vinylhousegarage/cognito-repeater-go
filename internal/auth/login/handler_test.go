@@ -1,11 +1,9 @@
 package login
 
 import (
-	"io"
 	"net/http"
 	"net/http/httptest"
 	"net/url"
-	"strings"
 	"testing"
 
 	"cognito-repeater-go/internal/auth/deps"
