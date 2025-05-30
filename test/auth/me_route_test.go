@@ -74,14 +74,6 @@ func GenerateSignedToken(privateKey *rsa.PrivateKey, issuer, audience string) (s
 func TestMeHandler_Integration_Success(t *testing.T) {
 	t.Parallel()
 
-	cfg := &config.Config{
-		Region:           "ap-northeast-1",
-		UserPoolID:       "test-pool",
-		UserPoolClientID: "test-client",
-	}
-
-	provider := &testhelpers.MockAllHandlerProviders{Config: cfg}
-
 	jwks, privateKey, err := GenerateTestJWKS()
 	assert.NoError(t, err)
 
@@ -111,7 +103,7 @@ func TestMeHandler_Integration_Success(t *testing.T) {
 		},
 	}
 
-	router := router.NewRouter(provider, client)
+	router := router.NewRouter(testhelpers.NewMockRouteDependencies, client)
 
 	req := httptest.NewRequest(http.MethodGet, "/me", nil)
 	req.Header.Set("Authorization", "Bearer "+token)
