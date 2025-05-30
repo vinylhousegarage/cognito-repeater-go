@@ -4,6 +4,7 @@ import (
 	"log"
 	"net/http"
 
+	"cognito-repeater-go/internal/auth/deps"
 	"cognito-repeater-go/internal/config"
 	"cognito-repeater-go/internal/server"
 )
@@ -14,7 +15,15 @@ func main() {
 		log.Fatalf("failed to load config: %v", err)
 	}
 
-	srv := server.NewServer(cfg, http.DefaultClient)
+	routeDeps := deps.RouteDependencies{
+		CallbackProvider: cfg,
+		LoginProvider:    cfg,
+		LogoutProvider:   cfg,
+		MeProvider:       cfg,
+		WhoamiProvider:   cfg,
+	}
+
+	srv := server.NewServer(routeDeps, http.DefaultClient)
 
 	log.Println("Listening on", srv.Addr)
 	log.Fatal(srv.ListenAndServe())
