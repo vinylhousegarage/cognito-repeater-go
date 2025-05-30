@@ -60,16 +60,3 @@ func NewMockHTTPClientPanic() httpclient.HTTPClient {
 		},
 	}
 }
-
-func NewMockHTTPClientOKWithAuthEndpoint() httpclient.HTTPClient {
-	return &MockHTTPClient{
-		DoFunc: func(req *http.Request) (*http.Response, error) {
-			return &http.Response{
-				StatusCode: http.StatusOK,
-				Body: io.NopCloser(strings.NewReader(
-					`{"authorization_endpoint": "https://example.com/oauth2/authorize"}`,
-				)),
-			}, nil
-		},
-	}
-}

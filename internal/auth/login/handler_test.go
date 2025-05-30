@@ -1,21 +1,37 @@
 package login
 
 import (
+	"io"
 	"net/http"
 	"net/http/httptest"
 	"net/url"
+	"strings"
 	"testing"
 
+	"cognito-repeater-go/internal/httpclient"
 	"cognito-repeater-go/test/testhelpers"
 
 	"github.com/stretchr/testify/assert"
 )
 
+func NewMockHTTPClientOKWithAuthEndpoint() httpclient.HTTPClient {
+	return &testhelpers.MockHTTPClient{
+		DoFunc: func(req *http.Request) (*http.Response, error) {
+			return &http.Response{
+				StatusCode: http.StatusOK,
+				Body: io.NopCloser(strings.NewReader(
+					`{"authorization_endpoint": "https://example.com/oauth2/authorize"}`,
+				)),
+			}, nil
+		},
+	}
+}
+
 func TestLoginHandler_RedirectsToLoginEndpoint(t *testing.T) {
 	t.Parallel()
 
 	provider := &testhelpers.MockCfg
-	client := testhelpers.NewMockHTTPClientOKWithAuthEndpoint()
+	client := NewMockHTTPClientOKWithAuthEndpoint()
 
 	req := httptest.NewRequest(http.MethodGet, "/login", nil)
 	w := httptest.NewRecorder()
@@ -39,7 +55,7 @@ func TestLoginHandlerSetsStateCookie(t *testing.T) {
 	t.Parallel()
 
 	provider := &testhelpers.MockCfg
-	client := testhelpers.NewMockHTTPClientOKWithAuthEndpoint()
+	client := NewMockHTTPClientOKWithAuthEndpoint()
 
 	req := httptest.NewRequest(http.MethodGet, "/login", nil)
 	w := httptest.NewRecorder()
