@@ -25,6 +25,10 @@ type MeHandlerProvider interface {
 	MetadataURL() string
 }
 
+type WhoamiHandlerProvider struct {
+	MetadataURL() string
+}
+
 type RouteDependencies struct {
 	CallbackProvider CallbackHandlerProvider
 	LoginProvider    LoginHandlerProvider
