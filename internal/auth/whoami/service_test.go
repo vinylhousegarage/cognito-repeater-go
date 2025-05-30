@@ -76,7 +76,7 @@ func TestFetchUserinfo_HTTPError(t *testing.T) {
 		}),
 	}
 
-	_, err := FetchUserinfo("https://example.com/oauth2/userinfo", brokenClient "dummy-token")
+	_, err := FetchUserinfo("https://example.com/oauth2/userinfo", brokenClient, "dummy-token")
 
 	assert.Error(t, err)
 	assert.Contains(t, err.Error(), "failed to call userinfo endpoint")
