@@ -4,7 +4,6 @@ import (
 	"net/http"
 
 	"cognito-repeater-go/internal/auth/callback"
-	"cognito-repeater-go/internal/auth/deps"
 	"cognito-repeater-go/internal/auth/login"
 	"cognito-repeater-go/internal/auth/logout"
 	"cognito-repeater-go/internal/auth/logoutredirect"
@@ -14,7 +13,6 @@ import (
 
 func RegisterAuthRoutes(
 	mux *http.ServeMux,
-	d deps.HandlerDependencies,
 	callbackCfg callback.CallbackHandlerProvider,
 	loginCfg login.LoginHandlerProvider,
 	logoutCfg logout.LogoutHandlerProvider,
