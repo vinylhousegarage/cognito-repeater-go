@@ -6,9 +6,10 @@ import (
 
 	"cognito-repeater-go/internal/auth/deps"
 	"cognito-repeater-go/internal/auth/utils"
+	"cognito-repeater-go/internal/httpclient"
 )
 
-func WhoamiHandler(d deps.HandlerDependencies) http.HandlerFunc {
+func WhoamiHandler(p deps.WhoamiHandlerProvider, cli httpclient.HTTPClient) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		accessToken, err := utils.ExtractAuthHeaderToken(r)
 		if err != nil {
@@ -16,13 +17,13 @@ func WhoamiHandler(d deps.HandlerDependencies) http.HandlerFunc {
 			return
 		}
 
-		userinfoURL, err := GetUserinfoURL(d.Config.MetadataURL(), d.HTTPClient)
+		userinfoURL, err := GetUserinfoURL(p.MetadataURL(), cli)
 		if err != nil {
 			http.Error(w, "failed to get userinfo endpoint", http.StatusInternalServerError)
 			return
 		}
 
-		userinfo, err := FetchUserinfo(userinfoURL, d.HTTPClient, accessToken)
+		userinfo, err := FetchUserinfo(userinfoURL, cli, accessToken)
 		if err != nil {
 			http.Error(w, "failed to fetch userinfo", http.StatusUnauthorized)
 			return
