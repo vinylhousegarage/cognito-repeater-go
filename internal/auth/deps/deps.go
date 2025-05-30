@@ -34,4 +34,5 @@ type RouteDependencies struct {
 	LoginProvider    LoginHandlerProvider
 	LogoutProvider   LogoutHandlerProvider
 	MeProvider       MeHandlerProvider
+	WhoamiProvider   WhoamiHandlerProvider
 }
