@@ -11,17 +11,21 @@ import (
 	"cognito-repeater-go/internal/httpclient"
 )
 
+type RouteDependencies struct {
+	CallbackProvider callback.CallbackHandlerProvider
+	LoginProvider    login.LoginHandlerProvider
+	LogoutProvider   logout.LogoutHandlerProvider
+	MeProvider       me.MeHandlerProvider
+}
+
 func RegisterAuthRoutes(
 	mux *http.ServeMux,
-	callbackCfg callback.CallbackHandlerProvider,
-	loginCfg login.LoginHandlerProvider,
-	logoutCfg logout.LogoutHandlerProvider,
-	meCfg me.MeHandlerProvider,
-	h httpclient.HTTPClient,
+	deps RouteDependencies,
+	cli httpclient.HTTPClient,
 ) {
-	mux.HandleFunc("/callback", callback.CallbackHandler(callbackCfg, h))
-	mux.HandleFunc("/login", login.LoginHandler(loginCfg, h))
-	mux.HandleFunc("/logout", logout.LogoutHandler(logoutCfg, h))
+	mux.HandleFunc("/callback", callback.CallbackHandler(deps, cli))
+	mux.HandleFunc("/login", login.LoginHandler(deps, cli))
+	mux.HandleFunc("/logout", logout.LogoutHandler(deps, cli))
 	mux.HandleFunc("/logout/redirect", logoutredirect.LogoutRedirectHandler)
-	mux.HandleFunc("/me", me.MeHandler(meCfg, h))
+	mux.HandleFunc("/me", me.MeHandler(deps, cli))
 }
