@@ -1,10 +1,15 @@
 package login
 
 import (
+	"io"
 	"net/http"
 	"net/http/httptest"
 	"net/url"
+	"strings"
 	"testing"
+
+	"cognito-repeater-go/internal/auth/deps"
+	"cognito-repeater-go/test/testhelpers"
 
 	"github.com/stretchr/testify/assert"
 )
@@ -12,14 +17,15 @@ import (
 func TestLoginHandler_RedirectsToLoginEndpoint(t *testing.T) {
 	t.Parallel()
 
-	p := newMockLoginHandlerProvider()
-	c := newMockHTTPClient()
+	d := deps.HandlerDependencies{
+		Config:     &testhelpers.MockCfg,
+		HTTPClient: testhelpers.NewMockHTTPClientOKWithAuthEndpoint(),
+	}
 
 	req := httptest.NewRequest(http.MethodGet, "/login", nil)
 	w := httptest.NewRecorder()
 
-	LoginHandler(p, c)(w, req)
-
+	login.LoginHandler(d)(w, req)
 	resp := w.Result()
 	assert.Equal(t, http.StatusFound, resp.StatusCode)
 
@@ -36,14 +42,15 @@ func TestLoginHandler_RedirectsToLoginEndpoint(t *testing.T) {
 func TestLoginHandlerSetsStateCookie(t *testing.T) {
 	t.Parallel()
 
-	p := newMockLoginHandlerProvider()
-	c := newMockHTTPClient()
+	d := deps.HandlerDependencies{
+		Config:     &testhelpers.MockCfg,
+		HTTPClient: testhelpers.NewMockHTTPClientOKWithAuthEndpoint(),
+	}
 
 	req := httptest.NewRequest(http.MethodGet, "/login", nil)
 	w := httptest.NewRecorder()
 
-	LoginHandler(p, c)(w, req)
-
+	login.LoginHandler(d)(w, req)
 	resp := w.Result()
 
 	cookies := resp.Cookies()

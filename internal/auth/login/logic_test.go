@@ -5,6 +5,8 @@ import (
 	"net/url"
 	"testing"
 
+	"cognito-repeater-go/test/testhelpers"
+
 	"github.com/stretchr/testify/assert"
 )
 
@@ -23,7 +25,9 @@ func TestBuildStateCookie(t *testing.T) {
 }
 
 func TestBuildLoginURL_Success(t *testing.T) {
-	provider := newMockLoginHandlerProvider()
+	t.Parallel()
+
+	provider := &testhelpers.MockCfg
 
 	endpoint := "https://auth.example.com/oauth2/authorize"
 	state := "sample-state-value"
@@ -38,14 +42,16 @@ func TestBuildLoginURL_Success(t *testing.T) {
 
 	queries := parsed.Query()
 	assert.Equal(t, "code", queries.Get("response_type"))
-	assert.Equal(t, provider.ClientID, queries.Get("client_id"))
+	assert.Equal(t, provider.UserPoolClientID, queries.Get("client_id"))
 	assert.Equal(t, provider.RedirectURI, queries.Get("redirect_uri"))
 	assert.Equal(t, provider.Scope, queries.Get("scope"))
 	assert.Equal(t, state, queries.Get("state"))
 }
 
 func TestBuildLoginURL_InvalidEndpoint(t *testing.T) {
-	provider := newMockLoginHandlerProvider()
+	t.Parallel()
+
+	provider := &testhelpers.MockCfg
 	_, err := BuildLoginURL(provider, "://invalid-url", "state")
 	assert.Error(t, err)
 	assert.Contains(t, err.Error(), "missing protocol")
