@@ -22,22 +22,8 @@ func TestBuildStateCookie(t *testing.T) {
 	assert.Equal(t, http.SameSiteLaxMode, c.SameSite)
 }
 
-type mockLoginHandlerProvider struct {
-	ClientID    string
-	RedirectURI string
-	Scope       string
-}
-
-func (m *mockLoginHandlerProvider) UserPoolClientIDValue() string { return m.ClientID }
-func (m *mockLoginHandlerProvider) RedirectURIValue() string      { return m.RedirectURI }
-func (m *mockLoginHandlerProvider) ScopeValue() string            { return m.Scope }
-
 func TestBuildLoginURL_Success(t *testing.T) {
-	provider := &mockLoginHandlerProvider{
-		ClientID:    "example-client-id",
-		RedirectURI: "https://example.com/callback",
-		Scope:       "openid",
-	}
+	provider := newMockLoginHandlerProvider()
 
 	endpoint := "https://auth.example.com/oauth2/authorize"
 	state := "sample-state-value"
@@ -59,7 +45,7 @@ func TestBuildLoginURL_Success(t *testing.T) {
 }
 
 func TestBuildLoginURL_InvalidEndpoint(t *testing.T) {
-	provider := &mockLoginHandlerProvider{}
+	provider := newMockLoginHandlerProvider()
 	_, err := BuildLoginURL(provider, "://invalid-url", "state")
 	assert.Error(t, err)
 	assert.Contains(t, err.Error(), "missing protocol")
