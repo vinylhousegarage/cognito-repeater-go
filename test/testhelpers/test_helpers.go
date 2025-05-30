@@ -8,7 +8,7 @@ import (
 	"cognito-repeater-go/internal/config"
 )
 
-var MockCfg config.CognitoMetadataProvider = &config.Config{
+var MockCfg = config.Config{
 	Region:           "ap-northeast-1",
 	ClientSecret:     "client-secret",
 	LogoutURI:        "https://example.com/logout",
@@ -21,7 +21,7 @@ var MockCfg config.CognitoMetadataProvider = &config.Config{
 type MockAllHandlerProviders struct { *config.Config }
 func NewMockAllHandlerProviders() *MockAllHandlerProviders {
 	return &MockAllHandlerProviders{
-		Config: MockCfg.(*config.Config),
+		Config: &MockCfg,
 	}
 }
 
