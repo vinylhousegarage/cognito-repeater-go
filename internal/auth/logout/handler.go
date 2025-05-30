@@ -3,7 +3,6 @@ package logout
 import (
 	"net/http"
 
-
 	"cognito-repeater-go/internal/auth/deps"
 	"cognito-repeater-go/internal/httpclient"
 )

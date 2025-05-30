@@ -20,7 +20,7 @@ var MockCfg = config.Config{
 	UserPoolID:       "test-pool",
 }
 
-type MockAllHandlerProviders struct { *config.Config }
+type MockAllHandlerProviders struct{ *config.Config }
 
 func NewMockRouteDependencies() deps.RouteDependencies {
 	return deps.RouteDependencies{
@@ -32,10 +32,14 @@ func NewMockRouteDependencies() deps.RouteDependencies {
 	}
 }
 
-type MockMetadataURL struct { URL string }
+type MockMetadataURL struct{ URL string }
+
 func (m *MockMetadataURL) MetadataURL() string { return m.URL }
 
-type MockHTTPClient struct { DoFunc func(req *http.Request) (*http.Response, error) }
+type MockHTTPClient struct {
+	DoFunc func(req *http.Request) (*http.Response, error)
+}
+
 func (m *MockHTTPClient) Do(req *http.Request) (*http.Response, error) { return m.DoFunc(req) }
 
 func NewMockHTTPClientOK() httpclient.HTTPClient {
