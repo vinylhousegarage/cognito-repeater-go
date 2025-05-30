@@ -23,9 +23,9 @@ func RegisterAuthRoutes(
 	deps RouteDependencies,
 	cli httpclient.HTTPClient,
 ) {
-	mux.HandleFunc("/callback", callback.CallbackHandler(deps, cli))
-	mux.HandleFunc("/login", login.LoginHandler(deps, cli))
-	mux.HandleFunc("/logout", logout.LogoutHandler(deps, cli))
+	mux.HandleFunc("/callback", callback.CallbackHandler(deps.CallbackProvider, cli))
+	mux.HandleFunc("/login", login.LoginHandler(deps.LoginProvider, cli))
+	mux.HandleFunc("/logout", logout.LogoutHandler(deps.LogoutProvider, cli))
 	mux.HandleFunc("/logout/redirect", logoutredirect.LogoutRedirectHandler)
-	mux.HandleFunc("/me", me.MeHandler(deps, cli))
+	mux.HandleFunc("/me", me.MeHandler(deps.MeProvider, cli))
 }
