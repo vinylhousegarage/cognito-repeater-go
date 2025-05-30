@@ -12,6 +12,7 @@ import (
 	"testing"
 	"time"
 
+	"cognito-repeater-go/internal/config"
 	"cognito-repeater-go/internal/router"
 	"cognito-repeater-go/test/testhelpers"
 
