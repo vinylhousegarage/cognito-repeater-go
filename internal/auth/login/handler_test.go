@@ -15,15 +15,14 @@ import (
 func TestLoginHandler_RedirectsToLoginEndpoint(t *testing.T) {
 	t.Parallel()
 
-	d := deps.HandlerDependencies{
-		Config:     &testhelpers.MockCfg,
-		HTTPClient: testhelpers.NewMockHTTPClientOKWithAuthEndpoint(),
-	}
+	provider := &testhelpers.MockCfg
+	client := testhelpers.NewMockHTTPClientOKWithAuthEndpoint()
 
 	req := httptest.NewRequest(http.MethodGet, "/login", nil)
 	w := httptest.NewRecorder()
 
-	LoginHandler(d.Config, d.HTTPClient)(w, req)
+	LoginHandler(provider, client)(w, req)
+
 	resp := w.Result()
 	assert.Equal(t, http.StatusFound, resp.StatusCode)
 
@@ -40,15 +39,14 @@ func TestLoginHandler_RedirectsToLoginEndpoint(t *testing.T) {
 func TestLoginHandlerSetsStateCookie(t *testing.T) {
 	t.Parallel()
 
-	d := deps.HandlerDependencies{
-		Config:     &testhelpers.MockCfg,
-		HTTPClient: testhelpers.NewMockHTTPClientOKWithAuthEndpoint(),
-	}
+	provider := &testhelpers.MockCfg
+	client := testhelpers.NewMockHTTPClientOKWithAuthEndpoint()
 
 	req := httptest.NewRequest(http.MethodGet, "/login", nil)
 	w := httptest.NewRecorder()
 
-	LoginHandler(d.Config, d.HTTPClient)(w, req)
+	LoginHandler(provider, client)(w, req)
+
 	resp := w.Result()
 
 	cookies := resp.Cookies()

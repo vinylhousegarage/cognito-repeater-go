@@ -3,6 +3,7 @@ package router
 import (
 	"net/http"
 
+	"cognito-repeater-go/internal/auth"
 	"cognito-repeater-go/internal/auth/deps"
 	"cognito-repeater-go/internal/httpclient"
 	"cognito-repeater-go/internal/root"
