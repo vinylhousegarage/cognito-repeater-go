@@ -4,35 +4,15 @@ import (
 	"net/http"
 
 	"cognito-repeater-go/internal/auth"
-	"cognito-repeater-go/internal/auth/callback"
-	"cognito-repeater-go/internal/auth/deps"
-	"cognito-repeater-go/internal/auth/login"
-	"cognito-repeater-go/internal/auth/logout"
-	"cognito-repeater-go/internal/auth/me"
-	"cognito-repeater-go/internal/config"
 	"cognito-repeater-go/internal/httpclient"
 	"cognito-repeater-go/internal/root"
 	"cognito-repeater-go/internal/simulatederrors"
 )
 
-func NewRouter(
-	cfg config.CognitoMetadataProvider,
-	callbackCfg callback.CallbackHandlerProvider,
-	loginCfg login.LoginHandlerProvider,
-	logoutCfg logout.LogoutHandlerProvider,
-	meCfg me.MeHandlerProvider,
-	client httpclient.HTTPClient,
-) http.Handler {
+func NewRouter(deps auth.RouteDependencies, cli httpclient.HTTPClient) http.Handler {
 	mux := http.NewServeMux()
-
-	d := deps.HandlerDependencies{
-		Config:     cfg,
-		HTTPClient: client,
-	}
-
-	auth.RegisterAuthRoutes(mux, d, callbackCfg, loginCfg, logoutCfg, meCfg, client)
+	auth.RegisterAuthRoutes(mux, deps, cli)
 	root.RegisterRootRoutes(mux)
 	simulatederrors.RegisterErrorRoutes(mux)
-
 	return mux
 }
