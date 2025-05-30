@@ -41,23 +41,23 @@ func NewMockHTTPClientPanic() httpclient.HTTPClient {
 	}
 }
 
-type MockCallbackProvider struct{}
-func (m MockCallbackProvider) ClientSecretValue() string     { return "mock-client-secret" }
-func (m MockCallbackProvider) MetadataURL() string           { return "https://example.com/.well-known/openid-configuration" }
-func (m MockCallbackProvider) RedirectURIValue() string      { return "https://example.com/callback" }
-func (m MockCallbackProvider) UserPoolClientIDValue() string { return "mock-client-id" }
+type MockCallbackHandlerProvider struct{}
+func (m MockCallbackHandlerProvider) ClientSecretValue() string     { return "mock-client-secret" }
+func (m MockCallbackHandlerProvider) MetadataURL() string           { return "https://example.com/.well-known/openid-configuration" }
+func (m MockCallbackHandlerProvider) RedirectURIValue() string      { return "https://example.com/callback" }
+func (m MockCallbackHandlerProvider) UserPoolClientIDValue() string { return "mock-client-id" }
 
-type MockLoginProvider struct{}
-func (m MockLoginProvider) ClientSecretValue() string     { return "mock-client-secret" }
-func (m MockLoginProvider) MetadataURL() string           { return "https://example.com/.well-known/openid-configuration" }
-func (m MockLoginProvider) RedirectURIValue() string      { return "https://example.com/callback" }
-func (m MockLoginProvider) UserPoolClientIDValue() string { return "mock-client-id" }
+type MockLoginHandlerProvider struct{}
+func (m MockLoginHandlerProvider) ClientSecretValue() string     { return "mock-client-secret" }
+func (m MockLoginHandlerProvider) MetadataURL() string           { return "https://example.com/.well-known/openid-configuration" }
+func (m MockLoginHandlerProvider) RedirectURIValue() string      { return "https://example.com/callback" }
+func (m MockLoginHandlerProvider) UserPoolClientIDValue() string { return "mock-client-id" }
 
-type MockLogoutProvider struct{}
-func (m MockLogoutProvider) MetadataURL() string { return "https://example.com/.well-known/openid-configuration" }
+type MockLogoutHandlerProvider struct{}
+func (m MockLogoutHandlerProvider) MetadataURL() string { return "https://example.com/.well-known/openid-configuration" }
 
-type MockMeProvider struct{}
-func (m MockMeProvider) Audience() string    { return "mock-audience" }
-func (m MockMeProvider) GetJWKSURI() string  { return "https://example.com/client-id/.well-known/jwks.json" }
-func (m MockMeProvider) Issuer() string      { return "mock-issuer" }
-func (m MockMeProvider) MetadataURL() string { return "https://example.com/.well-known/openid-configuration" }
+type MockMeHandlerProvider struct{}
+func (m MockMeHandlerProvider) Audience() string    { return "mock-audience" }
+func (m MockMeHandlerProvider) GetJWKSURI() string  { return "https://example.com/client-id/.well-known/jwks.json" }
+func (m MockMeHandlerProvider) Issuer() string      { return "mock-issuer" }
+func (m MockMeHandlerProvider) MetadataURL() string { return "https://example.com/.well-known/openid-configuration" }

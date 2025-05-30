@@ -16,10 +16,10 @@ func TestError404RouteReturnsPlainTextNotFound(t *testing.T) {
 	t.Parallel()
 
 	deps := auth.RouteDependencies{
-		CallbackProvider: testhelpers.MockCallbackProvider{},
-		LoginProvider: testhelpers.MockLoginProvider{},
-		LogoutProvider: testhelpers.MockLogoutProvider{},
-		MeProvider: testhelpers.MockMeProvider{},
+		CallbackProvider: testhelpers.MockCallbackHandlerProvider{},
+		LoginProvider: testhelpers.MockLoginHandlerProvider{},
+		LogoutProvider: testhelpers.MockLogoutHandlerProvider{},
+		MeProvider: testhelpers.MockMeHandlerProvider{},
 	}
 
 	cli := testhelpers.NewMockHTTPClientOK()
