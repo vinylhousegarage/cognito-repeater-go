@@ -1,10 +1,8 @@
 package auth_test
 
 import (
-	"io"
 	"net/http"
 	"net/http/httptest"
-	"strings"
 	"testing"
 
 	"cognito-repeater-go/internal/router"
