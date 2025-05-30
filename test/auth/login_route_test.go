@@ -7,7 +7,6 @@ import (
 	"strings"
 	"testing"
 
-	"cognito-repeater-go/internal/auth/deps"
 	"cognito-repeater-go/internal/router"
 	"cognito-repeater-go/test/testhelpers"
 
@@ -17,23 +16,10 @@ import (
 func TestLoginRouteIsRegisteredInProductionRouter(t *testing.T) {
 	t.Parallel()
 
-	mockClient := &testhelpers.MockHTTPClient{
-		DoFunc: func(req *http.Request) (*http.Response, error) {
-			body := `{"authorization_endpoint": "https://example.com/oauth2/authorize"}`
-			return &http.Response{
-				StatusCode: 200,
-				Body:       io.NopCloser(strings.NewReader(body)),
-				Header:     make(http.Header),
-			}, nil
-		},
-	}
+	deps := testhelpers.MockLoginHandlerProvider{}
+	cli := testhelpers.NewMockHTTPClientOK()
 
-	handlerDeps := deps.HandlerDependencies{
-		Config:     testhelpers.MockCfg,
-		HTTPClient: mockClient,
-	}
-
-	r := router.NewRouter(handlerDeps.Config, handlerDeps.HTTPClient)
+	r := router.NewRouter(deps, cli)
 
 	req := httptest.NewRequest(http.MethodGet, "/login", nil)
 	w := httptest.NewRecorder()
