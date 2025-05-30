@@ -1,7 +1,9 @@
 package testhelpers
 
 import (
+	"io"
 	"net/http"
+	"strings"
 
 	"cognito-repeater-go/internal/config"
 )
@@ -16,13 +18,18 @@ var MockCfg config.CognitoMetadataProvider = &config.Config{
 	UserPoolID:       "ap-northeast-1_Abc123XYZ",
 }
 
+type MockAllHandlerProviders struct { *config.Config }
+func NewMockAllHandlerProviders() *MockAllHandlerProviders {
+	return &MockAllHandlerProviders{
+		Config: MockCfg.(*config.Config),
+	}
+}
+
 type MockMetadataURL struct { URL string }
 func (m *MockMetadataURL) MetadataURL() string { return m.URL }
 
 type MockHTTPClient struct { DoFunc func(req *http.Request) (*http.Response, error) }
 func (m *MockHTTPClient) Do(req *http.Request) (*http.Response, error) { return m.DoFunc(req) }
-
-type MockAllHandlerProviders struct { *config.Config }
 
 func NewMockHTTPClientOK() httpclient.HTTPClient {
 	return &MockHTTPClient{
