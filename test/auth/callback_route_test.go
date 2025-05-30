@@ -41,7 +41,7 @@ func TestCallbackRouteReturnsTokenJSON(t *testing.T) {
 		},
 	}
 
-	provider := testhelpers.NewMockAllHandlerProviders()
+	provider := testhelpers.NewMockRouteDependencies()
 
 	r := router.NewRouter(provider, client)
 

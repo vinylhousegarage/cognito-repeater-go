@@ -16,7 +16,7 @@ import (
 func TestRouterLogoutRedirectRouteReturnsExpectedJSON(t *testing.T) {
 	t.Parallel()
 
-	provider := testhelpers.NewMockAllHandlerProviders()
+	provider := testhelpers.NewMockRouteDependencies()
 	client := testhelpers.NewMockHTTPClientOK()
 
 	r := router.NewRouter(provider, client)
