@@ -16,7 +16,7 @@ import (
 func TestLoginRouteIsRegisteredInProductionRouter(t *testing.T) {
 	t.Parallel()
 
-	deps := testhelpers.MockLoginHandlerProvider{}
+	deps := &testhelpers.MockAllHandlerProviders{}
 	cli := testhelpers.NewMockHTTPClientOK()
 
 	r := router.NewRouter(deps, cli)
