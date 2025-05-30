@@ -76,7 +76,12 @@ func TestMeHandler_Integration_Success(t *testing.T) {
 	jwks, privateKey, err := GenerateTestJWKS()
 	assert.NoError(t, err)
 
-	token, err := GenerateSignedToken(privateKey, cfg.Issuer(), cfg.Audience())
+	const (
+		testIssuer   = "https://cognito-idp.ap-northeast-1.amazonaws.com/test-pool"
+		testAudience = "test-client"
+	)
+
+	token, err := GenerateSignedToken(privateKey, testIssuer, testAudience)
 	assert.NoError(t, err)
 
 	client := &testhelpers.MockHTTPClient{
