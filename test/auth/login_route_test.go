@@ -3,6 +3,7 @@ package auth_test
 import (
 	"net/http"
 	"net/http/httptest"
+	"strings"
 	"testing"
 
 	"cognito-repeater-go/internal/router"
@@ -14,10 +15,24 @@ import (
 func TestLoginRouteIsRegisteredInProductionRouter(t *testing.T) {
 	t.Parallel()
 
-	deps := testhelpers.NewMockRouteDependencies()
-	cli := testhelpers.NewMockHTTPClientOK()
+	mockClient := &testhelpers.MockHTTPClient{
+		DoFunc: func(req *http.Request) (*http.Response, error) {
+			rec := httptest.NewRecorder()
 
-	r := router.NewRouter(deps, cli)
+			switch {
+			case strings.Contains(req.URL.String(), "/.well-known/openid-configuration"):
+				rec.WriteHeader(http.StatusOK)
+				_, _ = rec.WriteString(`{"authorization_endpoint": "https://example.com/oauth2/authorize"}`)
+
+			default:
+				rec.WriteHeader(http.StatusNotFound)
+			}
+
+			return rec.Result(), nil
+		},
+	}
+
+	r := router.NewRouter(testhelpers.NewMockRouteDependencies(), mockClient)
 
 	req := httptest.NewRequest(http.MethodGet, "/login", nil)
 	w := httptest.NewRecorder()
