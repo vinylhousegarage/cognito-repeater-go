@@ -5,8 +5,6 @@ import (
 	"encoding/base64"
 	"net/http"
 	"net/url"
-
-	"cognito-repeater-go/internal/config"
 )
 
 func GenerateState() string {
