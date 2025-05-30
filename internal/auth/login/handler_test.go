@@ -23,7 +23,7 @@ func TestLoginHandler_RedirectsToLoginEndpoint(t *testing.T) {
 	req := httptest.NewRequest(http.MethodGet, "/login", nil)
 	w := httptest.NewRecorder()
 
-	login.LoginHandler(d.Config, d.HTTPClient)(w, req)
+	LoginHandler(d.Config, d.HTTPClient)(w, req)
 	resp := w.Result()
 	assert.Equal(t, http.StatusFound, resp.StatusCode)
 
@@ -48,7 +48,7 @@ func TestLoginHandlerSetsStateCookie(t *testing.T) {
 	req := httptest.NewRequest(http.MethodGet, "/login", nil)
 	w := httptest.NewRecorder()
 
-	login.LoginHandler(d.Config, d.HTTPClient)(w, req)
+	LoginHandler(d.Config, d.HTTPClient)(w, req)
 	resp := w.Result()
 
 	cookies := resp.Cookies()
