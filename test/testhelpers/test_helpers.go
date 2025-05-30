@@ -22,7 +22,7 @@ func (m *MockMetadataURL) MetadataURL() string { return m.URL }
 type MockHTTPClient struct { DoFunc func(req *http.Request) (*http.Response, error) }
 func (m *MockHTTPClient) Do(req *http.Request) (*http.Response, error) { return m.DoFunc(req) }
 
-type MockAllProviders struct { *config.Config }
+type MockAllHandlerProviders struct { *config.Config }
 
 func NewMockHTTPClientOK() httpclient.HTTPClient {
 	return &MockHTTPClient{

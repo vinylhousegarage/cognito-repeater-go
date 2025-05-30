@@ -79,7 +79,7 @@ func TestMeHandler_Integration_Success(t *testing.T) {
 		UserPoolClientID: "test-client",
 	}
 
-	provider := &testhelpers.MockAllProviders{Config: cfg}
+	provider := &testhelpers.MockAllHandlerProviders{Config: cfg}
 
 	jwks, privateKey, err := GenerateTestJWKS()
 	assert.NoError(t, err)
