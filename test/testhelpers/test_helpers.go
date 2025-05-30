@@ -24,10 +24,10 @@ type MockAllHandlerProviders struct { *config.Config }
 
 func NewMockRouteDependencies() deps.RouteDependencies {
 	return deps.RouteDependencies{
-		CallbackHandlerProvider: &MockCfg,
-		LoginHandlerProvider:    &MockCfg,
-		LogoutHandlerProvider:   &MockCfg,
-		MeHandlerProvider:       &MockCfg,
+		CallbackProvider: &MockCfg,
+		LoginProvider:    &MockCfg,
+		LogoutProvider:   &MockCfg,
+		MeProvider:       &MockCfg,
 	}
 }
 
