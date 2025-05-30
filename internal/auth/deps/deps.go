@@ -25,7 +25,7 @@ type MeHandlerProvider interface {
 	MetadataURL() string
 }
 
-type WhoamiHandlerProvider struct {
+type WhoamiHandlerProvider interface {
 	MetadataURL() string
 }
 
