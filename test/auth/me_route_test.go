@@ -107,7 +107,7 @@ func TestMeHandler_Integration_Success(t *testing.T) {
 		},
 	}
 
-	router := router.NewRouter(testhelpers.NewMockRouteDependencies, client)
+	router := router.NewRouter(testhelpers.NewMockRouteDependencies(), client)
 
 	req := httptest.NewRequest(http.MethodGet, "/me", nil)
 	req.Header.Set("Authorization", "Bearer "+token)
