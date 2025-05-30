@@ -28,6 +28,7 @@ func NewMockRouteDependencies() deps.RouteDependencies {
 		LoginProvider:    &MockCfg,
 		LogoutProvider:   &MockCfg,
 		MeProvider:       &MockCfg,
+		WhoamiProvider:   &MockCfg,
 	}
 }
 
