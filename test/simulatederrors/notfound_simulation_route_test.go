@@ -6,6 +6,7 @@ import (
 	"net/http/httptest"
 	"testing"
 
+	"cognito-repeater-go/internal/auth"
 	"cognito-repeater-go/internal/router"
 	"cognito-repeater-go/test/testhelpers"
 
