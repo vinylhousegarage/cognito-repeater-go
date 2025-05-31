@@ -26,15 +26,22 @@ func TestWhoamiRouteIntegration(t *testing.T) {
 					if _, err := rec.WriteString(`{"userinfo_endpoint": "http://example.com/oauth2/userinfo"}`); err != nil {
 						return nil, err
 					}
+
 				case "/oauth2/userinfo":
-					if req.Header.Get("Authorization") != "Bearer valid-token" {
+					authHeader := req.Header.Get("Authorization")
+					if authHeader != "Bearer valid-token" {
 						rec.WriteHeader(http.StatusUnauthorized)
+						if _, err := rec.WriteString(`{"error": "unauthorized"}`); err != nil {
+							return nil, err
+						}
 						return rec.Result(), nil
 					}
+
 					rec.WriteHeader(http.StatusOK)
 					if _, err := rec.WriteString(`{"sub": "abc123"}`); err != nil {
 						return nil, err
 					}
+
 				default:
 					rec.WriteHeader(http.StatusNotFound)
 				}
