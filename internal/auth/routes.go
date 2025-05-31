@@ -9,6 +9,7 @@ import (
 	"cognito-repeater-go/internal/auth/logout"
 	"cognito-repeater-go/internal/auth/logoutredirect"
 	"cognito-repeater-go/internal/auth/me"
+	"cognito-repeater-go/internal/auth/whoami"
 	"cognito-repeater-go/internal/httpclient"
 )
 
