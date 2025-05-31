@@ -56,7 +56,7 @@ func TestWhoamiRouteIntegration(t *testing.T) {
 	assert.Equal(t, http.StatusOK, resp.StatusCode)
 
 	var userinfo map[string]interface{}
-	err := json.NewDecoder(resp.Body).Decode(&userinfo)
+	err = json.NewDecoder(resp.Body).Decode(&userinfo)
 	require.NoError(t, err)
 
 	assert.Equal(t, "abc123", userinfo["sub"])
