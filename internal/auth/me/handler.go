@@ -20,7 +20,7 @@ func writeJSONError(w http.ResponseWriter, status int, msg string) {
 
 func MeHandler(p deps.MeHandlerProvider, c httpclient.HTTPClient) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		tokenStr, err := utils.ExtractAuthHeaderToken(r)
+		tokenStr, err := utils.ExtractFormValue(r)
 		if err != nil {
 			log.Printf("token extraction error: %v", err)
 			writeJSONError(w, http.StatusBadRequest, "missing or malformed access token")
