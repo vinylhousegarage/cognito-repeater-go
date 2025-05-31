@@ -1,65 +1,62 @@
 package auth_test
 
 import (
+	"encoding/json"
+	"fmt"
+	"io"
 	"net/http"
 	"net/http/httptest"
 	"testing"
 
-	"cognito-repeater-go/internal/router"
+	"cognito-repeater-go/internal/auth/whoami"
 	"cognito-repeater-go/test/testhelpers"
 
 	"github.com/stretchr/testify/assert"
 )
 
-func TestWhoamiRouteIntegration(t *testing.T) {
+func TestWhoamiHandler_ReturnsUserinfo(t *testing.T) {
 	t.Parallel()
 
-	r := router.NewRouter(
-		testhelpers.NewMockRouteDependencies(),
-		&testhelpers.MockHTTPClient{
-			DoFunc: func(req *http.Request) (*http.Response, error) {
-				rec := httptest.NewRecorder()
+	var ts *httptest.Server
 
-				switch req.URL.Path {
-				case "/.well-known/openid-configuration":
-					rec.WriteHeader(http.StatusOK)
-					if _, err := rec.WriteString(`{"userinfo_endpoint": "http://example.com/oauth2/userinfo"}`); err != nil {
-						return nil, err
-					}
+	handler := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		switch r.URL.Path {
+		case "/.well-known/openid-configuration":
+			w.WriteHeader(http.StatusOK)
+			if _, err := fmt.Fprintf(w, `{"userinfo_endpoint": "%s/oauth2/userinfo"}`, ts.URL); err != nil {
+				t.Errorf("failed to write openid-configuration: %v", err)
+			}
+		case "/oauth2/userinfo":
+			if r.Header.Get("Authorization") != "Bearer valid-token" {
+				http.Error(w, "unauthorized", http.StatusUnauthorized)
+				return
+			}
+			w.WriteHeader(http.StatusOK)
+			if _, err := io.WriteString(w, `{"sub":"abc123"}`); err != nil {
+				t.Errorf("failed to write userinfo response: %v", err)
+			}
+		default:
+			http.NotFound(w, r)
+		}
+	})
 
-				case "/oauth2/userinfo":
-					authHeader := req.Header.Get("Authorization")
-					if authHeader != "Bearer valid-token" {
-						rec.WriteHeader(http.StatusUnauthorized)
-						if _, err := rec.WriteString(`{"error": "unauthorized"}`); err != nil {
-							return nil, err
-						}
-						return rec.Result(), nil
-					}
+	ts = httptest.NewServer(handler)
+	defer func() {
+		if ts != nil {
+			ts.Close()
+		}
+	}()
 
-					rec.WriteHeader(http.StatusOK)
-					if _, err := rec.WriteString(`{"sub": "abc123"}`); err != nil {
-						return nil, err
-					}
+	provider := &testhelpers.MockMetadataURL{URL: ts.URL + "/.well-known/openid-configuration"}
+	handlerFunc := whoami.WhoamiHandler(provider, testhelpers.NewMockHTTPClientOK())
 
-				default:
-					rec.WriteHeader(http.StatusNotFound)
-				}
-
-				return rec.Result(), nil
-			},
-		},
-	)
-
-	ts := httptest.NewServer(r)
-	defer ts.Close()
-
-	req, err := http.NewRequest(http.MethodGet, ts.URL+"/whoami", nil)
-	assert.NoError(t, err)
+	req := httptest.NewRequest(http.MethodGet, "/whoami", nil)
 	req.Header.Set("Authorization", "Bearer valid-token")
+	rec := httptest.NewRecorder()
 
-	resp, err := http.DefaultClient.Do(req)
-	assert.NoError(t, err)
+	handlerFunc(rec, req)
+
+	resp := rec.Result()
 	defer func() {
 		if err := resp.Body.Close(); err != nil {
 			t.Errorf("failed to close response body: %v", err)
@@ -67,4 +64,11 @@ func TestWhoamiRouteIntegration(t *testing.T) {
 	}()
 
 	assert.Equal(t, http.StatusOK, resp.StatusCode)
+	assert.Equal(t, "application/json", resp.Header.Get("Content-Type"))
+
+	var body map[string]interface{}
+	err := json.NewDecoder(resp.Body).Decode(&body)
+	assert.NoError(t, err)
+
+	assert.Equal(t, "abc123", body["sub"])
 }
