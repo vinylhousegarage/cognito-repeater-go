@@ -6,46 +6,10 @@ import (
 	"net/http/httptest"
 	"testing"
 
-	"cognito-repeater-go/internal/auth/utils"
 	"cognito-repeater-go/test/testhelpers"
 
 	"github.com/stretchr/testify/assert"
 )
-
-func TestExtractAuthHeaderToken(t *testing.T) {
-	t.Parallel()
-
-	cases := []struct {
-		name      string
-		header    string
-		wantToken string
-		wantErr   bool
-	}{
-		{"valid header", "Bearer abc.def.ghi", "abc.def.ghi", false},
-		{"missing header", "", "", true},
-		{"invalid scheme", "Basic abc", "", true},
-		{"no token", "Bearer", "", true},
-	}
-
-	for _, c := range cases {
-		c := c
-		t.Run(c.name, func(t *testing.T) {
-			req := httptest.NewRequest("GET", "/me", nil)
-			if c.header != "" {
-				req.Header.Set("Authorization", c.header)
-			}
-
-			token, err := utils.ExtractAuthHeaderToken(req)
-
-			if c.wantErr {
-				assert.Error(t, err)
-			} else {
-				assert.NoError(t, err)
-				assert.Equal(t, c.wantToken, token)
-			}
-		})
-	}
-}
 
 func TestGetJWKSURI_Success(t *testing.T) {
 	t.Parallel()

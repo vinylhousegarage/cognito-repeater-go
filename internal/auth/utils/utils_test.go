@@ -25,7 +25,7 @@ func TestExtractFormValue_MissingToken(t *testing.T) {
 	req := httptest.NewRequest(http.MethodPost, "/me", strings.NewReader(body))
 	req.Header.Set("Content-Type", "application/x-www-form-urlencoded")
 
-	_, err := ExtractFormValuey(req)
+	_, err := ExtractFormValue(req)
 
 	assert.Error(t, err)
 	assert.Contains(t, err.Error(), "id_token is missing")
