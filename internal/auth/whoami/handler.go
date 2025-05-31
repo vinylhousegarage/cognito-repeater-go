@@ -5,13 +5,12 @@ import (
 	"net/http"
 
 	"cognito-repeater-go/internal/auth/deps"
-	"cognito-repeater-go/internal/auth/utils"
 	"cognito-repeater-go/internal/httpclient"
 )
 
 func WhoamiHandler(p deps.WhoamiHandlerProvider, cli httpclient.HTTPClient) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		accessToken, err := utils.ExtractAuthHeaderToken(r)
+		accessToken, err := ExtractAuthHeaderToken(r)
 		if err != nil {
 			http.Error(w, err.Error(), http.StatusUnauthorized)
 			return
