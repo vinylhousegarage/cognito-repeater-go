@@ -32,7 +32,7 @@ func TestWhoamiRouteIntegration(t *testing.T) {
 						return rec.Result(), nil
 					}
 					rec.WriteHeader(http.StatusOK)
-					if _, err := rec.WriteString(`{"sub": "abc123", "email": "user@example.com"}`); err != nil {
+					if _, err := rec.WriteString(`{"sub": "abc123"}`); err != nil {
 						return nil, err
 					}
 				default:
