@@ -38,5 +38,5 @@ func TestExtractFormValue_BadFormEncoding(t *testing.T) {
 	_, err := ExtractFormValue(req)
 
 	assert.Error(t, err)
-	assert.Contains(t, err.Error(), "failed to parse form")
+	assert.Contains(t, err.Error(), "id_token is missing from body")
 }
