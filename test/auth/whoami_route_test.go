@@ -8,13 +8,13 @@ import (
 	"net/http/httptest"
 	"testing"
 
-	"cognito-repeater-go/internal/auth/whoami"
+	"cognito-repeater-go/internal/router"
 	"cognito-repeater-go/test/testhelpers"
 
 	"github.com/stretchr/testify/assert"
 )
 
-func TestWhoamiHandler_ReturnsUserinfo(t *testing.T) {
+func TestWhoamiRoute_Integration(t *testing.T) {
 	t.Parallel()
 
 	var ts *httptest.Server
@@ -23,8 +23,9 @@ func TestWhoamiHandler_ReturnsUserinfo(t *testing.T) {
 		switch r.URL.Path {
 		case "/.well-known/openid-configuration":
 			w.WriteHeader(http.StatusOK)
-			if _, err := fmt.Fprintf(w, `{"userinfo_endpoint": "%s/oauth2/userinfo"}`, ts.URL); err != nil {
-				t.Errorf("failed to write openid-configuration: %v", err)
+			_, err := fmt.Fprintf(w, `{"userinfo_endpoint": "%s/oauth2/userinfo"}`, ts.URL)
+			if err != nil {
+				t.Errorf("failed to write openid config: %v", err)
 			}
 		case "/oauth2/userinfo":
 			if r.Header.Get("Authorization") != "Bearer valid-token" {
@@ -32,7 +33,8 @@ func TestWhoamiHandler_ReturnsUserinfo(t *testing.T) {
 				return
 			}
 			w.WriteHeader(http.StatusOK)
-			if _, err := io.WriteString(w, `{"sub":"abc123"}`); err != nil {
+			_, err := io.WriteString(w, `{"sub":"abc123"}`)
+			if err != nil {
 				t.Errorf("failed to write userinfo response: %v", err)
 			}
 		default:
@@ -41,20 +43,18 @@ func TestWhoamiHandler_ReturnsUserinfo(t *testing.T) {
 	})
 
 	ts = httptest.NewServer(handler)
-	defer func() {
-		if ts != nil {
-			ts.Close()
-		}
-	}()
+	defer ts.Close()
 
-	provider := &testhelpers.MockMetadataURL{URL: ts.URL + "/.well-known/openid-configuration"}
-	handlerFunc := whoami.WhoamiHandler(provider, testhelpers.NewMockHTTPClientOK())
+	mockDeps := testhelpers.NewMockRouteDependencies()
+	mockDeps.WhoamiProvider = &testhelpers.MockMetadataURL{URL: ts.URL + "/.well-known/openid-configuration"}
+
+	r := router.NewRouter(mockDeps, http.DefaultClient)
 
 	req := httptest.NewRequest(http.MethodGet, "/whoami", nil)
 	req.Header.Set("Authorization", "Bearer valid-token")
 	rec := httptest.NewRecorder()
 
-	handlerFunc(rec, req)
+	r.ServeHTTP(rec, req)
 
 	resp := rec.Result()
 	defer func() {
@@ -69,6 +69,5 @@ func TestWhoamiHandler_ReturnsUserinfo(t *testing.T) {
 	var body map[string]interface{}
 	err := json.NewDecoder(resp.Body).Decode(&body)
 	assert.NoError(t, err)
-
 	assert.Equal(t, "abc123", body["sub"])
 }
