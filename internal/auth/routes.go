@@ -22,4 +22,5 @@ func RegisterAuthRoutes(
 	mux.HandleFunc("/logout", logout.LogoutHandler(d.LogoutProvider, cli))
 	mux.HandleFunc("/logout/redirect", logoutredirect.LogoutRedirectHandler)
 	mux.HandleFunc("/me", me.MeHandler(d.MeProvider, cli))
+	mux.HandlerFunc("/whoami", whoami.WhoamiHandler(d.WhoamiProvider, cli))
 }
