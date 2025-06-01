@@ -6,7 +6,7 @@ import (
 	"net/http"
 	"testing"
 
-	"cognito-ropeater-go/test/testhelpers"
+	"cognito-repeater-go/test/testhelpers"
 
 	"github.com/stretchr/testify/assert"
 )
