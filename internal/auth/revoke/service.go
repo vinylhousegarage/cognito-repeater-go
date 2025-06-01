@@ -4,6 +4,8 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
+	"net/url"
+	"strings"
 
 	"cognito-repeater-go/internal/httpclient"
 )
@@ -42,4 +44,18 @@ func GetRevokeURL(metadataURL string, client httpclient.HTTPClient) (string, err
 	}
 
 	return meta.RevokeEndpoint, nil
+}
+
+func SendRevokeRequest(revokeURL string, cli httpclient.HTTPClient, refreshToken string) (*http.Response, error) {
+	form := url.Values{}
+	form.Set("token", refreshToken)
+	form.Set("token_type_hint", "refresh_token")
+
+	req, err := http.NewRequest(http.MethodPost, revokeURL, strings.NewReader(form.Encode()))
+	if err != nil {
+		return nil, fmt.Errorf("failed to create revoke request: %w", err)
+	}
+	req.Header.Set("Content-Type", "application/x-www-form-urlencoded")
+
+	return cli.Do(req)
 }
