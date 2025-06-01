@@ -60,7 +60,7 @@ func TestGetRevokeURLInvalidJSON(t *testing.T) {
 
 	_, err := GetRevokeURL("https://mock-url", mockClient)
 	assert.Error(t, err)
-	assert.Contains(t, err.Error(), "failed to parse metadata")
+	assert.Contains(t, err.Error(), "failed to fetch metadata")
 }
 
 func TestGetRevokeURLEmptyEndpoint(t *testing.T) {
