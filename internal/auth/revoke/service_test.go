@@ -24,7 +24,7 @@ func TestGetRevokeURLSuccess(t *testing.T) {
 		},
 	}
 
-	url, err := revoke.GetRevokeURL("https://mock-metadata-url", mockClient)
+	url, err := GetRevokeURL("https://mock-metadata-url", mockClient)
 	assert.NoError(t, err)
 	assert.Equal(t, "https://example.com/revoke", url)
 }
@@ -41,7 +41,7 @@ func TestGetRevokeURLNon200Status(t *testing.T) {
 		},
 	}
 
-	_, err := revoke.GetRevokeURL("https://mock-url", mockClient)
+	_, err := GetRevokeURL("https://mock-url", mockClient)
 	assert.Error(t, err)
 	assert.Contains(t, err.Error(), "unexpected status code")
 }
@@ -58,7 +58,7 @@ func TestGetRevokeURLInvalidJSON(t *testing.T) {
 		},
 	}
 
-	_, err := revoke.GetRevokeURL("https://mock-url", mockClient)
+	_, err := GetRevokeURL("https://mock-url", mockClient)
 	assert.Error(t, err)
 	assert.Contains(t, err.Error(), "failed to parse metadata")
 }
@@ -76,7 +76,7 @@ func TestGetRevokeURLEmptyEndpoint(t *testing.T) {
 		},
 	}
 
-	_, err := revoke.GetRevokeURL("https://mock-url", mockClient)
+	_, err := GetRevokeURL("https://mock-url", mockClient)
 	assert.Error(t, err)
 	assert.Contains(t, err.Error(), "revocation_endpoint is missing")
 }
