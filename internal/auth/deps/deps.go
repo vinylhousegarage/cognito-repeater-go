@@ -1,5 +1,13 @@
 package deps
 
+type RouteDependencies struct {
+	CallbackProvider CallbackHandlerProvider
+	LoginProvider    LoginHandlerProvider
+	LogoutProvider   LogoutHandlerProvider
+	MeProvider       MeHandlerProvider
+	WhoamiProvider   WhoamiHandlerProvider
+}
+
 type CallbackHandlerProvider interface {
 	ClientSecretValue() string
 	MetadataURL() string
@@ -25,14 +33,10 @@ type MeHandlerProvider interface {
 	MetadataURL() string
 }
 
-type WhoamiHandlerProvider interface {
+type RevokeHandlerProvider interface {
 	MetadataURL() string
 }
 
-type RouteDependencies struct {
-	CallbackProvider CallbackHandlerProvider
-	LoginProvider    LoginHandlerProvider
-	LogoutProvider   LogoutHandlerProvider
-	MeProvider       MeHandlerProvider
-	WhoamiProvider   WhoamiHandlerProvider
+type WhoamiHandlerProvider interface {
+	MetadataURL() string
 }
