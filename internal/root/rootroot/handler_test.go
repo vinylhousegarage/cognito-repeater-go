@@ -1,4 +1,4 @@
-package root
+package rootroot
 
 import (
 	"net/http"
@@ -12,7 +12,7 @@ func TestNewRootHandlerRedirectsToLogin(t *testing.T) {
 	req := httptest.NewRequest(http.MethodGet, "/", nil)
 	w := httptest.NewRecorder()
 
-	handler := NewRootHandler()
+	handler := http.HandlerFunc(NewRootHandler)
 	handler.ServeHTTP(w, req)
 
 	resp := w.Result()
