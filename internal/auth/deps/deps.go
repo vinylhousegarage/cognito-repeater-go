@@ -5,6 +5,7 @@ type RouteDependencies struct {
 	LoginProvider    LoginHandlerProvider
 	LogoutProvider   LogoutHandlerProvider
 	MeProvider       MeHandlerProvider
+	RevokeProvider   RevokeHandlerProvider
 	WhoamiProvider   WhoamiHandlerProvider
 }
 
