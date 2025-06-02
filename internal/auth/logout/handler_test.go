@@ -14,7 +14,7 @@ type MockLogoutConfig struct{}
 
 func (m *MockLogoutConfig) MetadataURL() string { return "https://mock.metadata.url" }
 
-func TestLogoutHandlerRedirectsToLogoutEndpoint(t *testing.T) {
+func TestNewLogoutHandlerRedirectsToLogoutEndpoint(t *testing.T) {
 	t.Parallel()
 
 	mockClient := &testhelpers.MockHTTPClient{
@@ -29,7 +29,7 @@ func TestLogoutHandlerRedirectsToLogoutEndpoint(t *testing.T) {
 	req := httptest.NewRequest(http.MethodGet, "/logout", nil)
 	w := httptest.NewRecorder()
 
-	handler := LogoutHandler(&MockLogoutConfig{}, mockClient)
+	handler := NewLogoutHandler(&MockLogoutConfig{}, mockClient)
 
 	handler.ServeHTTP(w, req)
 

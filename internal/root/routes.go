@@ -7,5 +7,5 @@ import (
 )
 
 func RegisterRootRoutes(mux *http.ServeMux) {
-	mux.HandleFunc("/ping", ping.PingHandler)
+	mux.HandleFunc("/ping", ping.NewPingHandler)
 }

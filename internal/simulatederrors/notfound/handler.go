@@ -7,7 +7,7 @@ import (
 )
 
 // Error404Handler simulates a 404 Not Found error response.
-func Error404Handler(w http.ResponseWriter, r *http.Request) {
+func NewError404Handler(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "text/plain")
 	w.WriteHeader(http.StatusNotFound)
 

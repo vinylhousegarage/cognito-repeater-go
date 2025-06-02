@@ -17,7 +17,7 @@ func TestMetadataHandler_ReturnsExpectedStatusAndJSONBody(t *testing.T) {
 	req := httptest.NewRequest(http.MethodGet, "/logout/redirect", nil)
 	w := httptest.NewRecorder()
 
-	LogoutRedirectHandler(w, req)
+	NewLogoutRedirectHandler(w, req)
 
 	resp := w.Result()
 	defer func() {

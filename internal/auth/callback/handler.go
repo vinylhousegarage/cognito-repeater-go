@@ -18,7 +18,7 @@ type TokenResponse struct {
 	TokenType    string `json:"token_type"`
 }
 
-func CallbackHandler(p deps.CallbackHandlerProvider, c httpclient.HTTPClient) http.HandlerFunc {
+func NewCallbackHandler(p deps.CallbackHandlerProvider, c httpclient.HTTPClient) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		code, err := ValidateCallbackRequest(r)
 		if err != nil {

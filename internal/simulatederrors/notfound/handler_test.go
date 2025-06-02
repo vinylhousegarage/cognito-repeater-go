@@ -9,13 +9,13 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func TestError404Handler_StatusAndBody(t *testing.T) {
+func TestNewError404Handler_StatusAndBody(t *testing.T) {
 	t.Parallel()
 
 	req := httptest.NewRequest(http.MethodGet, "/error/404", nil)
 	w := httptest.NewRecorder()
 
-	Error404Handler(w, req)
+	NewError404Handler(w, req)
 
 	resp := w.Result()
 	body, err := io.ReadAll(resp.Body)

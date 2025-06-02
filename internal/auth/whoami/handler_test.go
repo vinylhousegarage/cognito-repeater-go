@@ -22,7 +22,7 @@ func newTestDeps(doFunc func(*http.Request) (*http.Response, error)) (deps.Whoam
 	return &testhelpers.MockCfg, &testhelpers.MockHTTPClient{DoFunc: doFunc}
 }
 
-func TestWhoamiHandler_Success(t *testing.T) {
+func TestNewWhoamiHandler_Success(t *testing.T) {
 	t.Parallel()
 
 	cfg, cli := newTestDeps(func(req *http.Request) (*http.Response, error) {
@@ -51,7 +51,7 @@ func TestWhoamiHandler_Success(t *testing.T) {
 	req.Header.Set("Authorization", "Bearer mocktoken")
 	w := httptest.NewRecorder()
 
-	handler := WhoamiHandler(cfg, cli)
+	handler := NewWhoamiHandler(cfg, cli)
 	handler(w, req)
 
 	resp := w.Result()
@@ -64,7 +64,7 @@ func TestWhoamiHandler_Success(t *testing.T) {
 	assert.Equal(t, "user@example.com", body["email"])
 }
 
-func TestWhoamiHandler_MissingAuthorization(t *testing.T) {
+func TestNewWhoamiHandler_MissingAuthorization(t *testing.T) {
 	t.Parallel()
 
 	cfg, cli := newTestDeps(func(req *http.Request) (*http.Response, error) {
@@ -74,7 +74,7 @@ func TestWhoamiHandler_MissingAuthorization(t *testing.T) {
 	req := httptest.NewRequest(http.MethodGet, "/whoami", nil)
 	w := httptest.NewRecorder()
 
-	handler := WhoamiHandler(cfg, cli)
+	handler := NewWhoamiHandler(cfg, cli)
 	handler(w, req)
 
 	resp := w.Result()
@@ -85,7 +85,7 @@ func TestWhoamiHandler_MissingAuthorization(t *testing.T) {
 	assert.Contains(t, string(body), "authorization header is missing")
 }
 
-func TestWhoamiHandler_MetadataFetchError(t *testing.T) {
+func TestNewWhoamiHandler_MetadataFetchError(t *testing.T) {
 	t.Parallel()
 
 	cfg, cli := newTestDeps(func(*http.Request) (*http.Response, error) {
@@ -96,7 +96,7 @@ func TestWhoamiHandler_MetadataFetchError(t *testing.T) {
 	req.Header.Set("Authorization", "Bearer token")
 	w := httptest.NewRecorder()
 
-	handler := WhoamiHandler(cfg, cli)
+	handler := NewWhoamiHandler(cfg, cli)
 	handler(w, req)
 
 	resp := w.Result()
@@ -107,7 +107,7 @@ func TestWhoamiHandler_MetadataFetchError(t *testing.T) {
 	assert.Contains(t, string(body), "failed to get userinfo endpoint")
 }
 
-func TestWhoamiHandler_UserinfoFetchUnauthorized(t *testing.T) {
+func TestNewWhoamiHandler_UserinfoFetchUnauthorized(t *testing.T) {
 	t.Parallel()
 
 	cfg, cli := newTestDeps(func(req *http.Request) (*http.Response, error) {
@@ -134,7 +134,7 @@ func TestWhoamiHandler_UserinfoFetchUnauthorized(t *testing.T) {
 	req.Header.Set("Authorization", "Bearer token")
 	w := httptest.NewRecorder()
 
-	handler := WhoamiHandler(cfg, cli)
+	handler := NewWhoamiHandler(cfg, cli)
 	handler(w, req)
 
 	resp := w.Result()

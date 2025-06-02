@@ -10,7 +10,7 @@ import (
 	"cognito-repeater-go/test/testhelpers"
 )
 
-func TestMeHandler_MissingAuthorizationHeader(t *testing.T) {
+func TestNewMeHandler_MissingAuthorizationHeader(t *testing.T) {
 	cfg := &config.Config{
 		Region:           "ap-northeast-1",
 		ClientSecret:     "client-secret",
@@ -21,7 +21,7 @@ func TestMeHandler_MissingAuthorizationHeader(t *testing.T) {
 		UserPoolID:       "ap-northeast-1_Abc123XYZ",
 	}
 
-	handler := MeHandler(cfg, &testhelpers.MockHTTPClient{})
+	handler := NewMeHandler(cfg, &testhelpers.MockHTTPClient{})
 
 	req := httptest.NewRequest(http.MethodGet, "/me", nil)
 	rr := httptest.NewRecorder()

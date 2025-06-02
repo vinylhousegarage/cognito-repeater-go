@@ -13,7 +13,7 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func TestCallbackHandlerSuccess(t *testing.T) {
+func TestNewCallbackHandlerSuccess(t *testing.T) {
 	t.Parallel()
 
 	mockTokenResp := TokenResponse{
@@ -52,7 +52,7 @@ func TestCallbackHandlerSuccess(t *testing.T) {
 		UserPoolID:       "pool-id",
 	}
 
-	handler := CallbackHandler(cfg, mockClient)
+	handler := NewCallbackHandler(cfg, mockClient)
 
 	req := httptest.NewRequest(http.MethodGet, "/callback?code=testcode&state=xyz", nil)
 	req.AddCookie(&http.Cookie{Name: "oauth_state", Value: "xyz"})
