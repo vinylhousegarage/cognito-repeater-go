@@ -10,7 +10,7 @@ type LogoutResponse struct {
 	Message string `json:"message"`
 }
 
-func LogoutRedirectHandler(w http.ResponseWriter, r *http.Request) {
+func NewLogoutRedirectHandler(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodGet {
 		http.Error(w, "method not allowed", http.StatusMethodNotAllowed)
 		return

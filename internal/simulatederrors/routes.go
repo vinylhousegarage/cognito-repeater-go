@@ -7,5 +7,5 @@ import (
 )
 
 func RegisterErrorRoutes(mux *http.ServeMux) {
-	mux.HandleFunc("/error/404", notfound.Error404Handler)
+	mux.HandleFunc("/error/404", notfound.NewError404Handler)
 }

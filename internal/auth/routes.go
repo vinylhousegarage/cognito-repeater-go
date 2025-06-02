@@ -19,11 +19,11 @@ func RegisterAuthRoutes(
 	d deps.RouteDependencies,
 	cli httpclient.HTTPClient,
 ) {
-	mux.HandleFunc("/callback", callback.CallbackHandler(d.CallbackProvider, cli))
-	mux.HandleFunc("/login", login.LoginHandler(d.LoginProvider, cli))
-	mux.HandleFunc("/logout", logout.LogoutHandler(d.LogoutProvider, cli))
-	mux.HandleFunc("/logout/redirect", logoutredirect.LogoutRedirectHandler)
-	mux.HandleFunc("/me", me.MeHandler(d.MeProvider, cli))
-	mux.HandleFunc("/revoke", revoke.RevokeHandler(d.RevokeProvider, cli))
-	mux.HandleFunc("/whoami", whoami.WhoamiHandler(d.WhoamiProvider, cli))
+	mux.HandleFunc("/callback", callback.NewCallbackHandler(d.CallbackProvider, cli))
+	mux.HandleFunc("/login", login.NewLoginHandler(d.LoginProvider, cli))
+	mux.HandleFunc("/logout", logout.NewLogoutHandler(d.LogoutProvider, cli))
+	mux.HandleFunc("/logout/redirect", logoutredirect.NewLogoutRedirectHandler)
+	mux.HandleFunc("/me", me.NewMeHandler(d.MeProvider, cli))
+	mux.HandleFunc("/revoke", revoke.NewRevokeHandler(d.RevokeProvider, cli))
+	mux.HandleFunc("/whoami", whoami.NewWhoamiHandler(d.WhoamiProvider, cli))
 }

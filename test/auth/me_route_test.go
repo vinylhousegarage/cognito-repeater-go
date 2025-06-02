@@ -70,7 +70,7 @@ func GenerateSignedToken(privateKey *rsa.PrivateKey, issuer, audience string) (s
 	return token.SignedString(privateKey)
 }
 
-func TestMeHandler_Integration_Success(t *testing.T) {
+func TestNewMeHandler_Integration_Success(t *testing.T) {
 	t.Parallel()
 
 	jwks, privateKey, err := GenerateTestJWKS()

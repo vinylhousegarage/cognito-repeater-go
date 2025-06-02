@@ -5,7 +5,7 @@ import (
 	"net/http"
 )
 
-func PingHandler(w http.ResponseWriter, r *http.Request) {
+func NewPingHandler(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "text/plain")
 	w.WriteHeader(http.StatusOK)
 	if _, err := fmt.Fprint(w, "pong"); err != nil {

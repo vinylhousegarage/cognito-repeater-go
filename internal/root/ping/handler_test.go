@@ -9,13 +9,13 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func TestPingHandler_ReturnsPong(t *testing.T) {
+func TestNewPingHandler_ReturnsPong(t *testing.T) {
 	t.Parallel()
 
 	req := httptest.NewRequest(http.MethodGet, "/ping", nil)
 	w := httptest.NewRecorder()
 
-	PingHandler(w, req)
+	NewPingHandler(w, req)
 
 	resp := w.Result()
 	body, _ := io.ReadAll(resp.Body)

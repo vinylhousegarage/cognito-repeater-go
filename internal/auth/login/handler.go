@@ -7,7 +7,7 @@ import (
 	"cognito-repeater-go/internal/httpclient"
 )
 
-func LoginHandler(p deps.LoginHandlerProvider, c httpclient.HTTPClient) http.HandlerFunc {
+func NewLoginHandler(p deps.LoginHandlerProvider, c httpclient.HTTPClient) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		state := GenerateState()
 		http.SetCookie(w, BuildStateCookie(state))

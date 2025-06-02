@@ -27,7 +27,7 @@ func NewMockHTTPClientOKWithAuthEndpoint() httpclient.HTTPClient {
 	}
 }
 
-func TestLoginHandler_RedirectsToLoginEndpoint(t *testing.T) {
+func TestNewLoginHandler_RedirectsToLoginEndpoint(t *testing.T) {
 	t.Parallel()
 
 	provider := &testhelpers.MockCfg
@@ -36,7 +36,7 @@ func TestLoginHandler_RedirectsToLoginEndpoint(t *testing.T) {
 	req := httptest.NewRequest(http.MethodGet, "/login", nil)
 	w := httptest.NewRecorder()
 
-	LoginHandler(provider, client)(w, req)
+	NewLoginHandler(provider, client)(w, req)
 
 	resp := w.Result()
 	assert.Equal(t, http.StatusFound, resp.StatusCode)
@@ -51,7 +51,7 @@ func TestLoginHandler_RedirectsToLoginEndpoint(t *testing.T) {
 	assert.NotEmpty(t, state, "state param should be present in the redirect URL")
 }
 
-func TestLoginHandlerSetsStateCookie(t *testing.T) {
+func TestNewLoginHandlerSetsStateCookie(t *testing.T) {
 	t.Parallel()
 
 	provider := &testhelpers.MockCfg
@@ -60,7 +60,7 @@ func TestLoginHandlerSetsStateCookie(t *testing.T) {
 	req := httptest.NewRequest(http.MethodGet, "/login", nil)
 	w := httptest.NewRecorder()
 
-	LoginHandler(provider, client)(w, req)
+	NewLoginHandler(provider, client)(w, req)
 
 	resp := w.Result()
 

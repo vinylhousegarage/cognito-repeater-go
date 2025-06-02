@@ -8,7 +8,7 @@ import (
 	"cognito-repeater-go/internal/httpclient"
 )
 
-func WhoamiHandler(p deps.WhoamiHandlerProvider, cli httpclient.HTTPClient) http.HandlerFunc {
+func NewWhoamiHandler(p deps.WhoamiHandlerProvider, cli httpclient.HTTPClient) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		accessToken, err := ExtractAuthHeaderToken(r)
 		if err != nil {

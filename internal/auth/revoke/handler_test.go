@@ -12,7 +12,7 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func TestRevokeHandler_Success(t *testing.T) {
+func TestNewRevokeHandler_Success(t *testing.T) {
 	t.Parallel()
 
 	client := &testhelpers.MockHTTPClient{
@@ -37,27 +37,27 @@ func TestRevokeHandler_Success(t *testing.T) {
 	req.Header.Set("Content-Type", "application/x-www-form-urlencoded")
 	w := httptest.NewRecorder()
 
-	handler := RevokeHandler(&testhelpers.MockMetadataURL{URL: "https://example.com/.well-known/openid-configuration"}, client)
+	handler := NewRevokeHandler(&testhelpers.MockMetadataURL{URL: "https://example.com/.well-known/openid-configuration"}, client)
 	handler(w, req)
 
 	assert.Equal(t, http.StatusNoContent, w.Code)
 }
 
-func TestRevokeHandler_MissingToken(t *testing.T) {
+func TestNewRevokeHandler_MissingToken(t *testing.T) {
 	t.Parallel()
 
 	client := testhelpers.NewMockHTTPClientPanic()
 	req := httptest.NewRequest(http.MethodPost, "/revoke", nil)
 	w := httptest.NewRecorder()
 
-	handler := RevokeHandler(&testhelpers.MockMetadataURL{URL: "https://example.com"}, client)
+	handler := NewRevokeHandler(&testhelpers.MockMetadataURL{URL: "https://example.com"}, client)
 	handler(w, req)
 
 	assert.Equal(t, http.StatusBadRequest, w.Code)
 	assert.Contains(t, w.Body.String(), "id_token")
 }
 
-func TestRevokeHandler_RevokeURLFailure(t *testing.T) {
+func TestNewRevokeHandler_RevokeURLFailure(t *testing.T) {
 	t.Parallel()
 
 	client := &testhelpers.MockHTTPClient{
@@ -72,14 +72,14 @@ func TestRevokeHandler_RevokeURLFailure(t *testing.T) {
 	req.Header.Set("Content-Type", "application/x-www-form-urlencoded")
 	w := httptest.NewRecorder()
 
-	handler := RevokeHandler(&testhelpers.MockMetadataURL{URL: "https://example.com/.well-known/openid-configuration"}, client)
+	handler := NewRevokeHandler(&testhelpers.MockMetadataURL{URL: "https://example.com/.well-known/openid-configuration"}, client)
 	handler(w, req)
 
 	assert.Equal(t, http.StatusInternalServerError, w.Code)
 	assert.Contains(t, w.Body.String(), "failed to get revoke endpoint")
 }
 
-func TestRevokeHandler_RevokeFailsWith500(t *testing.T) {
+func TestNewRevokeHandler_RevokeFailsWith500(t *testing.T) {
 	t.Parallel()
 
 	client := &testhelpers.MockHTTPClient{
@@ -98,7 +98,7 @@ func TestRevokeHandler_RevokeFailsWith500(t *testing.T) {
 	req.Header.Set("Content-Type", "application/x-www-form-urlencoded")
 	w := httptest.NewRecorder()
 
-	handler := RevokeHandler(&testhelpers.MockMetadataURL{URL: "https://example.com/.well-known/openid-configuration"}, client)
+	handler := NewRevokeHandler(&testhelpers.MockMetadataURL{URL: "https://example.com/.well-known/openid-configuration"}, client)
 	handler(w, req)
 
 	assert.Equal(t, http.StatusBadGateway, w.Code)
