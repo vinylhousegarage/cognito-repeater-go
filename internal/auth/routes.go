@@ -11,6 +11,7 @@ import (
 	"cognito-repeater-go/internal/auth/me"
 	"cognito-repeater-go/internal/auth/whoami"
 	"cognito-repeater-go/internal/httpclient"
+	"cognito-ropeater-go/internal/auth/revoke"
 )
 
 func RegisterAuthRoutes(
@@ -23,5 +24,6 @@ func RegisterAuthRoutes(
 	mux.HandleFunc("/logout", logout.LogoutHandler(d.LogoutProvider, cli))
 	mux.HandleFunc("/logout/redirect", logoutredirect.LogoutRedirectHandler)
 	mux.HandleFunc("/me", me.MeHandler(d.MeProvider, cli))
+	mux.HandleFunc("/revoke", revoke.RevokeHandler(d.RevokeProvider, cli))
 	mux.HandleFunc("/whoami", whoami.WhoamiHandler(d.WhoamiProvider, cli))
 }
