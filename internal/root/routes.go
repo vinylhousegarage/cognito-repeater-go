@@ -4,10 +4,10 @@ import (
 	"net/http"
 
 	"cognito-repeater-go/internal/root/ping"
-	"cognito-repeater-go/internal/root/root"
+	"cognito-repeater-go/internal/root/rootroot"
 )
 
 func RegisterRootRoutes(mux *http.ServeMux) {
 	mux.HandleFunc("/ping", ping.NewPingHandler)
-	mux.HandleFunc("/", root.NewRootHandler)
+	mux.HandleFunc("/", rootroot.NewRootHandler)
 }
