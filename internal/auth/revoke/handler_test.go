@@ -1,4 +1,4 @@
-package revoke_test
+package revoke
 
 import (
 	"io"
@@ -7,7 +7,6 @@ import (
 	"strings"
 	"testing"
 
-	"cognito-repeater-go/internal/auth/revoke"
 	"cognito-repeater-go/test/testhelpers"
 
 	"github.com/stretchr/testify/assert"
@@ -38,7 +37,7 @@ func TestRevokeHandler_Success(t *testing.T) {
 	req.Header.Set("Content-Type", "application/x-www-form-urlencoded")
 	w := httptest.NewRecorder()
 
-	handler := revoke.RevokeHandler(&testhelpers.MockMetadataURL{"https://example.com/.well-known/openid-configuration"}, client)
+	handler := RevokeHandler(&testhelpers.MockMetadataURL{URL: "https://example.com/.well-known/openid-configuration"}, client)
 	handler(w, req)
 
 	assert.Equal(t, http.StatusNoContent, w.Code)
@@ -51,7 +50,7 @@ func TestRevokeHandler_MissingToken(t *testing.T) {
 	req := httptest.NewRequest(http.MethodPost, "/revoke", nil)
 	w := httptest.NewRecorder()
 
-	handler := revoke.RevokeHandler(&testhelpers.MockMetadataURL{"https://example.com"}, client)
+	handler := RevokeHandler(&testhelpers.MockMetadataURL{URL: "https://example.com"}, client)
 	handler(w, req)
 
 	assert.Equal(t, http.StatusBadRequest, w.Code)
@@ -73,7 +72,7 @@ func TestRevokeHandler_RevokeURLFailure(t *testing.T) {
 	req.Header.Set("Content-Type", "application/x-www-form-urlencoded")
 	w := httptest.NewRecorder()
 
-	handler := revoke.RevokeHandler(&testhelpers.MockMetadataURL{"https://example.com/.well-known/openid-configuration"}, client)
+	handler := RevokeHandler(&testhelpers.MockMetadataURL{URL: "https://example.com/.well-known/openid-configuration"}, client)
 	handler(w, req)
 
 	assert.Equal(t, http.StatusInternalServerError, w.Code)
@@ -99,7 +98,7 @@ func TestRevokeHandler_RevokeFailsWith500(t *testing.T) {
 	req.Header.Set("Content-Type", "application/x-www-form-urlencoded")
 	w := httptest.NewRecorder()
 
-	handler := revoke.RevokeHandler(&testhelpers.MockMetadataURL{"https://example.com/.well-known/openid-configuration"}, client)
+	handler := RevokeHandler(&testhelpers.MockMetadataURL{URL: "https://example.com/.well-known/openid-configuration"}, client)
 	handler(w, req)
 
 	assert.Equal(t, http.StatusBadGateway, w.Code)
