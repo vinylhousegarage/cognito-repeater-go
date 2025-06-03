@@ -8,6 +8,7 @@ import (
 	"strings"
 	"testing"
 
+	"cognito-repeater-go/internal/auth/deps"
 	"cognito-repeater-go/internal/router"
 	"cognito-repeater-go/test/testhelpers"
 
@@ -44,11 +45,15 @@ func TestRevokeRoute_Integration(t *testing.T) {
 	ts = httptest.NewServer(handler)
 	defer ts.Close()
 
+	metadataURL := ts.URL + "/.well-known/openid-configuration"
+	secret := "dummy-secret"
+	clientID := "dummy-client-id"
+
 	mockDeps := deps.RouteDependencies{
 		RevokeProvider: testhelpers.NewMockRevokeHandlerProvider(
-			ts.URL+"/.well-known/openid-configuration",
-			testhelpers.MockSecret,
-			testhelpers.MockClientID,
+			metadataURL,
+			secret,
+			clientID,
 		),
 	}
 
