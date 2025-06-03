@@ -90,5 +90,5 @@ func SendRevokeRequest(
 		return nil, fmt.Errorf("revoke request failed: status=%s, body=%s", resp.Status, string(body))
 	}
 
-	return nil, nil
+	return resp, nil
 }
