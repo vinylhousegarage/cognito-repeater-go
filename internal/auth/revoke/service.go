@@ -25,8 +25,8 @@ func GetRevokeURL(metadataURL string, client httpclient.HTTPClient) (string, err
 		return "", fmt.Errorf("failed to fetch metadata: %w", err)
 	}
 	defer func() {
-		if err := resp.Body.Close(); err != nil {
-			fmt.Printf("failed to close response body: %v\n", err)
+		if cerr := resp.Body.Close(); cerr != nil {
+			fmt.Printf("failed to close response body: %v\n", cerr)
 		}
 	}()
 
@@ -46,7 +46,13 @@ func GetRevokeURL(metadataURL string, client httpclient.HTTPClient) (string, err
 	return meta.RevokeEndpoint, nil
 }
 
-func SendRevokeRequest(revokeURL string, cli httpclient.HTTPClient, refreshToken string) (*http.Response, error) {
+func SendRevokeRequest(
+	revokeURL string,
+	cli httpclient.HTTPClient,
+	refreshToken string,
+	clientID string,
+	clientSecret string,
+) (*http.Response, error) {
 	form := url.Values{}
 	form.Set("token", refreshToken)
 	form.Set("token_type_hint", "refresh_token")
@@ -55,7 +61,13 @@ func SendRevokeRequest(revokeURL string, cli httpclient.HTTPClient, refreshToken
 	if err != nil {
 		return nil, fmt.Errorf("failed to create revoke request: %w", err)
 	}
+
+	req.SetBasicAuth(clientID, clientSecret)
 	req.Header.Set("Content-Type", "application/x-www-form-urlencoded")
+
+	if clientID == "" || clientSecret == "" {
+		return nil, fmt.Errorf("client credentials must not be empty")
+	}
 
 	return cli.Do(req)
 }
