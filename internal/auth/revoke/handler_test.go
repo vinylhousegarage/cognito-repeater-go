@@ -39,7 +39,7 @@ func TestNewRevokeHandler_Success(t *testing.T) {
 
 	mockDeps := testhelpers.NewMockRouteDependencies()
 
-	handler := NewRevokeHandler(mockDeps.RevokeHandlerProvider, client)
+	handler := NewRevokeHandler(mockDeps.RevokeProvider, client)
 	handler(w, req)
 
 	assert.Equal(t, http.StatusNoContent, w.Code)
@@ -54,7 +54,7 @@ func TestNewRevokeHandler_MissingToken(t *testing.T) {
 
 	mockDeps := testhelpers.NewMockRouteDependencies()
 
-	handler := NewRevokeHandler(mockDeps.RevokeHandlerProvider, client)
+	handler := NewRevokeHandler(mockDeps.RevokeProvider, client)
 	handler(w, req)
 
 	assert.Equal(t, http.StatusBadRequest, w.Code)
@@ -78,7 +78,7 @@ func TestNewRevokeHandler_RevokeURLFailure(t *testing.T) {
 
 	mockDeps := testhelpers.NewMockRouteDependencies()
 
-	handler := NewRevokeHandler(mockDeps.RevokeHandlerProvider, client)
+	handler := NewRevokeHandler(mockDeps.RevokeProvider, client)
 	handler(w, req)
 
 	assert.Equal(t, http.StatusInternalServerError, w.Code)
@@ -106,7 +106,7 @@ func TestNewRevokeHandler_RevokeFailsWith500(t *testing.T) {
 
 	mockDeps := testhelpers.NewMockRouteDependencies()
 
-	handler := NewRevokeHandler(mockDeps.RevokeHandlerProvider, client)
+	handler := NewRevokeHandler(mockDeps.RevokeProvider, client)
 	handler(w, req)
 
 	assert.Equal(t, http.StatusBadGateway, w.Code)
