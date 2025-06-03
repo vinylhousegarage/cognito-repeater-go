@@ -20,6 +20,7 @@ func main() {
 		LoginProvider:    cfg,
 		LogoutProvider:   cfg,
 		MeProvider:       cfg,
+		RevokeProvider:   cfg,
 		WhoamiProvider:   cfg,
 	}
 
