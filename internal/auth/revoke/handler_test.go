@@ -32,7 +32,7 @@ func TestNewRevokeHandler_Success(t *testing.T) {
 		},
 	}
 
-	form := strings.NewReader("id_token=dummy-refresh-token")
+	form := strings.NewReader("token=dummy-token")
 	req := httptest.NewRequest(http.MethodPost, "/revoke", form)
 	req.Header.Set("Content-Type", "application/x-www-form-urlencoded")
 	w := httptest.NewRecorder()
@@ -54,7 +54,7 @@ func TestNewRevokeHandler_MissingToken(t *testing.T) {
 	handler(w, req)
 
 	assert.Equal(t, http.StatusBadRequest, w.Code)
-	assert.Contains(t, w.Body.String(), "id_token")
+	assert.Contains(t, w.Body.String(), "token")
 }
 
 func TestNewRevokeHandler_RevokeURLFailure(t *testing.T) {
@@ -67,7 +67,7 @@ func TestNewRevokeHandler_RevokeURLFailure(t *testing.T) {
 		},
 	}
 
-	form := strings.NewReader("id_token=dummy-refresh-token")
+	form := strings.NewReader("token=dummy-token")
 	req := httptest.NewRequest(http.MethodPost, "/revoke", form)
 	req.Header.Set("Content-Type", "application/x-www-form-urlencoded")
 	w := httptest.NewRecorder()
@@ -93,7 +93,7 @@ func TestNewRevokeHandler_RevokeFailsWith500(t *testing.T) {
 		},
 	}
 
-	form := strings.NewReader("id_token=dummy-refresh-token")
+	form := strings.NewReader("token=dummy-token")
 	req := httptest.NewRequest(http.MethodPost, "/revoke", form)
 	req.Header.Set("Content-Type", "application/x-www-form-urlencoded")
 	w := httptest.NewRecorder()
