@@ -109,7 +109,7 @@ func TestNewMeHandler_Integration_Success(t *testing.T) {
 
 	router := router.NewRouter(testhelpers.NewMockRouteDependencies(), client)
 
-	formBody := "id_token=" + token
+	formBody := "token=" + token
 	req := httptest.NewRequest(http.MethodPost, "/me", strings.NewReader(formBody))
 	req.Header.Set("Content-Type", "application/x-www-form-urlencoded")
 

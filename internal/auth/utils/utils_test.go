@@ -10,7 +10,7 @@ import (
 )
 
 func TestExtractFormValueFromBody_Success(t *testing.T) {
-	body := "id_token=abc.def.ghi"
+	body := "token=abc.def.ghi"
 	req := httptest.NewRequest(http.MethodPost, "/me", strings.NewReader(body))
 	req.Header.Set("Content-Type", "application/x-www-form-urlencoded")
 
@@ -21,14 +21,14 @@ func TestExtractFormValueFromBody_Success(t *testing.T) {
 }
 
 func TestExtractFormValue_MissingToken(t *testing.T) {
-	body := "" // id_token がない
+	body := "" // token がない
 	req := httptest.NewRequest(http.MethodPost, "/me", strings.NewReader(body))
 	req.Header.Set("Content-Type", "application/x-www-form-urlencoded")
 
 	_, err := ExtractFormValue(req)
 
 	assert.Error(t, err)
-	assert.Contains(t, err.Error(), "id_token is missing")
+	assert.Contains(t, err.Error(), "token is missing")
 }
 
 func TestExtractFormValue_BadFormEncoding(t *testing.T) {
@@ -38,5 +38,5 @@ func TestExtractFormValue_BadFormEncoding(t *testing.T) {
 	_, err := ExtractFormValue(req)
 
 	assert.Error(t, err)
-	assert.Contains(t, err.Error(), "id_token is missing from body")
+	assert.Contains(t, err.Error(), "token is missing from body")
 }

@@ -31,7 +31,7 @@ func TestRevokeRoute_Integration(t *testing.T) {
 			if err := r.ParseForm(); err != nil {
 				t.Errorf("failed to parse form: %v", err)
 			}
-			if r.FormValue("token") != "dummy-refresh-token" {
+			if r.FormValue("token") != "dummy-token" {
 				http.Error(w, "invalid token", http.StatusBadRequest)
 				return
 			}
@@ -50,7 +50,7 @@ func TestRevokeRoute_Integration(t *testing.T) {
 	r := router.NewRouter(mockDeps, http.DefaultClient)
 
 	form := url.Values{}
-	form.Set("id_token", "dummy-refresh-token")
+	form.Set("token", "dummy-token")
 
 	req := httptest.NewRequest(http.MethodPost, "/revoke", strings.NewReader(form.Encode()))
 	req.Header.Set("Content-Type", "application/x-www-form-urlencoded")
