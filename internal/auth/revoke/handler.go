@@ -26,6 +26,8 @@ func NewRevokeHandler(p deps.RevokeHandlerProvider, cli httpclient.HTTPClient) h
 		clientSecret := p.ClientSecretValue()
 		clientID := p.UserPoolClientIDValue()
 
+		fmt.Printf("clientID: %s\n", clientID)
+
 		resp, err := SendRevokeRequest(revokeURL, cli, refreshToken, clientSecret, clientID)
 		if err != nil {
 			http.Error(w, err.Error(), http.StatusInternalServerError)
