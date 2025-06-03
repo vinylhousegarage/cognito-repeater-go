@@ -7,10 +7,15 @@ import (
 	"strings"
 	"testing"
 
-	"cognito-repeater-go/internal/auth/deps"
 	"cognito-repeater-go/test/testhelpers"
 
 	"github.com/stretchr/testify/assert"
+)
+
+const (
+	mockMetadataURL = "https://mock.example.com/.well-known/openid-configuration"
+	mockSecret      = "dummy-secret"
+	mockClientID    = "dummy-client-id"
 )
 
 func TestNewRevokeHandler_Success(t *testing.T) {
@@ -39,9 +44,9 @@ func TestNewRevokeHandler_Success(t *testing.T) {
 	w := httptest.NewRecorder()
 
 	mockProvider := testhelpers.NewMockRevokeHandlerProvider(
-		MockMetadataURL,
-		MockSecret,
-		MockClientID,
+		mockMetadataURL,
+		mockSecret,
+		mockClientID,
 	)
 
 	handler := NewRevokeHandler(mockProvider, client)
@@ -58,9 +63,9 @@ func TestNewRevokeHandler_MissingToken(t *testing.T) {
 	w := httptest.NewRecorder()
 
 	mockProvider := testhelpers.NewMockRevokeHandlerProvider(
-		MockMetadataURL,
-		MockSecret,
-		MockClientID,
+		mockMetadataURL,
+		mockSecret,
+		mockClientID,
 	)
 
 	handler := NewRevokeHandler(mockProvider, client)
@@ -86,9 +91,9 @@ func TestNewRevokeHandler_InvalidRevokeEndpointResponse(t *testing.T) {
 	w := httptest.NewRecorder()
 
 	mockProvider := testhelpers.NewMockRevokeHandlerProvider(
-		MockMetadataURL,
-		MockSecret,
-		MockClientID,
+		mockMetadataURL,
+		mockSecret,
+		mockClientID,
 	)
 
 	handler := NewRevokeHandler(mockProvider, client)
@@ -118,9 +123,9 @@ func TestNewRevokeHandler_ServerErrorDuringRevoke(t *testing.T) {
 	w := httptest.NewRecorder()
 
 	mockProvider := testhelpers.NewMockRevokeHandlerProvider(
-		MockMetadataURL,
-		MockSecret,
-		MockClientID,
+		mockMetadataURL,
+		mockSecret,
+		mockClientID,
 	)
 
 	handler := NewRevokeHandler(mockProvider, client)

@@ -87,9 +87,3 @@ func NewMockRevokeHandlerProvider(metadataURL, clientSecret, clientID string) de
 		UserPoolClientIDStr: clientID,
 	}
 }
-
-const (
-	MockMetadataURL = "https://mock.example.com/.well-known/openid-configuration"
-	MockSecret      = "dummy-secret"
-	MockClientID    = "dummy-client-id"
-)
