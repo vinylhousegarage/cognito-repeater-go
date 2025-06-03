@@ -45,7 +45,6 @@ func TestRevokeRoute_Integration(t *testing.T) {
 	defer ts.Close()
 
 	mockDeps := testhelpers.NewMockRouteDependencies()
-	mockDeps.RevokeProvider = &testhelpers.MockMetadataURL{URL: ts.URL + "/.well-known/openid-configuration"}
 
 	r := router.NewRouter(mockDeps, http.DefaultClient)
 

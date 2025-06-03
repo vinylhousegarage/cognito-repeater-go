@@ -37,7 +37,9 @@ func TestNewRevokeHandler_Success(t *testing.T) {
 	req.Header.Set("Content-Type", "application/x-www-form-urlencoded")
 	w := httptest.NewRecorder()
 
-	handler := NewRevokeHandler(&testhelpers.MockMetadataURL{URL: "https://example.com/.well-known/openid-configuration"}, client)
+	mockDeps := testhelpers.NewMockRouteDependencies()
+
+	handler := NewRevokeHandler(mockDeps, client)
 	handler(w, req)
 
 	assert.Equal(t, http.StatusNoContent, w.Code)
@@ -50,7 +52,9 @@ func TestNewRevokeHandler_MissingToken(t *testing.T) {
 	req := httptest.NewRequest(http.MethodPost, "/revoke", nil)
 	w := httptest.NewRecorder()
 
-	handler := NewRevokeHandler(&testhelpers.MockMetadataURL{URL: "https://example.com"}, client)
+	mockDeps := testhelpers.NewMockRouteDependencies()
+
+	handler := NewRevokeHandler(mockDeps, client)
 	handler(w, req)
 
 	assert.Equal(t, http.StatusBadRequest, w.Code)
@@ -72,7 +76,9 @@ func TestNewRevokeHandler_RevokeURLFailure(t *testing.T) {
 	req.Header.Set("Content-Type", "application/x-www-form-urlencoded")
 	w := httptest.NewRecorder()
 
-	handler := NewRevokeHandler(&testhelpers.MockMetadataURL{URL: "https://example.com/.well-known/openid-configuration"}, client)
+	mockDeps := testhelpers.NewMockRouteDependencies()
+
+	handler := NewRevokeHandler(mockDeps, client)
 	handler(w, req)
 
 	assert.Equal(t, http.StatusInternalServerError, w.Code)
@@ -98,7 +104,9 @@ func TestNewRevokeHandler_RevokeFailsWith500(t *testing.T) {
 	req.Header.Set("Content-Type", "application/x-www-form-urlencoded")
 	w := httptest.NewRecorder()
 
-	handler := NewRevokeHandler(&testhelpers.MockMetadataURL{URL: "https://example.com/.well-known/openid-configuration"}, client)
+	mockDeps := testhelpers.NewMockRouteDependencies()
+
+	handler := NewRevokeHandler(mockDeps, client)
 	handler(w, req)
 
 	assert.Equal(t, http.StatusBadGateway, w.Code)
