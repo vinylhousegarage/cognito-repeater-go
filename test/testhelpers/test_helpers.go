@@ -61,3 +61,35 @@ func NewMockHTTPClientPanic() httpclient.HTTPClient {
 		},
 	}
 }
+
+type MockRevokeHandlerProvider struct {
+	ClientSecretStr     string
+	MetadataURLStr      string
+	UserPoolClientIDStr string
+}
+
+func (m *MockRevokeHandlerProvider) ClientSecretValue() string {
+	return m.ClientSecretStr
+}
+
+func (m *MockRevokeHandlerProvider) MetadataURL() string {
+	return m.MetadataURLStr
+}
+
+func (m *MockRevokeHandlerProvider) UserPoolClientIDValue() string {
+	return m.UserPoolClientIDStr
+}
+
+func NewMockRevokeHandlerProvider(metadataURL, clientSecret, clientID string) deps.RevokeHandlerProvider {
+	return &MockRevokeHandlerProvider{
+		MetadataURLStr:      metadataURL,
+		ClientSecretStr:     clientSecret,
+		UserPoolClientIDStr: clientID,
+	}
+}
+
+const (
+	MockMetadataURL = "https://mock.example.com/.well-known/openid-configuration"
+	MockSecret      = "dummy-secret"
+	MockClientID    = "dummy-client-id"
+)

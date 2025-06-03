@@ -13,38 +13,6 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-type mockRevokeHandlerProvider struct {
-	ClientSecretStr     string
-	MetadataURLStr      string
-	UserPoolClientIDStr string
-}
-
-func (m *mockRevokeHandlerProvider) ClientSecretValue() string {
-	return m.ClientSecretStr
-}
-
-func (m *mockRevokeHandlerProvider) MetadataURL() string {
-	return m.MetadataURLStr
-}
-
-func (m *mockRevokeHandlerProvider) UserPoolClientIDValue() string {
-	return m.UserPoolClientIDStr
-}
-
-func newMockRevokeHandlerProvider(metadataURL, clientSecret, clientID string) deps.RevokeHandlerProvider {
-	return &mockRevokeHandlerProvider{
-		MetadataURLStr:      metadataURL,
-		ClientSecretStr:     clientSecret,
-		UserPoolClientIDStr: clientID,
-	}
-}
-
-const (
-	mockMetadataURL = "https://mock.example.com/.well-known/openid-configuration"
-	mockSecret      = "dummy-secret"
-	mockClientID    = "dummy-client-id"
-)
-
 func TestNewRevokeHandler_Success(t *testing.T) {
 	t.Parallel()
 
@@ -70,10 +38,10 @@ func TestNewRevokeHandler_Success(t *testing.T) {
 	req.Header.Set("Content-Type", "application/x-www-form-urlencoded")
 	w := httptest.NewRecorder()
 
-	mockProvider := newMockRevokeHandlerProvider(
-		mockMetadataURL,
-		mockSecret,
-		mockClientID,
+	mockProvider := testhelpers.NewMockRevokeHandlerProvider(
+		MockMetadataURL,
+		MockSecret,
+		MockClientID,
 	)
 
 	handler := NewRevokeHandler(mockProvider, client)
@@ -89,10 +57,10 @@ func TestNewRevokeHandler_MissingToken(t *testing.T) {
 	req := httptest.NewRequest(http.MethodPost, "/revoke", nil)
 	w := httptest.NewRecorder()
 
-	mockProvider := newMockRevokeHandlerProvider(
-		mockMetadataURL,
-		mockSecret,
-		mockClientID,
+	mockProvider := testhelpers.NewMockRevokeHandlerProvider(
+		MockMetadataURL,
+		MockSecret,
+		MockClientID,
 	)
 
 	handler := NewRevokeHandler(mockProvider, client)
@@ -102,7 +70,7 @@ func TestNewRevokeHandler_MissingToken(t *testing.T) {
 	assert.Contains(t, w.Body.String(), "token")
 }
 
-func TestNewRevokeHandler_RevokeURLFailure(t *testing.T) {
+func TestNewRevokeHandler_InvalidRevokeEndpointResponse(t *testing.T) {
 	t.Parallel()
 
 	client := &testhelpers.MockHTTPClient{
@@ -117,10 +85,10 @@ func TestNewRevokeHandler_RevokeURLFailure(t *testing.T) {
 	req.Header.Set("Content-Type", "application/x-www-form-urlencoded")
 	w := httptest.NewRecorder()
 
-	mockProvider := newMockRevokeHandlerProvider(
-		mockMetadataURL,
-		mockSecret,
-		mockClientID,
+	mockProvider := testhelpers.NewMockRevokeHandlerProvider(
+		MockMetadataURL,
+		MockSecret,
+		MockClientID,
 	)
 
 	handler := NewRevokeHandler(mockProvider, client)
@@ -130,7 +98,7 @@ func TestNewRevokeHandler_RevokeURLFailure(t *testing.T) {
 	assert.Contains(t, w.Body.String(), "failed to get revoke endpoint")
 }
 
-func TestNewRevokeHandler_RevokeFailsWith500(t *testing.T) {
+func TestNewRevokeHandler_ServerErrorDuringRevoke(t *testing.T) {
 	t.Parallel()
 
 	client := &testhelpers.MockHTTPClient{
@@ -149,10 +117,10 @@ func TestNewRevokeHandler_RevokeFailsWith500(t *testing.T) {
 	req.Header.Set("Content-Type", "application/x-www-form-urlencoded")
 	w := httptest.NewRecorder()
 
-	mockProvider := newMockRevokeHandlerProvider(
-		mockMetadataURL,
-		mockSecret,
-		mockClientID,
+	mockProvider := testhelpers.NewMockRevokeHandlerProvider(
+		MockMetadataURL,
+		MockSecret,
+		MockClientID,
 	)
 
 	handler := NewRevokeHandler(mockProvider, client)
