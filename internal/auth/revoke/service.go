@@ -75,19 +75,19 @@ func SendRevokeRequest(
 		return nil, fmt.Errorf("failed to call revoke endpoint: %w", err)
 	}
 
+	body, readErr := io.ReadAll(resp.Body)
+	if readErr != nil {
+		return nil, fmt.Errorf("failed to read response body: %w", readErr)
+	}
 	defer func() {
 		if cerr := resp.Body.Close(); cerr != nil {
 			fmt.Printf("failed to close response body: %v\n", cerr)
 		}
 	}()
 
-	body, readErr := io.ReadAll(resp.Body)
-	if readErr != nil {
-		return nil, fmt.Errorf("failed to read response body: %w", readErr)
-	}
-
 	if resp.StatusCode != http.StatusOK {
-		return nil, fmt.Errorf("revoke request failed: status=%s, body=%s", resp.Status, string(body))
+		fmt.Printf("revocation failed: status=%s, body=%s\n", resp.Status, string(body))
+		return resp, nil
 	}
 
 	return resp, nil
