@@ -83,10 +83,17 @@ func TestGetRevokeURLEmptyEndpoint(t *testing.T) {
 }
 
 func TestSendRevokeRequest_Success(t *testing.T) {
+	t.Parallel()
+
 	mockClient := &testhelpers.MockHTTPClient{
 		DoFunc: func(req *http.Request) (*http.Response, error) {
 			assert.Equal(t, http.MethodPost, req.Method)
 			assert.Equal(t, "application/x-www-form-urlencoded", req.Header.Get("Content-Type"))
+
+			username, password, ok := req.BasicAuth()
+			assert.True(t, ok)
+			assert.Equal(t, "mock-client-id", username)
+			assert.Equal(t, "mock-client-secret", password)
 
 			bodyBytes, err := io.ReadAll(req.Body)
 			assert.NoError(t, err)
@@ -104,8 +111,10 @@ func TestSendRevokeRequest_Success(t *testing.T) {
 
 	revokeURL := "https://example.com/oauth2/revoke"
 	refreshToken := "mock-refresh-token"
+	clientID := "mock-client-id"
+	clientSecret := "mock-client-secret"
 
-	resp, err := SendRevokeRequest(revokeURL, mockClient, refreshToken)
+	resp, err := SendRevokeRequest(revokeURL, mockClient, refreshToken, clientID, clientSecret)
 
 	assert.NoError(t, err)
 	assert.NotNil(t, resp)
