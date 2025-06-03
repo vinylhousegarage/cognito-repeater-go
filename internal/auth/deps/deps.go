@@ -35,7 +35,9 @@ type MeHandlerProvider interface {
 }
 
 type RevokeHandlerProvider interface {
+	ClientSecretValue() string
 	MetadataURL() string
+	UserPoolClientIDValue() string
 }
 
 type WhoamiHandlerProvider interface {
