@@ -23,7 +23,10 @@ func NewRevokeHandler(p deps.RevokeHandlerProvider, cli httpclient.HTTPClient) h
 			return
 		}
 
-		resp, err := SendRevokeRequest(revokeURL, cli, refreshToken)
+		clientSecret := p.ClientSecretValue()
+		clientID := p.UserPoolClientIDValue()
+
+		resp, err := SendRevokeRequest(revokeURL, cli, refreshToken, clientSecret, clientID)
 		if err != nil {
 			http.Error(w, fmt.Sprintf("failed to send revoke request: %v", err), http.StatusInternalServerError)
 			return
