@@ -10,10 +10,10 @@ func ExtractFormValue(r *http.Request) (string, error) {
 		return "", fmt.Errorf("failed to parse form: %w", err)
 	}
 
-	idToken := r.FormValue("id_token")
-	if idToken == "" {
-		return "", fmt.Errorf("id_token is missing from body")
+	token := r.FormValue("token")
+	if token == "" {
+		return "", fmt.Errorf("token is missing from body")
 	}
 
-	return idToken, nil
+	return token, nil
 }
