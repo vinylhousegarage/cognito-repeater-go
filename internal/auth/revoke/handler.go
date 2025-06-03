@@ -28,12 +28,12 @@ func NewRevokeHandler(p deps.RevokeHandlerProvider, cli httpclient.HTTPClient) h
 
 		resp, err := SendRevokeRequest(revokeURL, cli, refreshToken, clientSecret, clientID)
 		if err != nil {
-			http.Error(w, fmt.Sprintf("failed to send revoke request: %v", err), http.StatusInternalServerError)
+			http.Error(w, err.Error(), http.StatusInternalServerError)
 			return
 		}
 		defer func() {
-			if cerr := resp.Body.Close(); cerr != nil {
-				fmt.Printf("failed to close response body: %v\n", cerr)
+			if err := resp.Body.Close(); err != nil {
+				fmt.Printf("failed to close response body: %v\n", err)
 			}
 		}()
 
