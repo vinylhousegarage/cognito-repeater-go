@@ -1,4 +1,4 @@
-package rootroot
+package root
 
 import (
 	"net/http"
