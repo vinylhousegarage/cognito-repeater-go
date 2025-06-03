@@ -3,6 +3,7 @@ package revoke
 import (
 	"encoding/json"
 	"fmt"
+	"io"
 	"net/http"
 	"net/url"
 	"strings"
@@ -57,6 +58,10 @@ func SendRevokeRequest(
 	form.Set("token", refreshToken)
 	form.Set("token_type_hint", "refresh_token")
 
+	if clientID == "" || clientSecret == "" {
+		return nil, fmt.Errorf("client credentials must not be empty")
+	}
+
 	req, err := http.NewRequest(http.MethodPost, revokeURL, strings.NewReader(form.Encode()))
 	if err != nil {
 		return nil, fmt.Errorf("failed to create revoke request: %w", err)
@@ -65,9 +70,25 @@ func SendRevokeRequest(
 	req.SetBasicAuth(clientID, clientSecret)
 	req.Header.Set("Content-Type", "application/x-www-form-urlencoded")
 
-	if clientID == "" || clientSecret == "" {
-		return nil, fmt.Errorf("client credentials must not be empty")
+	resp, err := cli.Do(req)
+	if err != nil {
+		return nil, fmt.Errorf("failed to call revoke endpoint: %w", err)
 	}
 
-	return cli.Do(req)
+	defer func() {
+		if cerr := resp.Body.Close(); cerr != nil {
+			fmt.Printf("failed to close response body: %v\n", cerr)
+		}
+	}()
+
+	body, readErr := io.ReadAll(resp.Body)
+	if readErr != nil {
+		return nil, fmt.Errorf("failed to read response body: %w", readErr)
+	}
+
+	if resp.StatusCode != http.StatusOK {
+		return nil, fmt.Errorf("revoke request failed: status=%s, body=%s", resp.Status, string(body))
+	}
+
+	return nil, nil
 }
