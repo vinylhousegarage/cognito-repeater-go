@@ -5,7 +5,8 @@ WORKDIR /app
 RUN go install github.com/air-verse/air@latest \
     && go install golang.org/x/tools/cmd/goimports@latest \
     && curl -sSfL https://raw.githubusercontent.com/golangci/golangci-lint/master/install.sh \
-       | sh -s -- -b /go/bin v2.1.6
+       | sh -s -- -b /go/bin v2.1.6 \
+    && go install github.com/swaggo/swag/cmd/swag@latest
 
 ENV PATH=$PATH:/go/bin
 
@@ -13,5 +14,6 @@ COPY go.mod go.sum ./
 RUN go mod tidy
 
 COPY . .
+COPY .air.toml ./
 
 CMD ["air"]
