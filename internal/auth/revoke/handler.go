@@ -3,6 +3,7 @@ package revoke
 import (
 	"fmt"
 	"net/http"
+	"strings"
 
 	"cognito-repeater-go/internal/auth/deps"
 	"cognito-repeater-go/internal/auth/utils"
@@ -26,9 +27,10 @@ func NewRevokeHandler(p deps.RevokeHandlerProvider, cli httpclient.HTTPClient) h
 		clientSecret := p.ClientSecretValue()
 		clientID := p.UserPoolClientIDValue()
 
-		fmt.Printf("clientID: %s\n", clientID)
+		clientSecret = strings.TrimSpace(clientSecret)
+		clientID = strings.TrimSpace(clientID)
 
-		resp, err := SendRevokeRequest(revokeURL, cli, refreshToken, clientSecret, clientID)
+		resp, err := SendRevokeRequest(revokeURL, cli, refreshToken, clientID, clientSecret)
 		if err != nil {
 			http.Error(w, err.Error(), http.StatusInternalServerError)
 			return
@@ -39,11 +41,12 @@ func NewRevokeHandler(p deps.RevokeHandlerProvider, cli httpclient.HTTPClient) h
 			}
 		}()
 
-		if resp.StatusCode != http.StatusOK {
+		if resp.StatusCode != http.StatusOK && resp.StatusCode != http.StatusNoContent {
 			http.Error(w, fmt.Sprintf("revocation failed with status: %s", resp.Status), http.StatusBadGateway)
 			return
 		}
 
+		fmt.Printf("revocation succeeded with status: %s\n", resp.Status)
 		w.WriteHeader(http.StatusNoContent)
 	}
 }
