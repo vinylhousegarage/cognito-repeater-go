@@ -60,7 +60,7 @@ func TestNewWhoamiHandler_Success(t *testing.T) {
 	var body UserInfoResponse
 	err := json.NewDecoder(resp.Body).Decode(&body)
 	assert.NoError(t, err)
-	assert.Equal(t, "abc123", body["sub"])
+	assert.Equal(t, "abc123", body.Sub)
 }
 
 func TestNewWhoamiHandler_MissingAuthorization(t *testing.T) {
