@@ -1,6 +1,7 @@
 package ping
 
 import (
+	"encoding/json"
 	"io"
 	"net/http"
 	"net/http/httptest"
@@ -18,8 +19,13 @@ func TestNewPingHandler_ReturnsPong(t *testing.T) {
 	NewPingHandler(w, req)
 
 	resp := w.Result()
-	body, _ := io.ReadAll(resp.Body)
+	body, err := io.ReadAll(resp.Body)
+	assert.NoError(t, err)
 
 	assert.Equal(t, http.StatusOK, resp.StatusCode)
-	assert.Equal(t, "pong", string(body))
+
+	var res PingResponse
+	err = json.Unmarshal(body, &res)
+	assert.NoError(t, err)
+	assert.Equal(t, "pong", res.Message)
 }
