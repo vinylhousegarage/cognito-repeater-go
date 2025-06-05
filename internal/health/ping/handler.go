@@ -7,7 +7,7 @@ import (
 
 // @Summary Health check endpoint
 // @Description Returns "pong" to indicate the server is alive
-// @Tags ping
+// @Tags health
 // @Produce plain
 // @Success 200 {string} string "pong"
 // @Router /ping [get]

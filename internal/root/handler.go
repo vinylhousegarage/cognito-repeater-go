@@ -6,7 +6,7 @@ import (
 
 // @Summary Redirect to login
 // @Description Redirects the root path (/) to the login page
-// @Tags root
+// @Tags system
 // @Produce plain
 // @Success 302 {string} string "Found"
 // @Router / [get]
