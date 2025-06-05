@@ -57,7 +57,7 @@ func TestNewWhoamiHandler_Success(t *testing.T) {
 	resp := w.Result()
 	assert.Equal(t, http.StatusOK, resp.StatusCode)
 
-	var body map[string]interface{}
+	var body UserInfoResponse
 	err := json.NewDecoder(resp.Body).Decode(&body)
 	assert.NoError(t, err)
 	assert.Equal(t, "abc123", body["sub"])
