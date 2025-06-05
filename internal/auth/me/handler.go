@@ -33,7 +33,7 @@ func writeJSONError(w http.ResponseWriter, status int, msg string) {
 // @Accept application/x-www-form-urlencoded
 // @Produce json
 // @Param token formData string true "ID token to verify"
-// @Success 200 {object} UserResponse "Returns user sub claim"
+// @Success 200 {object} me.UserResponse "Returns user sub claim"
 // @Failure 400 {object} response.ErrorResponse "Bad Request"
 // @Failure 401 {object} response.ErrorResponse "Unauthorized"
 // @Failure 500 {object} response.ErrorResponse "Internal Server Error"
