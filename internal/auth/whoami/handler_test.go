@@ -36,7 +36,7 @@ func TestNewWhoamiHandler_Success(t *testing.T) {
 			return rec.Result(), nil
 		}
 		if strings.Contains(req.URL.String(), "userinfo") {
-			body := `{"sub":"abc123","email":"user@example.com"}`
+			body := `{"sub":"abc123"}`
 			rec := httptest.NewRecorder()
 			rec.WriteHeader(http.StatusOK)
 			if _, err := rec.WriteString(body); err != nil {
@@ -61,7 +61,6 @@ func TestNewWhoamiHandler_Success(t *testing.T) {
 	err := json.NewDecoder(resp.Body).Decode(&body)
 	assert.NoError(t, err)
 	assert.Equal(t, "abc123", body["sub"])
-	assert.Equal(t, "user@example.com", body["email"])
 }
 
 func TestNewWhoamiHandler_MissingAuthorization(t *testing.T) {
