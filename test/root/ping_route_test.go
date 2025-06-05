@@ -1,11 +1,13 @@
 package root_test
 
 import (
+	"encoding/json"
 	"io"
 	"net/http"
 	"net/http/httptest"
 	"testing"
 
+	"cognito-repeater-go/internal/health/ping"
 	"cognito-repeater-go/internal/router"
 	"cognito-repeater-go/test/testhelpers"
 
@@ -28,7 +30,10 @@ func TestPingRouteReturnsPlainTextPong(t *testing.T) {
 	resp := w.Result()
 	body, err := io.ReadAll(resp.Body)
 	assert.NoError(t, err, "failed to read response body")
-
 	assert.Equal(t, http.StatusOK, resp.StatusCode)
-	assert.Equal(t, "pong", string(body))
+
+	var res ping.PingResponse
+	err = json.Unmarshal(body, &res)
+	assert.NoError(t, err)
+	assert.Equal(t, "pong", res.Message)
 }
