@@ -1,3 +1,23 @@
+// @title cognito-repeater-go
+// @version 1.0
+// @description A relay API for AWS Cognito login/logout/token verification
+// @description Implemented in Go 1.24.3.
+// @termsOfService https://example.com/terms/
+
+// @contact.name vinylhousegarage
+// @contact.url https://github.com/vinylhousegarage/cognito-repeater-go
+
+// @license.name MIT
+// @license.url https://opensource.org/licenses/MIT
+
+// @host cognito-repeater-go.com
+// @BasePath /
+// @schemes https
+
+// @securityDefinitions.apikey BearerAuth
+// @in header
+// @name Authorization
+
 package main
 
 import (
