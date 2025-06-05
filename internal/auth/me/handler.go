@@ -18,6 +18,21 @@ func writeJSONError(w http.ResponseWriter, status int, msg string) {
 	})
 }
 
+// @Summary Verify ID token and return user info
+// @Description Verifies the provided ID token using Cognito's JWKS and returns the subject (sub) claim.
+// @Description This endpoint expects a form-encoded POST request and should be called from a secure backend environment.
+// @Description To verify an ID token, send a POST request with the following body:
+// @Description token=ID_TOKEN_VALUE
+// @Description Content-Type: application/x-www-form-urlencoded
+// @Tags user
+// @Accept application/x-www-form-urlencoded
+// @Produce json
+// @Param token formData string true "ID token to verify"
+// @Success 200 {object} map[string]string "Returns {\"sub\": \"user-sub-id\"}"
+// @Failure 400 {object} map[string]string "Bad Request"
+// @Failure 401 {object} map[string]string "Unauthorized"
+// @Failure 500 {object} map[string]string "Internal Server Error"
+// @Router /me [post]
 func NewMeHandler(p deps.MeHandlerProvider, c httpclient.HTTPClient) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		tokenStr, err := utils.ExtractFormValue(r)
