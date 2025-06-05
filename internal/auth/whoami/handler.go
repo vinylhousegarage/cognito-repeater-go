@@ -53,8 +53,19 @@ func NewWhoamiHandler(p deps.WhoamiHandlerProvider, cli httpclient.HTTPClient) h
 			return
 		}
 
+		subRaw, ok := userinfo["sub"]
+		if !ok {
+			writeJSONError(w, http.StatusUnauthorized, `"sub" claim is missing`)
+			return
+		}
+		sub, ok := subRaw.(string)
+		if !ok {
+			writeJSONError(w, http.StatusUnauthorized, `"sub" claim is not a string`)
+			return
+		}
+
 		resp := UserInfoResponse{
-			Sub: userinfo.Sub,
+			Sub: sub,
 		}
 
 		w.Header().Set("Content-Type", "application/json")
