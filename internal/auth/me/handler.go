@@ -90,10 +90,10 @@ func NewMeHandler(p deps.MeHandlerProvider, c httpclient.HTTPClient) http.Handle
 		}
 
 		resp := UserResponse{
-				Sub: claims.Subject,
+			Sub: claims.Subject,
 		}
 		if err := json.NewEncoder(w).Encode(resp); err != nil {
-				log.Printf("failed to write response: %v", err)
+			log.Printf("failed to write response: %v", err)
 		}
 	}
 }
