@@ -8,14 +8,19 @@ import (
 	"cognito-repeater-go/internal/auth/deps"
 	"cognito-repeater-go/internal/auth/utils"
 	"cognito-repeater-go/internal/httpclient"
+	"cognito-repeater-go/internal/response"
 )
 
 func writeJSONError(w http.ResponseWriter, status int, msg string) {
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(status)
-	_ = json.NewEncoder(w).Encode(map[string]string{
-		"error": msg,
+
+	err := json.NewEncoder(w).Encode(response.ErrorResponse{
+		Error: msg,
 	})
+	if err != nil {
+		log.Printf("failed to write error response: %v", err)
+	}
 }
 
 // @Summary Verify ID token and return user info
@@ -28,10 +33,10 @@ func writeJSONError(w http.ResponseWriter, status int, msg string) {
 // @Accept application/x-www-form-urlencoded
 // @Produce json
 // @Param token formData string true "ID token to verify"
-// @Success 200 {object} map[string]string "Returns {\"sub\": \"user-sub-id\"}"
-// @Failure 400 {object} map[string]string "Bad Request"
-// @Failure 401 {object} map[string]string "Unauthorized"
-// @Failure 500 {object} map[string]string "Internal Server Error"
+// @Success 200 {object} UserResponse "Returns user sub claim"
+// @Failure 400 {object} response.ErrorResponse "Bad Request"
+// @Failure 401 {object} response.ErrorResponse "Unauthorized"
+// @Failure 500 {object} response.ErrorResponse "Internal Server Error"
 // @Router /me [post]
 func NewMeHandler(p deps.MeHandlerProvider, c httpclient.HTTPClient) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
@@ -84,10 +89,11 @@ func NewMeHandler(p deps.MeHandlerProvider, c httpclient.HTTPClient) http.Handle
 			return
 		}
 
-		if err := json.NewEncoder(w).Encode(map[string]string{
-			"sub": claims.Subject,
-		}); err != nil {
-			log.Printf("failed to write response: %v", err)
+		resp := UserResponse{
+				Sub: claims.Subject,
+		}
+		if err := json.NewEncoder(w).Encode(resp); err != nil {
+				log.Printf("failed to write response: %v", err)
 		}
 	}
 }
