@@ -5,6 +5,12 @@ import (
 	"net/http"
 )
 
+// @Summary Health check endpoint
+// @Description Returns "pong" to indicate the server is alive
+// @Tags ping
+// @Produce plain
+// @Success 200 {string} string "pong"
+// @Router /ping [get]
 func NewPingHandler(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "text/plain")
 	w.WriteHeader(http.StatusOK)
