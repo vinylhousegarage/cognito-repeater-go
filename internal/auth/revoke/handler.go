@@ -10,6 +10,21 @@ import (
 	"cognito-repeater-go/internal/httpclient"
 )
 
+// @Summary Revoke refresh token
+// @Description Revokes a refresh token by calling the Cognito revocation endpoint.
+// @Description This endpoint expects a form-encoded POST request and should be called from a secure backend environment.
+// @Description To revoke a refresh token, send a POST request to this endpoint with the following body:
+// @Description token=REFRESH_TOKEN_VALUE
+// @Description Content-Type: application/x-www-form-urlencoded
+// @Tags auth
+// @Accept application/x-www-form-urlencoded
+// @Produce plain
+// @Param token formData string true "Refresh token to be revoked"
+// @Success 204 {string} string "No Content"
+// @Failure 400 {string} string "Bad Request"
+// @Failure 502 {string} string "Bad Gateway"
+// @Failure 500 {string} string "Internal Server Error"
+// @Router /revoke [post]
 func NewRevokeHandler(p deps.RevokeHandlerProvider, cli httpclient.HTTPClient) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		refreshToken, err := utils.ExtractFormValue(r)
