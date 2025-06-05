@@ -7,6 +7,14 @@ import (
 	"cognito-repeater-go/internal/httpclient"
 )
 
+// @Summary Redirect to Cognito login
+// @Description Initiates OAuth2 login by redirecting the user to the Cognito authorization endpoint.
+// @Description This endpoint is intended to be accessed via a web browser as it sets a state cookie and performs a redirect.
+// @Tags auth
+// @Produce plain
+// @Success 302 {string} string "Found"
+// @Failure 500 {string} string "Internal Server Error"
+// @Router /login [get]
 func NewLoginHandler(p deps.LoginHandlerProvider, c httpclient.HTTPClient) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		state := GenerateState()
