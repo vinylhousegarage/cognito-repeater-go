@@ -7,6 +7,7 @@ import (
 	"strings"
 	"testing"
 
+	"cognito-repeater-go/internal/response"
 	"cognito-repeater-go/test/testhelpers"
 
 	"github.com/stretchr/testify/assert"
@@ -100,7 +101,11 @@ func TestNewRevokeHandler_InvalidRevokeEndpointResponse(t *testing.T) {
 	handler(w, req)
 
 	assert.Equal(t, http.StatusInternalServerError, w.Code)
-	assert.Contains(t, w.Body.String(), "failed to get revoke endpoint")
+
+	var errResp response.ErrorResponse
+	err := json.Unmarshal(w.Body.Bytes(), &errResp)
+	require.NoError(t, err)
+	assert.Equal(t, "failed to resolve revocation endpoint", errResp.Error)
 }
 
 func TestNewRevokeHandler_ServerErrorDuringRevoke(t *testing.T) {
