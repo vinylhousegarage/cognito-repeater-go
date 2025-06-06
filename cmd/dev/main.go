@@ -27,12 +27,20 @@ import (
 	"cognito-repeater-go/internal/auth/deps"
 	"cognito-repeater-go/internal/config"
 	"cognito-repeater-go/internal/server"
+
+	"go.uber.org/zap"
 )
 
 func main() {
+	logger, err := zap.NewProduction()
+	if err != nil {
+		panic("failed to initialize zap logger: " + err.Error())
+	}
+	defer logger.Sync()
+
 	cfg, err := config.LoadConfig()
 	if err != nil {
-		log.Fatalf("failed to load config: %v", err)
+		logger.Fatal("failed to load config", zap.Error(err))
 	}
 
 	routeDeps := deps.RouteDependencies{
@@ -46,6 +54,10 @@ func main() {
 
 	srv := server.NewServer(routeDeps, http.DefaultClient)
 
-	log.Println("Listening on", srv.Addr)
-	log.Fatal(srv.ListenAndServe())
+	logger.Info("server is starting", zap.String("address", srv.Addr))
+
+	if err := srv.ListenAndServe(); err != nil {
+		logger.Fatal("server failed to start", zap.Error(err), zap.String("address", srv.Addr))
+		os.Exit(1)
+	}
 }
