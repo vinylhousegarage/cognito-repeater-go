@@ -2,12 +2,13 @@ package callback
 
 import (
 	"encoding/json"
-	"fmt"
 	"net/http"
 	"strings"
 
 	"cognito-repeater-go/internal/auth/deps"
 	"cognito-repeater-go/internal/httpclient"
+
+	"go.uber.org/zap"
 )
 
 type TokenResponse struct {
@@ -18,10 +19,15 @@ type TokenResponse struct {
 	TokenType    string `json:"token_type"`
 }
 
-func NewCallbackHandler(p deps.CallbackHandlerProvider, c httpclient.HTTPClient) http.HandlerFunc {
+func NewCallbackHandler(
+	p deps.CallbackHandlerProvider,
+	c httpclient.HTTPClient,
+	logger *zap.Logger
+	) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		code, err := ValidateCallbackRequest(r)
 		if err != nil {
+			logger.Warn("invalid callback request", zap.Error(err))
 			http.Error(w, err.Error(), http.StatusBadRequest)
 			return
 		}
@@ -29,6 +35,7 @@ func NewCallbackHandler(p deps.CallbackHandlerProvider, c httpclient.HTTPClient)
 		metadataURL := p.MetadataURL()
 		tokenEndpoint, err := GetCallbackURL(metadataURL, c)
 		if err != nil {
+			logger.Error("failed to get token endpoint", zap.String("metadataURL", metadataURL), zap.Error(err))
 			http.Error(w, "failed to get token endpoint", http.StatusInternalServerError)
 			return
 		}
@@ -36,6 +43,7 @@ func NewCallbackHandler(p deps.CallbackHandlerProvider, c httpclient.HTTPClient)
 		bodyStr := BuildTokenRequestBody(code, p)
 		req, err := http.NewRequest("POST", tokenEndpoint, strings.NewReader(bodyStr))
 		if err != nil {
+			logger.Error("failed to create request to token endpoint", zap.String("tokenEndpoint", tokenEndpoint), zap.Error(err))
 			http.Error(w, "failed to create request", http.StatusInternalServerError)
 			return
 		}
@@ -44,22 +52,25 @@ func NewCallbackHandler(p deps.CallbackHandlerProvider, c httpclient.HTTPClient)
 
 		resp, err := c.Do(req)
 		if err != nil {
+			logger.Error("token request failed", zap.Error(err))
 			http.Error(w, "failed to send token request", http.StatusBadGateway)
 			return
 		}
 		defer func() {
 			if err := resp.Body.Close(); err != nil {
-				fmt.Printf("failed to close response body: %v\n", err)
+				logger.Warn("failed to close response body", zap.Error(err))
 			}
 		}()
 
 		if resp.StatusCode != http.StatusOK {
+			logger.Warn("token endpoint returned non-200", zap.Int("status", resp.StatusCode))
 			http.Error(w, "token endpoint returned error", http.StatusBadGateway)
 			return
 		}
 
 		var tokenResp TokenResponse
 		if err := json.NewDecoder(resp.Body).Decode(&tokenResp); err != nil {
+			logger.Error("failed to decode token response", zap.Error(err))
 			http.Error(w, "failed to decode token response", http.StatusInternalServerError)
 			return
 		}
@@ -67,6 +78,7 @@ func NewCallbackHandler(p deps.CallbackHandlerProvider, c httpclient.HTTPClient)
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusOK)
 		if err := json.NewEncoder(w).Encode(tokenResp); err != nil {
+			logger.Error("failed to write token response", zap.Error(err))
 			http.Error(w, "failed to encode token response", http.StatusInternalServerError)
 		}
 	}
