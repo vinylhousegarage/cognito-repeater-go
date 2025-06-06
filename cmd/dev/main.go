@@ -21,6 +21,7 @@
 package main
 
 import (
+	"fmt"
 	"net/http"
 	"os"
 
@@ -36,7 +37,11 @@ func main() {
 	if err != nil {
 		panic("failed to initialize zap logger: " + err.Error())
 	}
-	defer logger.Sync()
+	defer func() {
+			if err := logger.Sync(); err != nil {
+					fmt.Fprintf(os.Stderr, "logger.Sync() error: %v\n", err)
+			}
+	}()
 
 	cfg, err := config.LoadConfig()
 	if err != nil {
@@ -58,6 +63,5 @@ func main() {
 
 	if err := srv.ListenAndServe(); err != nil {
 		logger.Fatal("server failed to start", zap.Error(err), zap.String("address", srv.Addr))
-		os.Exit(1)
 	}
 }
