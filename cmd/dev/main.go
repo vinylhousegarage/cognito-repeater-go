@@ -21,8 +21,8 @@
 package main
 
 import (
-	"log"
 	"net/http"
+	"os"
 
 	"cognito-repeater-go/internal/auth/deps"
 	"cognito-repeater-go/internal/config"
