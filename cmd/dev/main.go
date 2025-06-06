@@ -38,9 +38,9 @@ func main() {
 		panic("failed to initialize zap logger: " + err.Error())
 	}
 	defer func() {
-			if err := logger.Sync(); err != nil {
-					fmt.Fprintf(os.Stderr, "logger.Sync() error: %v\n", err)
-			}
+		if err := logger.Sync(); err != nil {
+			fmt.Fprintf(os.Stderr, "logger.Sync() error: %v\n", err)
+		}
 	}()
 
 	cfg, err := config.LoadConfig()
