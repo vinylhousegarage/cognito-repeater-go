@@ -23,8 +23,8 @@ func GetJWKSURI(metadataURL string, client httpclient.HTTPClient) (string, error
 		return "", fmt.Errorf("failed to fetch metadata: %w", err)
 	}
 	defer func() {
-		if err := resp.Body.Close(); err != nil {
-			fmt.Printf("failed to close response body: %v\n", err)
+		if cerr := resp.Body.Close(); cerr != nil {
+			_ = cerr
 		}
 	}()
 
@@ -68,8 +68,8 @@ func FetchJWKSet(jwksURL string, client httpclient.HTTPClient) (*JWKSet, error) 
 		return nil, fmt.Errorf("failed to fetch jwks: %w", err)
 	}
 	defer func() {
-		if err := resp.Body.Close(); err != nil {
-			fmt.Printf("failed to close response body: %v\n", err)
+		if cerr := resp.Body.Close(); cerr != nil {
+			_ = cerr
 		}
 	}()
 
