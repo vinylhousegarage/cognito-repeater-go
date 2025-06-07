@@ -8,6 +8,8 @@ import (
 	"cognito-repeater-go/test/testhelpers"
 
 	"github.com/stretchr/testify/assert"
+
+	"go.uber.org/zap"
 )
 
 type MockLogoutConfig struct{}
@@ -29,7 +31,9 @@ func TestNewLogoutHandlerRedirectsToLogoutEndpoint(t *testing.T) {
 	req := httptest.NewRequest(http.MethodGet, "/logout", nil)
 	w := httptest.NewRecorder()
 
-	handler := NewLogoutHandler(&MockLogoutConfig{}, mockClient)
+	mockLogger := zap.NewNop()
+
+	handler := NewLogoutHandler(&MockLogoutConfig{}, mockClient, mockLogger)
 
 	handler.ServeHTTP(w, req)
 
