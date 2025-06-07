@@ -57,7 +57,7 @@ func main() {
 		WhoamiProvider:   cfg,
 	}
 
-	srv := server.NewServer(routeDeps, http.DefaultClient)
+	srv := server.NewServer(routeDeps, http.DefaultClient, logger)
 
 	logger.Info("server is starting", zap.String("address", srv.Addr))
 
