@@ -22,14 +22,8 @@ func TestValidateCallbackRequestValidInput(t *testing.T) {
 
 	code, err := ValidateCallbackRequest(req)
 
-	if err != nil {
-		t.Fatalf("expected no error, got %v", err)
-	}
-
-	expectedCode := "abc123"
-	if code != expectedCode {
-		t.Errorf("expected code %q, got %q", expectedCode, code)
-	}
+	assert.NoError(t, err)
+	assert.Equal(t, "abc123", code)
 }
 
 func TestValidateCallbackRequestMissingCode(t *testing.T) {
@@ -50,9 +44,8 @@ func TestValidateCallbackRequestMissingState(t *testing.T) {
 	req.AddCookie(&http.Cookie{Name: "oauth_state", Value: "xyz"})
 
 	_, err := ValidateCallbackRequest(req)
-	if err == nil || err.Error() != "missing state" {
-		t.Errorf("expected error 'missing state', got %v", err)
-	}
+
+	assert.EqualError(t, err, "missing state")
 }
 
 func TestValidateCallbackRequestMissingCookie(t *testing.T) {
@@ -61,9 +54,8 @@ func TestValidateCallbackRequestMissingCookie(t *testing.T) {
 	req := httptest.NewRequest(http.MethodGet, "/callback?code=abc&state=xyz", nil)
 
 	_, err := ValidateCallbackRequest(req)
-	if err == nil || err.Error() != "missing oauth_state cookie" {
-		t.Errorf("expected error 'missing oauth_state cookie', got %v", err)
-	}
+
+	assert.EqualError(t, err, "missing oauth_state cookie")
 }
 
 func TestValidateCallbackRequestStateMismatch(t *testing.T) {
@@ -73,9 +65,8 @@ func TestValidateCallbackRequestStateMismatch(t *testing.T) {
 	req.AddCookie(&http.Cookie{Name: "oauth_state", Value: "wrong"})
 
 	_, err := ValidateCallbackRequest(req)
-	if err == nil || err.Error() != "invalid state" {
-		t.Errorf("expected error 'invalid state', got %v", err)
-	}
+
+	assert.EqualError(t, err, "invalid state")
 }
 
 func TestGetCallbackURLReturnsExpectedEndpoint(t *testing.T) {
@@ -107,7 +98,7 @@ func TestGetCallbackURLStatusCode500(t *testing.T) {
 
 	_, err := GetCallbackURL(ts.URL, http.DefaultClient, mockLogger)
 
-	assert.Error(t, err, "unexpected status code")
+	assert.EqualError(t, err, "unexpected status code: 500")
 }
 
 func TestGetCallbackURLMalformedJSON(t *testing.T) {
