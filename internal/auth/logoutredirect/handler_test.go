@@ -9,6 +9,8 @@ import (
 	"testing"
 
 	"github.com/stretchr/testify/assert"
+
+	"go.uber.org/zap"
 )
 
 func TestMetadataHandler_ReturnsExpectedStatusAndJSONBody(t *testing.T) {
