@@ -73,6 +73,7 @@ func TestNewCallbackHandlerSuccess(t *testing.T) {
 	}()
 
 	assert.Equal(t, http.StatusOK, resp.StatusCode)
+	assert.Equal(t, "application/json", resp.Header.Get("Content-Type"))
 
 	var result TokenResponse
 	err = json.NewDecoder(resp.Body).Decode(&result)
