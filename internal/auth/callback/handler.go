@@ -2,6 +2,7 @@ package callback
 
 import (
 	"encoding/json"
+	"io"
 	"net/http"
 	"strings"
 
@@ -33,7 +34,7 @@ func NewCallbackHandler(
 		}
 
 		metadataURL := p.MetadataURL()
-		tokenEndpoint, err := GetCallbackURL(metadataURL, c)
+		tokenEndpoint, err := GetCallbackURL(metadataURL, c, logger)
 		if err != nil {
 			logger.Error("failed to get token endpoint", zap.String("metadataURL", metadataURL), zap.Error(err))
 			http.Error(w, "failed to get token endpoint", http.StatusInternalServerError)
@@ -57,13 +58,17 @@ func NewCallbackHandler(
 			return
 		}
 		defer func() {
-			if err := resp.Body.Close(); err != nil {
-				logger.Warn("failed to close response body", zap.Error(err))
+			if cerr := resp.Body.Close(); cerr != nil {
+				logger.Warn("failed to close response body", zap.Error(cerr))
 			}
 		}()
 
 		if resp.StatusCode != http.StatusOK {
-			logger.Warn("token endpoint returned non-200", zap.Int("status", resp.StatusCode))
+			body, _ := io.ReadAll(resp.Body)
+			logger.Warn("token endpoint returned non-200",
+				zap.Int("status", resp.StatusCode),
+				zap.ByteString("body", body),
+			)
 			http.Error(w, "token endpoint returned error", http.StatusBadGateway)
 			return
 		}
@@ -76,10 +81,16 @@ func NewCallbackHandler(
 		}
 
 		w.Header().Set("Content-Type", "application/json")
-		w.WriteHeader(http.StatusOK)
+
+		logger.Info("token successfully issued",
+			zap.String("client_id", p.UserPoolClientIDValue()),
+			zap.String("token_type", tokenResp.TokenType),
+		)
+
 		if err := json.NewEncoder(w).Encode(tokenResp); err != nil {
 			logger.Error("failed to write token response", zap.Error(err))
 			http.Error(w, "failed to encode token response", http.StatusInternalServerError)
+			return
 		}
 	}
 }
