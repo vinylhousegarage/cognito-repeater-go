@@ -13,6 +13,8 @@ import (
 
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
+
+	"go.uber.org/zap"
 )
 
 const (
@@ -24,7 +26,7 @@ const (
 func TestNewRevokeHandler_Success(t *testing.T) {
 	t.Parallel()
 
-	client := &testhelpers.MockHTTPClient{
+	mockClient := &testhelpers.MockHTTPClient{
 		DoFunc: func(req *http.Request) (*http.Response, error) {
 			url := req.URL.String()
 			switch {
@@ -52,7 +54,9 @@ func TestNewRevokeHandler_Success(t *testing.T) {
 		mockClientID,
 	)
 
-	handler := NewRevokeHandler(mockProvider, client)
+	mockLogger := zap.NewNop()
+
+	handler := NewRevokeHandler(mockProvider, mockClient, mockLogger)
 	handler(w, req)
 
 	assert.Equal(t, http.StatusNoContent, w.Code)
@@ -61,7 +65,7 @@ func TestNewRevokeHandler_Success(t *testing.T) {
 func TestNewRevokeHandler_MissingToken(t *testing.T) {
 	t.Parallel()
 
-	client := testhelpers.NewMockHTTPClientPanic()
+	mockClient := testhelpers.NewMockHTTPClientPanic()
 	req := httptest.NewRequest(http.MethodPost, "/revoke", nil)
 	w := httptest.NewRecorder()
 
@@ -71,7 +75,9 @@ func TestNewRevokeHandler_MissingToken(t *testing.T) {
 		mockClientID,
 	)
 
-	handler := NewRevokeHandler(mockProvider, client)
+	mockLogger := zap.NewNop()
+
+	handler := NewRevokeHandler(mockProvider, mockClient, mockLogger)
 	handler(w, req)
 
 	assert.Equal(t, http.StatusBadRequest, w.Code)
@@ -81,7 +87,7 @@ func TestNewRevokeHandler_MissingToken(t *testing.T) {
 func TestNewRevokeHandler_InvalidRevokeEndpointResponse(t *testing.T) {
 	t.Parallel()
 
-	client := &testhelpers.MockHTTPClient{
+	mockClient := &testhelpers.MockHTTPClient{
 		DoFunc: func(req *http.Request) (*http.Response, error) {
 			body := io.NopCloser(strings.NewReader("invalid-json"))
 			return &http.Response{StatusCode: http.StatusOK, Body: body}, nil
@@ -99,7 +105,9 @@ func TestNewRevokeHandler_InvalidRevokeEndpointResponse(t *testing.T) {
 		mockClientID,
 	)
 
-	handler := NewRevokeHandler(mockProvider, client)
+	mockLogger := zap.NewNop()
+
+	handler := NewRevokeHandler(mockProvider, mockClient, mockLogger)
 	handler(w, req)
 
 	assert.Equal(t, http.StatusInternalServerError, w.Code)
@@ -113,7 +121,7 @@ func TestNewRevokeHandler_InvalidRevokeEndpointResponse(t *testing.T) {
 func TestNewRevokeHandler_ServerErrorDuringRevoke(t *testing.T) {
 	t.Parallel()
 
-	client := &testhelpers.MockHTTPClient{
+	mockClient := &testhelpers.MockHTTPClient{
 		DoFunc: func(req *http.Request) (*http.Response, error) {
 			url := req.URL.String()
 			if strings.Contains(url, "/.well-known/openid-configuration") {
@@ -135,7 +143,9 @@ func TestNewRevokeHandler_ServerErrorDuringRevoke(t *testing.T) {
 		mockClientID,
 	)
 
-	handler := NewRevokeHandler(mockProvider, client)
+	mockLogger := zap.NewNop()
+
+	handler := NewRevokeHandler(mockProvider, mockClient, mockLogger)
 	handler(w, req)
 
 	assert.Equal(t, http.StatusBadGateway, w.Code)
