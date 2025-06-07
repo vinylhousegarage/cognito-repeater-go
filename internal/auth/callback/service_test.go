@@ -39,9 +39,8 @@ func TestValidateCallbackRequestMissingCode(t *testing.T) {
 	req.AddCookie(&http.Cookie{Name: "oauth_state", Value: "xyz"})
 
 	_, err := ValidateCallbackRequest(req)
-	if err == nil || err.Error() != "missing code" {
-		t.Errorf("expected error 'missing code', got %v", err)
-	}
+
+	assert.EqualError(t, err, "missing code")
 }
 
 func TestValidateCallbackRequestMissingState(t *testing.T) {
