@@ -27,7 +27,7 @@ func GetRevokeURL(metadataURL string, client httpclient.HTTPClient) (string, err
 	}
 	defer func() {
 		if cerr := resp.Body.Close(); cerr != nil {
-			fmt.Printf("failed to close response body: %v\n", cerr)
+			_ = cerr
 		}
 	}()
 
@@ -81,12 +81,11 @@ func SendRevokeRequest(
 	}
 	defer func() {
 		if cerr := resp.Body.Close(); cerr != nil {
-			fmt.Printf("failed to close response body: %v\n", cerr)
+			_ = cerr
 		}
 	}()
 
 	if resp.StatusCode != http.StatusOK {
-		fmt.Printf("revocation failed: status=%s, body=%s\n", resp.Status, string(body))
 		return resp, nil
 	}
 
