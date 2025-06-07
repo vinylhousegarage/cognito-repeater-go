@@ -6,6 +6,8 @@ import (
 	"testing"
 
 	"github.com/stretchr/testify/assert"
+
+	"go.uber.org/zap"
 )
 
 func TestValidateCallbackRequestValidInput(t *testing.T) {
@@ -86,7 +88,9 @@ func TestGetCallbackURLReturnsExpectedEndpoint(t *testing.T) {
 	}))
 	defer ts.Close()
 
-	endpoint, err := GetCallbackURL(ts.URL, http.DefaultClient)
+	mockLogger := zap.NewNop()
+
+	endpoint, err := GetCallbackURL(ts.URL, http.DefaultClient, mockLogger)
 
 	assert.NoError(t, err, "failed to fetch token endpoint")
 	assert.Equal(t, "https://example.com/oauth2/token", endpoint)
@@ -100,7 +104,9 @@ func TestGetCallbackURLStatusCode500(t *testing.T) {
 	}))
 	defer ts.Close()
 
-	_, err := GetCallbackURL(ts.URL, http.DefaultClient)
+	mockLogger := zap.NewNop()
+
+	_, err := GetCallbackURL(ts.URL, http.DefaultClient, mockLogger)
 
 	assert.Error(t, err, "unexpected status code")
 }
@@ -114,7 +120,9 @@ func TestGetCallbackURLMalformedJSON(t *testing.T) {
 	}))
 	defer ts.Close()
 
-	_, err := GetCallbackURL(ts.URL, http.DefaultClient)
+	mockLogger := zap.NewNop()
+
+	_, err := GetCallbackURL(ts.URL, http.DefaultClient, mockLogger)
 
 	assert.Error(t, err, "expected JSON decode error")
 }
@@ -128,7 +136,9 @@ func TestGetCallbackURLMissingTokenEndpoint(t *testing.T) {
 	}))
 	defer ts.Close()
 
-	_, err := GetCallbackURL(ts.URL, http.DefaultClient)
+	mockLogger := zap.NewNop()
+
+	_, err := GetCallbackURL(ts.URL, http.DefaultClient, mockLogger)
 
 	assert.Error(t, err, "expected missing token_endpoint error")
 }
