@@ -3,7 +3,6 @@ package revoke
 import (
 	"encoding/json"
 	"fmt"
-	"log"
 	"net/http"
 	"strings"
 
@@ -11,6 +10,8 @@ import (
 	"cognito-repeater-go/internal/auth/utils"
 	"cognito-repeater-go/internal/httpclient"
 	"cognito-repeater-go/internal/response"
+
+	"go.uber.org/zap"
 )
 
 // @Summary Revoke refresh token
@@ -28,16 +29,22 @@ import (
 // @Failure 502 {object} response.ErrorResponse "Bad Gateway"
 // @Failure 500 {object} response.ErrorResponse "Internal Server Error"
 // @Router /revoke [post]
-func NewRevokeHandler(p deps.RevokeHandlerProvider, cli httpclient.HTTPClient) http.HandlerFunc {
+func NewRevokeHandler(
+	p deps.RevokeHandlerProvider,
+	cli httpclient.HTTPClient,
+	logger *zap.Logger,
+	) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		refreshToken, err := utils.ExtractFormValue(r)
 		if err != nil {
+			logger.Warn("failed to extract token from form", zap.Error(err))
 			response.WriteJSONError(w, http.StatusBadRequest, err.Error(), logger)
 			return
 		}
 
 		revokeURL, err := GetRevokeURL(p.MetadataURL(), cli)
 		if err != nil {
+			logger.Error("failed to get revoke URL", zap.String("metadata_url", p.MetadataURL()), zap.Error(err))
 			response.WriteJSONError(w, http.StatusInternalServerError, "failed to resolve revocation endpoint", logger)
 			return
 		}
@@ -50,12 +57,13 @@ func NewRevokeHandler(p deps.RevokeHandlerProvider, cli httpclient.HTTPClient) h
 
 		resp, err := SendRevokeRequest(revokeURL, cli, refreshToken, clientID, clientSecret)
 		if err != nil {
-			response.WriteJSONError(w, http.StatusInternalServerError, "failed to get userinfo endpoint", logger)
+			logger.Error("failed to revoke token", zap.String("revoke_url", revokeURL), zap.Error(err))
+			response.WriteJSONError(w, http.StatusInternalServerError, "failed to revoke token", logger)
 			return
 		}
 		defer func() {
 			if err := resp.Body.Close(); err != nil {
-				log.Printf("failed to close response body: %v", err)
+				logger.Warn("failed to close response body", zap.Error(err))
 			}
 		}()
 
@@ -64,7 +72,7 @@ func NewRevokeHandler(p deps.RevokeHandlerProvider, cli httpclient.HTTPClient) h
 			return
 		}
 
-		log.Printf("revocation succeeded with status: %s", resp.Status)
+		logger.Info("revocation succeeded", zap.String("status", resp.Status))
 		w.WriteHeader(http.StatusNoContent)
 	}
 }
