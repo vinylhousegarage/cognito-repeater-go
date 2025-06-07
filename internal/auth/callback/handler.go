@@ -22,8 +22,8 @@ type TokenResponse struct {
 func NewCallbackHandler(
 	p deps.CallbackHandlerProvider,
 	c httpclient.HTTPClient,
-	logger *zap.Logger
-	) http.HandlerFunc {
+	logger *zap.Logger,
+) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		code, err := ValidateCallbackRequest(r)
 		if err != nil {
