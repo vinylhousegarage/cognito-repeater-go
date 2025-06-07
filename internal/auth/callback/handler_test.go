@@ -2,7 +2,6 @@ package callback
 
 import (
 	"encoding/json"
-	"fmt"
 	"net/http"
 	"net/http/httptest"
 	"testing"
@@ -76,7 +75,7 @@ func TestNewCallbackHandlerSuccess(t *testing.T) {
 	assert.Equal(t, http.StatusOK, resp.StatusCode)
 
 	var result TokenResponse
-	err := json.NewDecoder(resp.Body).Decode(&result)
+	err = json.NewDecoder(resp.Body).Decode(&result)
 	assert.NoError(t, err)
 
 	assert.Equal(t, "ACCESS123", result.AccessToken)
