@@ -48,8 +48,8 @@ func GetCallbackURL(metadataURL string, client httpclient.HTTPClient) (string, e
 		return "", fmt.Errorf("failed to fetch metadata: %w", err)
 	}
 	defer func() {
-		if err := resp.Body.Close(); err != nil {
-			fmt.Printf("failed to close response body: %v\n", err)
+		if cerr := resp.Body.Close(); cerr != nil {
+			_ = cerr
 		}
 	}()
 
