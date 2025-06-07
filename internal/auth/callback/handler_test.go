@@ -11,6 +11,9 @@ import (
 	"cognito-repeater-go/test/testhelpers"
 
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
+
+	"go.uber.org/zap"
 )
 
 func TestNewCallbackHandlerSuccess(t *testing.T) {
@@ -23,7 +26,8 @@ func TestNewCallbackHandlerSuccess(t *testing.T) {
 		ExpiresIn:    3600,
 		TokenType:    "Bearer",
 	}
-	tokenBody, _ := json.Marshal(mockTokenResp)
+	tokenBody, err := json.Marshal(mockTokenResp)
+	require.NoError(t, err)
 
 	mockClient := &testhelpers.MockHTTPClient{
 		DoFunc: func(req *http.Request) (*http.Response, error) {
@@ -52,7 +56,9 @@ func TestNewCallbackHandlerSuccess(t *testing.T) {
 		UserPoolID:       "pool-id",
 	}
 
-	handler := NewCallbackHandler(cfg, mockClient)
+	mockLogger := zap.NewNop()
+
+	handler := NewCallbackHandler(cfg, mockClient, mockLogger)
 
 	req := httptest.NewRequest(http.MethodGet, "/callback?code=testcode&state=xyz", nil)
 	req.AddCookie(&http.Cookie{Name: "oauth_state", Value: "xyz"})
@@ -62,8 +68,8 @@ func TestNewCallbackHandlerSuccess(t *testing.T) {
 
 	resp := w.Result()
 	defer func() {
-		if err := resp.Body.Close(); err != nil {
-			fmt.Printf("failed to close response body: %v\n", err)
+		if cerr := resp.Body.Close(); cerr != nil {
+			_ = cerr
 		}
 	}()
 
