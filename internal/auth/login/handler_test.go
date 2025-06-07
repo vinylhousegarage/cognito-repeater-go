@@ -12,6 +12,8 @@ import (
 	"cognito-repeater-go/test/testhelpers"
 
 	"github.com/stretchr/testify/assert"
+
+	"go.uber.org/zap"
 )
 
 func NewMockHTTPClientOKWithAuthEndpoint() httpclient.HTTPClient {
@@ -30,13 +32,14 @@ func NewMockHTTPClientOKWithAuthEndpoint() httpclient.HTTPClient {
 func TestNewLoginHandler_RedirectsToLoginEndpoint(t *testing.T) {
 	t.Parallel()
 
-	provider := &testhelpers.MockCfg
-	client := NewMockHTTPClientOKWithAuthEndpoint()
+	mockProvider := &testhelpers.MockCfg
+	mockClient := NewMockHTTPClientOKWithAuthEndpoint()
+	mockLogger := zap.NewNop()
 
 	req := httptest.NewRequest(http.MethodGet, "/login", nil)
 	w := httptest.NewRecorder()
 
-	NewLoginHandler(provider, client)(w, req)
+	NewLoginHandler(mockProvider, mockClient, mockLogger)(w, req)
 
 	resp := w.Result()
 	assert.Equal(t, http.StatusFound, resp.StatusCode)
@@ -54,13 +57,14 @@ func TestNewLoginHandler_RedirectsToLoginEndpoint(t *testing.T) {
 func TestNewLoginHandlerSetsStateCookie(t *testing.T) {
 	t.Parallel()
 
-	provider := &testhelpers.MockCfg
-	client := NewMockHTTPClientOKWithAuthEndpoint()
+	mockProvider := &testhelpers.MockCfg
+	mockClient := NewMockHTTPClientOKWithAuthEndpoint()
+	mockLogger := zap.NewNop()
 
 	req := httptest.NewRequest(http.MethodGet, "/login", nil)
 	w := httptest.NewRecorder()
 
-	NewLoginHandler(provider, client)(w, req)
+	NewLoginHandler(mockProvider, mockClient, mockLogger)(w, req)
 
 	resp := w.Result()
 
