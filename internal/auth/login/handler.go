@@ -19,7 +19,7 @@ import (
 // @Router /login [get]
 func NewLoginHandler(
 	p deps.LoginHandlerProvider,
-	c httpclient.HTTPClient
+	c httpclient.HTTPClient,
 	logger *zap.Logger,
 	) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
