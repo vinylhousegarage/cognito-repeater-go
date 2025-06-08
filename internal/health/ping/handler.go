@@ -2,7 +2,6 @@ package ping
 
 import (
 	"encoding/json"
-	"log"
 	"net/http"
 
 	"go.uber.org/zap"
