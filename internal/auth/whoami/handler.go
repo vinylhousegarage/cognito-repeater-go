@@ -8,6 +8,8 @@ import (
 	"cognito-repeater-go/internal/auth/deps"
 	"cognito-repeater-go/internal/httpclient"
 	"cognito-repeater-go/internal/response"
+
+	"go.uber.org/zap"
 )
 
 func writeJSONError(w http.ResponseWriter, status int, msg string) {
@@ -33,8 +35,14 @@ func writeJSONError(w http.ResponseWriter, status int, msg string) {
 // @Failure 401 {object} response.ErrorResponse "Unauthorized"
 // @Failure 500 {object} response.ErrorResponse "Internal Server Error"
 // @Router /whoami [get]
-func NewWhoamiHandler(p deps.WhoamiHandlerProvider, cli httpclient.HTTPClient) http.HandlerFunc {
+func NewWhoamiHandler(
+	p deps.WhoamiHandlerProvider,
+	cli httpclient.HTTPClient,
+	logger *zap.Logger,
+	) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
+		_ = logger
+
 		accessToken, err := ExtractAuthHeaderToken(r)
 		if err != nil {
 			writeJSONError(w, http.StatusUnauthorized, err.Error())
