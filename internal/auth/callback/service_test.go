@@ -1,6 +1,7 @@
 package callback
 
 import (
+	"errors"
 	"net/http"
 	"net/http/httptest"
 	"testing"
@@ -34,7 +35,7 @@ func TestValidateCallbackRequestMissingCode(t *testing.T) {
 
 	_, err := ValidateCallbackRequest(req)
 
-	assert.EqualError(t, err, "missing code")
+	assert.ErrorIs(t, err, ErrMissingCode)
 }
 
 func TestValidateCallbackRequestMissingState(t *testing.T) {
@@ -45,7 +46,7 @@ func TestValidateCallbackRequestMissingState(t *testing.T) {
 
 	_, err := ValidateCallbackRequest(req)
 
-	assert.EqualError(t, err, "missing state")
+	assert.ErrorIs(t, err, ErrMissingState)
 }
 
 func TestValidateCallbackRequestMissingCookie(t *testing.T) {
@@ -55,7 +56,7 @@ func TestValidateCallbackRequestMissingCookie(t *testing.T) {
 
 	_, err := ValidateCallbackRequest(req)
 
-	assert.EqualError(t, err, "missing oauth_state cookie")
+	assert.ErrorIs(t, err, ErrMissingStateCookie)
 }
 
 func TestValidateCallbackRequestStateMismatch(t *testing.T) {
@@ -66,7 +67,7 @@ func TestValidateCallbackRequestStateMismatch(t *testing.T) {
 
 	_, err := ValidateCallbackRequest(req)
 
-	assert.EqualError(t, err, "invalid state")
+	assert.ErrorIs(t, err, ErrInvalidState)
 }
 
 func TestGetCallbackURLReturnsExpectedEndpoint(t *testing.T) {
@@ -98,7 +99,7 @@ func TestGetCallbackURLStatusCode500(t *testing.T) {
 
 	_, err := GetCallbackURL(ts.URL, http.DefaultClient, mockLogger)
 
-	assert.EqualError(t, err, "unexpected status code: 500")
+	assert.ErrorIs(t, err, ErrUnexpectedStatusCode)
 }
 
 func TestGetCallbackURLMalformedJSON(t *testing.T) {
@@ -114,7 +115,7 @@ func TestGetCallbackURLMalformedJSON(t *testing.T) {
 
 	_, err := GetCallbackURL(ts.URL, http.DefaultClient, mockLogger)
 
-	assert.Error(t, err, "expected JSON decode error")
+	assert.ErrorIs(t, err, ErrFailedToDecodeMetadata)
 }
 
 func TestGetCallbackURLMissingTokenEndpoint(t *testing.T) {
@@ -130,5 +131,5 @@ func TestGetCallbackURLMissingTokenEndpoint(t *testing.T) {
 
 	_, err := GetCallbackURL(ts.URL, http.DefaultClient, mockLogger)
 
-	assert.Error(t, err, "expected missing token_endpoint error")
+	assert.ErrorIs(t, err, ErrInvalidMetadataNoEndpoint)
 }
