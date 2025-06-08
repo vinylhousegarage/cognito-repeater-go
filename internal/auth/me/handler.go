@@ -33,28 +33,28 @@ func NewMeHandler(
 	logger *zap.Logger,
 	) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		tokenStr, err := utils.ExtractFormValue(r)
+		idToken, err := utils.ExtractFormValue(r)
 		if err != nil {
 			logger.Warn("failed to extract token from form", zap.Error(err))
 			response.WriteJSONError(w, http.StatusBadRequest, "missing or malformed access token", logger)
 			return
 		}
 
-		jwksURL, err := GetJWKSURI(p.MetadataURL(), c)
+		jwksURL, err := GetJWKSURI(p.MetadataURL(), c, logger)
 		if err != nil {
 			logger.Error("failed to fetch JWKS URI", zap.String("metadata_url", p.MetadataURL()), zap.Error(err))
 			response.WriteJSONError(w, http.StatusInternalServerError, "internal server error", logger)
 			return
 		}
 
-		jwkSet, err := FetchJWKSet(jwksURL, c)
+		jwkSet, err := FetchJWKSet(jwksURL, c, logger)
 		if err != nil {
 			logger.Error("failed to fetch JWKS", zap.String("metadata_url", jwksURL), zap.Error(err))
 			response.WriteJSONError(w, http.StatusInternalServerError, "internal server error", logger)
 			return
 		}
 
-		kid, err := ExtractKIDFromToken(tokenStr)
+		kid, err := ExtractKIDFromToken(idToken)
 		if err != nil {
 			logger.Warn("failed to extract kid from token", zap.Error(err))
 			response.WriteJSONError(w, http.StatusBadRequest, "invalid token format", logger)
@@ -75,7 +75,7 @@ func NewMeHandler(
 			return
 		}
 
-		claims, err := ParseAndVerifyJWT(tokenStr, pubKey, p.Issuer(), p.Audience())
+		claims, err := ParseAndVerifyJWT(idToken, pubKey, p.Issuer(), p.Audience())
 		if err != nil {
 			logger.Warn("JWT signature or claims validation failed", zap.Error(err))
 			response.WriteJSONError(w, http.StatusUnauthorized, "invalid token", logger)
@@ -88,6 +88,9 @@ func NewMeHandler(
 		w.Header().Set("Content-Type", "application/json")
 		if err := json.NewEncoder(w).Encode(resp); err != nil {
 			logger.Error("failed to write user response", zap.Error(err))
+			http.Error(w, "failed to write response", http.StatusInternalServerError)
 		}
+
+		logger.Info("user token verified successfully", zap.String("sub", claims.Subject))
 	}
 }
