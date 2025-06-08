@@ -128,7 +128,7 @@ func TestNewRevokeHandler_ServerErrorDuringRevoke(t *testing.T) {
 				body := io.NopCloser(strings.NewReader(`{"revocation_endpoint":"https://mock-revoke-url"}`))
 				return &http.Response{StatusCode: http.StatusOK, Body: body}, nil
 			}
-			return &http.Response{StatusCode: http.StatusBadGateway, Status: "502 Bad Gateway", Body: io.NopCloser(strings.NewReader(""))}, nil
+			return &http.Response{StatusCode: http.StatusBadGateway, Status: "502 Bad Gateway", Body: io.NopCloser(strings.NewReader("revocation failed"))}, nil
 		},
 	}
 
