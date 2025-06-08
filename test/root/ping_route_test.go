@@ -12,6 +12,8 @@ import (
 	"cognito-repeater-go/test/testhelpers"
 
 	"github.com/stretchr/testify/assert"
+
+	"go.uber.org/zap"
 )
 
 func TestPingRouteReturnsPlainTextPong(t *testing.T) {
@@ -19,8 +21,9 @@ func TestPingRouteReturnsPlainTextPong(t *testing.T) {
 
 	deps := testhelpers.NewMockRouteDependencies()
 	cli := testhelpers.NewMockHTTPClientOK()
+	mockLogger := zap.NewNop()
 
-	r := router.NewRouter(deps, cli)
+	r := router.NewRouter(deps, cli, mockLogger)
 
 	req := httptest.NewRequest(http.MethodGet, "/ping", nil)
 	w := httptest.NewRecorder()
