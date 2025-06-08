@@ -2,6 +2,8 @@ package root
 
 import (
 	"net/http"
+
+	"go.uber.org/zap"
 )
 
 // @Summary Redirect to login
@@ -12,6 +14,9 @@ import (
 // @Produce plain
 // @Success 302 {string} string "Found"
 // @Router / [get]
-func NewRootHandler(w http.ResponseWriter, r *http.Request) {
-	http.Redirect(w, r, "/login", http.StatusFound)
+func NewRootHandler(logger *zap.Logger) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		logger.Info("redirecting to /login", zap.String("path", r.URL.Path))
+		http.Redirect(w, r, "/login", http.StatusFound)
+	}
 }
