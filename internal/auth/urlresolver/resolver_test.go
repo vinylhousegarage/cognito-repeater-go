@@ -73,3 +73,21 @@ func TestFetchMetadata_BadJSON(t *testing.T) {
 
 	assert.ErrorContains(t, err, "failed to decode metadata")
 }
+
+func TestFetchMetadata_UnexpectedStatusCode(t *testing.T) {
+	t.Parallel()
+
+	mockClient := &testhelpers.MockHTTPClient{
+		DoFunc: func(req *http.Request) (*http.Response, error) {
+			return &http.Response{
+				StatusCode: http.StatusInternalServerError,
+				Body:       io.NopCloser(strings.NewReader(`{}`)),
+			}, nil
+		},
+	}
+
+	mockLogger := zaptest.NewLogger(t)
+	_, err := FetchMetadata("https://mock-url.com", mockClient, mockLogger)
+
+	assert.ErrorContains(t, err, "unexpected status code")
+}
