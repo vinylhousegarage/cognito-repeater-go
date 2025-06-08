@@ -17,6 +17,8 @@ import (
 
 	"github.com/golang-jwt/jwt/v5"
 	"github.com/stretchr/testify/assert"
+
+	"go.uber.org/zap"
 )
 
 type JWK struct {
@@ -107,7 +109,9 @@ func TestNewMeHandler_Integration_Success(t *testing.T) {
 		},
 	}
 
-	router := router.NewRouter(testhelpers.NewMockRouteDependencies(), client)
+	mockLogger := zap.NewNop()
+
+	router := router.NewRouter(testhelpers.NewMockRouteDependencies(), client, mockLogger)
 
 	formBody := "token=" + token
 	req := httptest.NewRequest(http.MethodPost, "/me", strings.NewReader(formBody))
