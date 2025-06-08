@@ -3,6 +3,7 @@ package me
 import (
 	"encoding/json"
 	"fmt"
+	"io"
 	"net/http"
 
 	"cognito-repeater-go/internal/httpclient"
@@ -33,7 +34,15 @@ func GetJWKSURI(metadataURL string, client httpclient.HTTPClient, logger *zap.Lo
 	}()
 
 	if resp.StatusCode != http.StatusOK {
-		logger.Error("metadata endpoint returned non-200", zap.Int("status", resp.StatusCode))
+		body, readErr := io.ReadAll(resp.Body)
+		if readErr != nil {
+			logger.Warn("failed to read metadata response body", zap.Error(readErr))
+		} else {
+			logger.Error("unexpected status code from metadata endpoint",
+				zap.Int("status", resp.StatusCode),
+				zap.ByteString("body", body),
+			)
+		}
 		return "", fmt.Errorf("unexpected status code: %d", resp.StatusCode)
 	}
 
