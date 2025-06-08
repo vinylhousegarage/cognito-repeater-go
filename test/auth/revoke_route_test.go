@@ -13,6 +13,8 @@ import (
 	"cognito-repeater-go/test/testhelpers"
 
 	"github.com/stretchr/testify/assert"
+
+	"go.uber.org/zap"
 )
 
 func TestRevokeRoute_Integration(t *testing.T) {
@@ -57,7 +59,9 @@ func TestRevokeRoute_Integration(t *testing.T) {
 		),
 	}
 
-	r := router.NewRouter(mockDeps, http.DefaultClient)
+	mockLogger := zap.NewNop()
+
+	r := router.NewRouter(mockDeps, http.DefaultClient, mockLogger)
 
 	form := url.Values{}
 	form.Set("token", "dummy-token")
