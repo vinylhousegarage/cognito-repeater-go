@@ -63,8 +63,16 @@ func GetCallbackURL(
 
 	if resp.StatusCode != http.StatusOK {
 		body, readErr := io.ReadAll(resp.Body)
+		fields := []zap.Field{
+			zap.Int("status_code", resp.StatusCode),
+			zap.String("url", req.URL.String()),
+		}
 		if readErr != nil {
-			logger.Warn("failed to read response body", zap.Error(readErr))
+			fields = append(fields, zap.Error(readErr))
+			logger.Warn("failed to read response body", fields...)
+		} else {
+			fields = append(fields, zap.ByteString("body", body))
+			logger.Warn("metadata returned non-200 response", fields...)
 		}
 		return "", fmt.Errorf("%w: %d", ErrUnexpectedStatusCode, resp.StatusCode)
 	}
