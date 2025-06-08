@@ -2,7 +2,6 @@ package callback
 
 import (
 	"encoding/json"
-	"errors"
 	"fmt"
 	"io"
 	"net/http"
@@ -17,20 +16,20 @@ func ValidateCallbackRequest(r *http.Request) (string, error) {
 	state := r.URL.Query().Get("state")
 
 	if code == "" {
-		return "", errors.New("missing code")
+		return "", ErrMissingCode
 	}
 
 	if state == "" {
-		return "", errors.New("missing state")
+		return "", ErrMissingState
 	}
 
 	cookie, err := r.Cookie("oauth_state")
 	if err != nil {
-		return "", errors.New("missing oauth_state cookie")
+		return "", ErrMissingStateCookie
 	}
 
 	if state != cookie.Value {
-		return "", errors.New("invalid state")
+		return "", ErrInvalidState
 	}
 
 	return code, nil
@@ -48,13 +47,13 @@ func GetCallbackURL(
 	req, err := http.NewRequest("GET", metadataURL, nil)
 	if err != nil {
 		logger.Error("failed to create request", zap.String("url", metadataURL), zap.Error(err))
-		return "", fmt.Errorf("failed to create request: %w", err)
+		return "", fmt.Errorf("%w: %v", ErrFailedToCreateRequest, err)
 	}
 
 	resp, err := client.Do(req)
 	if err != nil {
 		logger.Error("failed to fetch metadata", zap.String("url", metadataURL), zap.Error(err))
-		return "", fmt.Errorf("failed to fetch metadata: %w", err)
+		return "", fmt.Errorf("%w: %v", ErrFailedToFetchMetadata, err)
 	}
 	defer func() {
 		if cerr := resp.Body.Close(); cerr != nil {
@@ -63,23 +62,22 @@ func GetCallbackURL(
 	}()
 
 	if resp.StatusCode != http.StatusOK {
-		body, _ := io.ReadAll(resp.Body)
-		logger.Error("unexpected status code from metadata endpoint",
-			zap.Int("status", resp.StatusCode),
-			zap.ByteString("body", body),
-		)
-		return "", fmt.Errorf("unexpected status code: %d", resp.StatusCode)
+		body, readErr := io.ReadAll(resp.Body)
+		if readErr != nil {
+			logger.Warn("failed to read response body", zap.Error(readErr))
+		}
+		return "", fmt.Errorf("%w: %d", ErrUnexpectedStatusCode, resp.StatusCode)
 	}
 
 	var meta callbackMetadata
 	if err := json.NewDecoder(resp.Body).Decode(&meta); err != nil {
 		logger.Error("failed to decode metadata JSON", zap.Error(err))
-		return "", fmt.Errorf("failed to decode metadata: %w", err)
+		return "", fmt.Errorf("%w: %v", ErrFailedToDecodeMetadata, err)
 	}
 
 	if meta.TokenEndpoint == "" {
 		logger.Error("metadata response missing token_endpoint")
-		return "", fmt.Errorf("invalid metadata: token_endpoint is empty")
+		return "", ErrInvalidMetadataNoEndpoint
 	}
 
 	logger.Info("token_endpoint retrieved successfully", zap.String("token_endpoint", meta.TokenEndpoint))
