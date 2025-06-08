@@ -7,6 +7,8 @@ import (
 	"testing"
 
 	"github.com/stretchr/testify/assert"
+
+	"go.uber.org/zap"
 )
 
 func TestNewError404Handler_StatusAndBody(t *testing.T) {
@@ -15,7 +17,9 @@ func TestNewError404Handler_StatusAndBody(t *testing.T) {
 	req := httptest.NewRequest(http.MethodGet, "/error/404", nil)
 	w := httptest.NewRecorder()
 
-	NewError404Handler(w, req)
+	mockLogger := zap.NewNop()
+
+	NewError404Handler(mockLogger)(w, req)
 
 	resp := w.Result()
 	body, err := io.ReadAll(resp.Body)
