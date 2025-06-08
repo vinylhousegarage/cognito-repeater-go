@@ -12,18 +12,21 @@ import (
 	"cognito-repeater-go/internal/auth/revoke"
 	"cognito-repeater-go/internal/auth/whoami"
 	"cognito-repeater-go/internal/httpclient"
+
+	"go.uber.org/zap"
 )
 
 func RegisterAuthRoutes(
 	mux *http.ServeMux,
 	d deps.RouteDependencies,
 	cli httpclient.HTTPClient,
+	logger *zap.Logger,
 ) {
-	mux.HandleFunc("/callback", callback.NewCallbackHandler(d.CallbackProvider, cli))
-	mux.HandleFunc("/login", login.NewLoginHandler(d.LoginProvider, cli))
-	mux.HandleFunc("/logout", logout.NewLogoutHandler(d.LogoutProvider, cli))
-	mux.HandleFunc("/logout/redirect", logoutredirect.NewLogoutRedirectHandler)
-	mux.HandleFunc("/me", me.NewMeHandler(d.MeProvider, cli))
-	mux.HandleFunc("/revoke", revoke.NewRevokeHandler(d.RevokeProvider, cli))
-	mux.HandleFunc("/whoami", whoami.NewWhoamiHandler(d.WhoamiProvider, cli))
+	mux.HandleFunc("/callback", callback.NewCallbackHandler(d.CallbackProvider, cli, logger))
+	mux.HandleFunc("/login", login.NewLoginHandler(d.LoginProvider, cli, logger))
+	mux.HandleFunc("/logout", logout.NewLogoutHandler(d.LogoutProvider, cli, logger))
+	mux.HandleFunc("/logout/redirect", logoutredirect.NewLogoutRedirectHandler(logger))
+	mux.HandleFunc("/me", me.NewMeHandler(d.MeProvider, cli, logger))
+	mux.HandleFunc("/revoke", revoke.NewRevokeHandler(d.RevokeProvider, cli, logger))
+	mux.HandleFunc("/whoami", whoami.NewWhoamiHandler(d.WhoamiProvider, cli, logger))
 }

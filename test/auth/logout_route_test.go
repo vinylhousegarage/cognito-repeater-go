@@ -10,6 +10,8 @@ import (
 	"cognito-repeater-go/test/testhelpers"
 
 	"github.com/stretchr/testify/assert"
+
+	"go.uber.org/zap"
 )
 
 func TestLogoutRouteIsRegisteredInProductionRouter(t *testing.T) {
@@ -32,7 +34,9 @@ func TestLogoutRouteIsRegisteredInProductionRouter(t *testing.T) {
 		},
 	}
 
-	r := router.NewRouter(testhelpers.NewMockRouteDependencies(), mockClient)
+	mockLogger := zap.NewNop()
+
+	r := router.NewRouter(testhelpers.NewMockRouteDependencies(), mockClient, mockLogger)
 
 	req := httptest.NewRequest(http.MethodGet, "/logout", nil)
 	w := httptest.NewRecorder()

@@ -8,6 +8,8 @@ import (
 	"testing"
 
 	"github.com/stretchr/testify/assert"
+
+	"go.uber.org/zap"
 )
 
 func TestNewPingHandler_ReturnsPong(t *testing.T) {
@@ -16,7 +18,9 @@ func TestNewPingHandler_ReturnsPong(t *testing.T) {
 	req := httptest.NewRequest(http.MethodGet, "/ping", nil)
 	w := httptest.NewRecorder()
 
-	NewPingHandler(w, req)
+	mockLogger := zap.NewNop()
+
+	NewPingHandler(mockLogger)(w, req)
 
 	resp := w.Result()
 	body, err := io.ReadAll(resp.Body)

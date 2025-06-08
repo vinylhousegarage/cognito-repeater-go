@@ -2,8 +2,9 @@ package ping
 
 import (
 	"encoding/json"
-	"log"
 	"net/http"
+
+	"go.uber.org/zap"
 )
 
 // @Summary Health check endpoint
@@ -12,12 +13,14 @@ import (
 // @Produce json
 // @Success 200 {object} ping.PingResponse "pong message"
 // @Router /ping [get]
-func NewPingHandler(w http.ResponseWriter, r *http.Request) {
-	w.Header().Set("Content-Type", "application/json")
-	w.WriteHeader(http.StatusOK)
+func NewPingHandler(logger *zap.Logger) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(http.StatusOK)
 
-	resp := PingResponse{Message: "pong"}
-	if err := json.NewEncoder(w).Encode(resp); err != nil {
-		log.Printf("failed to write ping response: %v", err)
+		resp := PingResponse{Message: "pong"}
+		if err := json.NewEncoder(w).Encode(resp); err != nil {
+			logger.Error("failed to write ping response", zap.Error(err))
+		}
 	}
 }

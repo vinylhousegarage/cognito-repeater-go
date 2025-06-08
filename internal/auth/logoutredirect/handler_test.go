@@ -9,6 +9,8 @@ import (
 	"testing"
 
 	"github.com/stretchr/testify/assert"
+
+	"go.uber.org/zap"
 )
 
 func TestMetadataHandler_ReturnsExpectedStatusAndJSONBody(t *testing.T) {
@@ -17,7 +19,9 @@ func TestMetadataHandler_ReturnsExpectedStatusAndJSONBody(t *testing.T) {
 	req := httptest.NewRequest(http.MethodGet, "/logout/redirect", nil)
 	w := httptest.NewRecorder()
 
-	NewLogoutRedirectHandler(w, req)
+	mockLogger := zap.NewNop()
+
+	NewLogoutRedirectHandler(mockLogger)(w, req)
 
 	resp := w.Result()
 	defer func() {

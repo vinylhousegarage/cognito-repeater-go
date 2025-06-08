@@ -25,7 +25,7 @@ func GetUserinfoURL(metadataURL string, client httpclient.HTTPClient) (string, e
 	}
 	defer func() {
 		if cerr := resp.Body.Close(); cerr != nil {
-			fmt.Printf("failed to close response body: %v\n", cerr)
+			_ = cerr
 		}
 	}()
 
@@ -66,7 +66,7 @@ func FetchUserinfo(userinfoURL string, client httpclient.HTTPClient, token strin
 	}
 	defer func() {
 		if cerr := resp.Body.Close(); cerr != nil {
-			fmt.Printf("failed to close userinfo response body: %v\n", cerr)
+			_ = cerr
 		}
 	}()
 

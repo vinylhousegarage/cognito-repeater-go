@@ -11,6 +11,8 @@ import (
 	"cognito-repeater-go/test/testhelpers"
 
 	"github.com/stretchr/testify/assert"
+
+	"go.uber.org/zap"
 )
 
 func TestRouterLogoutRedirectRouteReturnsExpectedJSON(t *testing.T) {
@@ -18,8 +20,9 @@ func TestRouterLogoutRedirectRouteReturnsExpectedJSON(t *testing.T) {
 
 	provider := testhelpers.NewMockRouteDependencies()
 	client := testhelpers.NewMockHTTPClientOK()
+	mockLogger := zap.NewNop()
 
-	r := router.NewRouter(provider, client)
+	r := router.NewRouter(provider, client, mockLogger)
 
 	req := httptest.NewRequest(http.MethodGet, "/logout/redirect", nil)
 	w := httptest.NewRecorder()

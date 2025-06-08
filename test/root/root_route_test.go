@@ -9,13 +9,16 @@ import (
 	"cognito-repeater-go/test/testhelpers"
 
 	"github.com/stretchr/testify/assert"
+
+	"go.uber.org/zap"
 )
 
 func TestRootRouteRedirectsToLogin_Integration(t *testing.T) {
 	deps := testhelpers.NewMockRouteDependencies()
 	cli := testhelpers.NewMockHTTPClientOK()
+	mockLogger := zap.NewNop()
 
-	r := router.NewRouter(deps, cli)
+	r := router.NewRouter(deps, cli, mockLogger)
 
 	req := httptest.NewRequest(http.MethodGet, "/", nil)
 	w := httptest.NewRecorder()

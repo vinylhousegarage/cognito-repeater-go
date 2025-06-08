@@ -16,6 +16,8 @@ import (
 
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
+
+	"go.uber.org/zap"
 )
 
 func newTestDeps(doFunc func(*http.Request) (*http.Response, error)) (deps.WhoamiHandlerProvider, httpclient.HTTPClient) {
@@ -51,7 +53,9 @@ func TestNewWhoamiHandler_Success(t *testing.T) {
 	req.Header.Set("Authorization", "Bearer mocktoken")
 	w := httptest.NewRecorder()
 
-	handler := NewWhoamiHandler(cfg, cli)
+	mockLogger := zap.NewNop()
+
+	handler := NewWhoamiHandler(cfg, cli, mockLogger)
 	handler(w, req)
 
 	resp := w.Result()
@@ -73,7 +77,9 @@ func TestNewWhoamiHandler_MissingAuthorization(t *testing.T) {
 	req := httptest.NewRequest(http.MethodGet, "/whoami", nil)
 	w := httptest.NewRecorder()
 
-	handler := NewWhoamiHandler(cfg, cli)
+	mockLogger := zap.NewNop()
+
+	handler := NewWhoamiHandler(cfg, cli, mockLogger)
 	handler(w, req)
 
 	resp := w.Result()
@@ -95,7 +101,9 @@ func TestNewWhoamiHandler_MetadataFetchError(t *testing.T) {
 	req.Header.Set("Authorization", "Bearer token")
 	w := httptest.NewRecorder()
 
-	handler := NewWhoamiHandler(cfg, cli)
+	mockLogger := zap.NewNop()
+
+	handler := NewWhoamiHandler(cfg, cli, mockLogger)
 	handler(w, req)
 
 	resp := w.Result()
@@ -133,7 +141,9 @@ func TestNewWhoamiHandler_UserinfoFetchUnauthorized(t *testing.T) {
 	req.Header.Set("Authorization", "Bearer token")
 	w := httptest.NewRecorder()
 
-	handler := NewWhoamiHandler(cfg, cli)
+	mockLogger := zap.NewNop()
+
+	handler := NewWhoamiHandler(cfg, cli, mockLogger)
 	handler(w, req)
 
 	resp := w.Result()

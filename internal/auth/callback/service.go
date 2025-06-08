@@ -2,11 +2,13 @@ package callback
 
 import (
 	"encoding/json"
-	"errors"
 	"fmt"
+	"io"
 	"net/http"
 
 	"cognito-repeater-go/internal/httpclient"
+
+	"go.uber.org/zap"
 )
 
 func ValidateCallbackRequest(r *http.Request) (string, error) {
@@ -14,20 +16,20 @@ func ValidateCallbackRequest(r *http.Request) (string, error) {
 	state := r.URL.Query().Get("state")
 
 	if code == "" {
-		return "", errors.New("missing code")
+		return "", ErrMissingCode
 	}
 
 	if state == "" {
-		return "", errors.New("missing state")
+		return "", ErrMissingState
 	}
 
 	cookie, err := r.Cookie("oauth_state")
 	if err != nil {
-		return "", errors.New("missing oauth_state cookie")
+		return "", ErrMissingStateCookie
 	}
 
 	if state != cookie.Value {
-		return "", errors.New("invalid state")
+		return "", ErrInvalidState
 	}
 
 	return code, nil
@@ -37,34 +39,55 @@ type callbackMetadata struct {
 	TokenEndpoint string `json:"token_endpoint"`
 }
 
-func GetCallbackURL(metadataURL string, client httpclient.HTTPClient) (string, error) {
+func GetCallbackURL(
+	metadataURL string,
+	client httpclient.HTTPClient,
+	logger *zap.Logger,
+) (string, error) {
 	req, err := http.NewRequest("GET", metadataURL, nil)
 	if err != nil {
-		return "", fmt.Errorf("failed to create request: %w", err)
+		logger.Error("failed to create request", zap.String("url", metadataURL), zap.Error(err))
+		return "", fmt.Errorf("%w: %v", ErrFailedToCreateRequest, err)
 	}
 
 	resp, err := client.Do(req)
 	if err != nil {
-		return "", fmt.Errorf("failed to fetch metadata: %w", err)
+		logger.Error("failed to fetch metadata", zap.String("url", metadataURL), zap.Error(err))
+		return "", fmt.Errorf("%w: %v", ErrFailedToFetchMetadata, err)
 	}
 	defer func() {
-		if err := resp.Body.Close(); err != nil {
-			fmt.Printf("failed to close response body: %v\n", err)
+		if cerr := resp.Body.Close(); cerr != nil {
+			logger.Warn("failed to close response body", zap.Error(cerr))
 		}
 	}()
 
 	if resp.StatusCode != http.StatusOK {
-		return "", fmt.Errorf("unexpected status code: %d", resp.StatusCode)
+		body, readErr := io.ReadAll(resp.Body)
+		fields := []zap.Field{
+			zap.Int("status_code", resp.StatusCode),
+			zap.String("url", req.URL.String()),
+		}
+		if readErr != nil {
+			fields = append(fields, zap.Error(readErr))
+			logger.Warn("failed to read response body", fields...)
+		} else {
+			fields = append(fields, zap.ByteString("body", body))
+			logger.Warn("metadata returned non-200 response", fields...)
+		}
+		return "", fmt.Errorf("%w: %d", ErrUnexpectedStatusCode, resp.StatusCode)
 	}
 
 	var meta callbackMetadata
 	if err := json.NewDecoder(resp.Body).Decode(&meta); err != nil {
-		return "", fmt.Errorf("failed to decode metadata: %w", err)
+		logger.Error("failed to decode metadata JSON", zap.Error(err))
+		return "", fmt.Errorf("%w: %v", ErrFailedToDecodeMetadata, err)
 	}
 
 	if meta.TokenEndpoint == "" {
-		return "", fmt.Errorf("invalid metadata: token_endpoint is empty")
+		logger.Error("metadata response missing token_endpoint")
+		return "", ErrInvalidMetadataNoEndpoint
 	}
 
+	logger.Info("token_endpoint retrieved successfully", zap.String("token_endpoint", meta.TokenEndpoint))
 	return meta.TokenEndpoint, nil
 }

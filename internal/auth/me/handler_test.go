@@ -8,6 +8,8 @@ import (
 
 	"cognito-repeater-go/internal/config"
 	"cognito-repeater-go/test/testhelpers"
+
+	"go.uber.org/zap"
 )
 
 func TestNewMeHandler_MissingAuthorizationHeader(t *testing.T) {
@@ -21,9 +23,11 @@ func TestNewMeHandler_MissingAuthorizationHeader(t *testing.T) {
 		UserPoolID:       "ap-northeast-1_Abc123XYZ",
 	}
 
-	handler := NewMeHandler(cfg, &testhelpers.MockHTTPClient{})
+	mockLogger := zap.NewNop()
 
-	req := httptest.NewRequest(http.MethodGet, "/me", nil)
+	handler := NewMeHandler(cfg, &testhelpers.MockHTTPClient{}, mockLogger)
+
+	req := httptest.NewRequest(http.MethodPost, "/me", nil)
 	rr := httptest.NewRecorder()
 
 	handler.ServeHTTP(rr, req)

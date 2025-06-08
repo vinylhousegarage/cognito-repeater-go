@@ -6,6 +6,8 @@ import (
 	"testing"
 
 	"github.com/stretchr/testify/assert"
+
+	"go.uber.org/zap"
 )
 
 func TestValidateCallbackRequestValidInput(t *testing.T) {
@@ -20,14 +22,8 @@ func TestValidateCallbackRequestValidInput(t *testing.T) {
 
 	code, err := ValidateCallbackRequest(req)
 
-	if err != nil {
-		t.Fatalf("expected no error, got %v", err)
-	}
-
-	expectedCode := "abc123"
-	if code != expectedCode {
-		t.Errorf("expected code %q, got %q", expectedCode, code)
-	}
+	assert.NoError(t, err)
+	assert.Equal(t, "abc123", code)
 }
 
 func TestValidateCallbackRequestMissingCode(t *testing.T) {
@@ -37,9 +33,8 @@ func TestValidateCallbackRequestMissingCode(t *testing.T) {
 	req.AddCookie(&http.Cookie{Name: "oauth_state", Value: "xyz"})
 
 	_, err := ValidateCallbackRequest(req)
-	if err == nil || err.Error() != "missing code" {
-		t.Errorf("expected error 'missing code', got %v", err)
-	}
+
+	assert.ErrorIs(t, err, ErrMissingCode)
 }
 
 func TestValidateCallbackRequestMissingState(t *testing.T) {
@@ -49,9 +44,8 @@ func TestValidateCallbackRequestMissingState(t *testing.T) {
 	req.AddCookie(&http.Cookie{Name: "oauth_state", Value: "xyz"})
 
 	_, err := ValidateCallbackRequest(req)
-	if err == nil || err.Error() != "missing state" {
-		t.Errorf("expected error 'missing state', got %v", err)
-	}
+
+	assert.ErrorIs(t, err, ErrMissingState)
 }
 
 func TestValidateCallbackRequestMissingCookie(t *testing.T) {
@@ -60,9 +54,8 @@ func TestValidateCallbackRequestMissingCookie(t *testing.T) {
 	req := httptest.NewRequest(http.MethodGet, "/callback?code=abc&state=xyz", nil)
 
 	_, err := ValidateCallbackRequest(req)
-	if err == nil || err.Error() != "missing oauth_state cookie" {
-		t.Errorf("expected error 'missing oauth_state cookie', got %v", err)
-	}
+
+	assert.ErrorIs(t, err, ErrMissingStateCookie)
 }
 
 func TestValidateCallbackRequestStateMismatch(t *testing.T) {
@@ -72,9 +65,8 @@ func TestValidateCallbackRequestStateMismatch(t *testing.T) {
 	req.AddCookie(&http.Cookie{Name: "oauth_state", Value: "wrong"})
 
 	_, err := ValidateCallbackRequest(req)
-	if err == nil || err.Error() != "invalid state" {
-		t.Errorf("expected error 'invalid state', got %v", err)
-	}
+
+	assert.ErrorIs(t, err, ErrInvalidState)
 }
 
 func TestGetCallbackURLReturnsExpectedEndpoint(t *testing.T) {
@@ -86,7 +78,9 @@ func TestGetCallbackURLReturnsExpectedEndpoint(t *testing.T) {
 	}))
 	defer ts.Close()
 
-	endpoint, err := GetCallbackURL(ts.URL, http.DefaultClient)
+	mockLogger := zap.NewNop()
+
+	endpoint, err := GetCallbackURL(ts.URL, http.DefaultClient, mockLogger)
 
 	assert.NoError(t, err, "failed to fetch token endpoint")
 	assert.Equal(t, "https://example.com/oauth2/token", endpoint)
@@ -100,9 +94,11 @@ func TestGetCallbackURLStatusCode500(t *testing.T) {
 	}))
 	defer ts.Close()
 
-	_, err := GetCallbackURL(ts.URL, http.DefaultClient)
+	mockLogger := zap.NewNop()
 
-	assert.Error(t, err, "unexpected status code")
+	_, err := GetCallbackURL(ts.URL, http.DefaultClient, mockLogger)
+
+	assert.ErrorIs(t, err, ErrUnexpectedStatusCode)
 }
 
 func TestGetCallbackURLMalformedJSON(t *testing.T) {
@@ -114,9 +110,11 @@ func TestGetCallbackURLMalformedJSON(t *testing.T) {
 	}))
 	defer ts.Close()
 
-	_, err := GetCallbackURL(ts.URL, http.DefaultClient)
+	mockLogger := zap.NewNop()
 
-	assert.Error(t, err, "expected JSON decode error")
+	_, err := GetCallbackURL(ts.URL, http.DefaultClient, mockLogger)
+
+	assert.ErrorIs(t, err, ErrFailedToDecodeMetadata)
 }
 
 func TestGetCallbackURLMissingTokenEndpoint(t *testing.T) {
@@ -128,7 +126,9 @@ func TestGetCallbackURLMissingTokenEndpoint(t *testing.T) {
 	}))
 	defer ts.Close()
 
-	_, err := GetCallbackURL(ts.URL, http.DefaultClient)
+	mockLogger := zap.NewNop()
 
-	assert.Error(t, err, "expected missing token_endpoint error")
+	_, err := GetCallbackURL(ts.URL, http.DefaultClient, mockLogger)
+
+	assert.ErrorIs(t, err, ErrInvalidMetadataNoEndpoint)
 }

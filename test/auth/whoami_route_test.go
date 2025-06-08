@@ -12,6 +12,8 @@ import (
 	"cognito-repeater-go/test/testhelpers"
 
 	"github.com/stretchr/testify/assert"
+
+	"go.uber.org/zap"
 )
 
 func TestWhoamiRoute_Integration(t *testing.T) {
@@ -48,7 +50,9 @@ func TestWhoamiRoute_Integration(t *testing.T) {
 	mockDeps := testhelpers.NewMockRouteDependencies()
 	mockDeps.WhoamiProvider = &testhelpers.MockMetadataURL{URL: ts.URL + "/.well-known/openid-configuration"}
 
-	r := router.NewRouter(mockDeps, http.DefaultClient)
+	mockLogger := zap.NewNop()
+
+	r := router.NewRouter(mockDeps, http.DefaultClient, mockLogger)
 
 	req := httptest.NewRequest(http.MethodGet, "/whoami", nil)
 	req.Header.Set("Authorization", "Bearer valid-token")

@@ -6,6 +6,8 @@ import (
 	"testing"
 
 	"github.com/stretchr/testify/assert"
+
+	"go.uber.org/zap"
 )
 
 func TestGetLoginURLReturnsExpectedEndpoint(t *testing.T) {
@@ -17,7 +19,9 @@ func TestGetLoginURLReturnsExpectedEndpoint(t *testing.T) {
 	}))
 	defer ts.Close()
 
-	endpoint, err := GetLoginURL(ts.URL, http.DefaultClient)
+	mockLogger := zap.NewNop()
+
+	endpoint, err := GetLoginURL(ts.URL, http.DefaultClient, mockLogger)
 
 	assert.NoError(t, err, "failed to fetch authorization endpoint")
 	assert.Equal(t, "https://example.com/oauth2/authorize", endpoint)
@@ -31,7 +35,9 @@ func TestGetLoginURLStatusCode500(t *testing.T) {
 	}))
 	defer ts.Close()
 
-	_, err := GetLoginURL(ts.URL, http.DefaultClient)
+	mockLogger := zap.NewNop()
+
+	_, err := GetLoginURL(ts.URL, http.DefaultClient, mockLogger)
 
 	assert.Error(t, err, "unexpected status code")
 }

@@ -2,26 +2,15 @@ package me
 
 import (
 	"encoding/json"
-	"log"
 	"net/http"
 
 	"cognito-repeater-go/internal/auth/deps"
 	"cognito-repeater-go/internal/auth/utils"
 	"cognito-repeater-go/internal/httpclient"
 	"cognito-repeater-go/internal/response"
+
+	"go.uber.org/zap"
 )
-
-func writeJSONError(w http.ResponseWriter, status int, msg string) {
-	w.Header().Set("Content-Type", "application/json")
-	w.WriteHeader(status)
-
-	err := json.NewEncoder(w).Encode(response.ErrorResponse{
-		Error: msg,
-	})
-	if err != nil {
-		log.Printf("failed to write error response: %v", err)
-	}
-}
 
 // @Summary Verify ID token and return user info
 // @Description Verifies the provided ID token using Cognito's JWKS and returns the subject (sub) claim.
@@ -38,62 +27,70 @@ func writeJSONError(w http.ResponseWriter, status int, msg string) {
 // @Failure 401 {object} response.ErrorResponse "Unauthorized"
 // @Failure 500 {object} response.ErrorResponse "Internal Server Error"
 // @Router /me [post]
-func NewMeHandler(p deps.MeHandlerProvider, c httpclient.HTTPClient) http.HandlerFunc {
+func NewMeHandler(
+	p deps.MeHandlerProvider,
+	c httpclient.HTTPClient,
+	logger *zap.Logger,
+) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		tokenStr, err := utils.ExtractFormValue(r)
+		idToken, err := utils.ExtractFormValue(r)
 		if err != nil {
-			log.Printf("token extraction error: %v", err)
-			writeJSONError(w, http.StatusBadRequest, "missing or malformed access token")
+			logger.Warn("failed to extract token from form", zap.Error(err))
+			response.WriteJSONError(w, http.StatusBadRequest, "missing or malformed access token", logger)
 			return
 		}
 
-		jwksURL, err := GetJWKSURI(p.MetadataURL(), c)
+		jwksURL, err := GetJWKSURI(p.MetadataURL(), c, logger)
 		if err != nil {
-			log.Printf("failed to fetch JWKS URI: %v", err)
-			writeJSONError(w, http.StatusInternalServerError, "internal server error")
+			logger.Error("failed to fetch JWKS URI", zap.String("metadata_url", p.MetadataURL()), zap.Error(err))
+			response.WriteJSONError(w, http.StatusInternalServerError, "internal server error", logger)
 			return
 		}
 
-		jwkSet, err := FetchJWKSet(jwksURL, c)
+		jwkSet, err := FetchJWKSet(jwksURL, c, logger)
 		if err != nil {
-			log.Printf("failed to fetch JWKS: %v", err)
-			writeJSONError(w, http.StatusInternalServerError, "internal server error")
+			logger.Error("failed to fetch JWKS", zap.String("metadata_url", jwksURL), zap.Error(err))
+			response.WriteJSONError(w, http.StatusInternalServerError, "internal server error", logger)
 			return
 		}
 
-		kid, err := ExtractKIDFromToken(tokenStr)
+		kid, err := ExtractKIDFromToken(idToken)
 		if err != nil {
-			log.Printf("failed to extract kid: %v", err)
-			writeJSONError(w, http.StatusBadRequest, "invalid token format")
+			logger.Warn("failed to extract kid from token", zap.Error(err))
+			response.WriteJSONError(w, http.StatusBadRequest, "invalid token format", logger)
 			return
 		}
 
 		jwk, err := FindJWKByKID(kid, jwkSet)
 		if err != nil {
-			log.Printf("jwk not found: %v", err)
-			writeJSONError(w, http.StatusUnauthorized, "unauthorized")
+			logger.Warn("jwk not found for given kid", zap.Error(err))
+			response.WriteJSONError(w, http.StatusUnauthorized, "unauthorized", logger)
 			return
 		}
 
 		pubKey, err := JWKToRSAPublicKey(jwk)
 		if err != nil {
-			log.Printf("failed to build RSA public key: %v", err)
-			writeJSONError(w, http.StatusInternalServerError, "internal server error")
+			logger.Error("failed to build RSA public key", zap.Error(err))
+			response.WriteJSONError(w, http.StatusInternalServerError, "internal server error", logger)
 			return
 		}
 
-		claims, err := ParseAndVerifyJWT(tokenStr, pubKey, p.Issuer(), p.Audience())
+		claims, err := ParseAndVerifyJWT(idToken, pubKey, p.Issuer(), p.Audience())
 		if err != nil {
-			log.Printf("token verification failed: %v", err)
-			writeJSONError(w, http.StatusUnauthorized, "invalid token")
+			logger.Warn("JWT signature or claims validation failed", zap.Error(err))
+			response.WriteJSONError(w, http.StatusUnauthorized, "invalid token", logger)
 			return
 		}
 
 		resp := UserResponse{
 			Sub: claims.Subject,
 		}
+		w.Header().Set("Content-Type", "application/json")
 		if err := json.NewEncoder(w).Encode(resp); err != nil {
-			log.Printf("failed to write response: %v", err)
+			logger.Error("failed to write user response", zap.Error(err))
+			http.Error(w, "failed to write response", http.StatusInternalServerError)
 		}
+
+		logger.Info("user token verified successfully", zap.String("sub", claims.Subject))
 	}
 }

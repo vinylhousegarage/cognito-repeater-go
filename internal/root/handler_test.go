@@ -6,13 +6,17 @@ import (
 	"testing"
 
 	"github.com/stretchr/testify/assert"
+
+	"go.uber.org/zap"
 )
 
 func TestNewRootHandlerRedirectsToLogin(t *testing.T) {
 	req := httptest.NewRequest(http.MethodGet, "/", nil)
 	w := httptest.NewRecorder()
 
-	handler := http.HandlerFunc(NewRootHandler)
+	mockLogger := zap.NewNop()
+
+	handler := NewRootHandler(mockLogger)
 	handler.ServeHTTP(w, req)
 
 	resp := w.Result()

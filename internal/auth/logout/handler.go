@@ -5,6 +5,8 @@ import (
 
 	"cognito-repeater-go/internal/auth/deps"
 	"cognito-repeater-go/internal/httpclient"
+
+	"go.uber.org/zap"
 )
 
 // @Summary Redirect to Cognito logout
@@ -15,11 +17,16 @@ import (
 // @Success 302 {string} string "Found"
 // @Failure 500 {string} string "Internal Server Error"
 // @Router /logout [get]
-func NewLogoutHandler(p deps.LogoutHandlerProvider, c httpclient.HTTPClient) http.HandlerFunc {
+func NewLogoutHandler(
+	p deps.LogoutHandlerProvider,
+	c httpclient.HTTPClient,
+	logger *zap.Logger,
+) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		metadataURL := p.MetadataURL()
 		endpoint, err := GetLogoutURL(metadataURL, c)
 		if err != nil {
+			logger.Error("failed to get logout URL", zap.String("metadata_url", metadataURL), zap.Error(err))
 			http.Error(w, err.Error(), http.StatusInternalServerError)
 			return
 		}

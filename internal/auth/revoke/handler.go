@@ -1,9 +1,7 @@
 package revoke
 
 import (
-	"encoding/json"
 	"fmt"
-	"log"
 	"net/http"
 	"strings"
 
@@ -11,18 +9,9 @@ import (
 	"cognito-repeater-go/internal/auth/utils"
 	"cognito-repeater-go/internal/httpclient"
 	"cognito-repeater-go/internal/response"
+
+	"go.uber.org/zap"
 )
-
-func writeJSONError(w http.ResponseWriter, status int, msg string) {
-	w.Header().Set("Content-Type", "application/json")
-	w.WriteHeader(status)
-
-	if err := json.NewEncoder(w).Encode(response.ErrorResponse{
-		Error: msg,
-	}); err != nil {
-		log.Printf("failed to write error response: %v", err)
-	}
-}
 
 // @Summary Revoke refresh token
 // @Description Revokes a refresh token by calling the Cognito revocation endpoint.
@@ -39,17 +28,23 @@ func writeJSONError(w http.ResponseWriter, status int, msg string) {
 // @Failure 502 {object} response.ErrorResponse "Bad Gateway"
 // @Failure 500 {object} response.ErrorResponse "Internal Server Error"
 // @Router /revoke [post]
-func NewRevokeHandler(p deps.RevokeHandlerProvider, cli httpclient.HTTPClient) http.HandlerFunc {
+func NewRevokeHandler(
+	p deps.RevokeHandlerProvider,
+	cli httpclient.HTTPClient,
+	logger *zap.Logger,
+) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		refreshToken, err := utils.ExtractFormValue(r)
 		if err != nil {
-			writeJSONError(w, http.StatusBadRequest, err.Error())
+			logger.Warn("failed to extract token from form", zap.Error(err))
+			response.WriteJSONError(w, http.StatusBadRequest, err.Error(), logger)
 			return
 		}
 
 		revokeURL, err := GetRevokeURL(p.MetadataURL(), cli)
 		if err != nil {
-			writeJSONError(w, http.StatusInternalServerError, "failed to resolve revocation endpoint")
+			logger.Error("failed to get revoke URL", zap.String("metadata_url", p.MetadataURL()), zap.Error(err))
+			response.WriteJSONError(w, http.StatusInternalServerError, "failed to resolve revocation endpoint", logger)
 			return
 		}
 
@@ -61,21 +56,22 @@ func NewRevokeHandler(p deps.RevokeHandlerProvider, cli httpclient.HTTPClient) h
 
 		resp, err := SendRevokeRequest(revokeURL, cli, refreshToken, clientID, clientSecret)
 		if err != nil {
-			writeJSONError(w, http.StatusInternalServerError, "failed to get userinfo endpoint")
+			logger.Error("failed to revoke token", zap.String("revoke_url", revokeURL), zap.Error(err))
+			response.WriteJSONError(w, http.StatusInternalServerError, "failed to revoke token", logger)
 			return
 		}
 		defer func() {
 			if err := resp.Body.Close(); err != nil {
-				log.Printf("failed to close response body: %v", err)
+				logger.Warn("failed to close response body", zap.Error(err))
 			}
 		}()
 
 		if resp.StatusCode != http.StatusOK && resp.StatusCode != http.StatusNoContent {
-			writeJSONError(w, http.StatusBadGateway, fmt.Sprintf("revocation failed with status: %s", resp.Status))
+			response.WriteJSONError(w, http.StatusBadGateway, fmt.Sprintf("revocation failed with status: %s", resp.Status), logger)
 			return
 		}
 
-		log.Printf("revocation succeeded with status: %s", resp.Status)
+		logger.Info("revocation succeeded", zap.String("status", resp.Status))
 		w.WriteHeader(http.StatusNoContent)
 	}
 }
