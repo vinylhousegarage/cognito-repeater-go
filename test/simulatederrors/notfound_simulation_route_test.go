@@ -10,6 +10,9 @@ import (
 	"cognito-repeater-go/test/testhelpers"
 
 	"github.com/stretchr/testify/assert"
+
+
+	"go.uber.org/zap"
 )
 
 func TestError404RouteReturnsPlainTextNotFound(t *testing.T) {
@@ -17,8 +20,9 @@ func TestError404RouteReturnsPlainTextNotFound(t *testing.T) {
 
 	deps := testhelpers.NewMockRouteDependencies()
 	cli := testhelpers.NewMockHTTPClientOK()
+	mockLogger := zap.NewNop()
 
-	r := router.NewRouter(deps, cli)
+	r := router.NewRouter(deps, cli, mockLogger)
 
 	req := httptest.NewRequest(http.MethodGet, "/error/404", nil)
 	w := httptest.NewRecorder()
