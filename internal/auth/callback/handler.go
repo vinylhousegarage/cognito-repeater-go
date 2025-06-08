@@ -2,6 +2,7 @@ package callback
 
 import (
 	"encoding/json"
+	"errors"
 	"io"
 	"net/http"
 	"strings"
@@ -20,6 +21,12 @@ type TokenResponse struct {
 	TokenType    string `json:"token_type"`
 }
 
+func writePlainError(w http.ResponseWriter, status int, err error, logger *zap.Logger) {
+	w.Header().Set("Content-Type", "text/plain; charset=utf-8")
+	logger.Error(http.StatusText(status), zap.Error(err))
+	http.Error(w, http.StatusText(status), status)
+}
+
 func NewCallbackHandler(
 	p deps.CallbackHandlerProvider,
 	c httpclient.HTTPClient,
@@ -28,24 +35,40 @@ func NewCallbackHandler(
 	return func(w http.ResponseWriter, r *http.Request) {
 		code, err := ValidateCallbackRequest(r)
 		if err != nil {
-			logger.Warn("invalid callback request", zap.Error(err))
-			http.Error(w, err.Error(), http.StatusBadRequest)
+			status := http.StatusBadRequest
+			writePlainError(w, status, err, logger)
 			return
 		}
 
 		metadataURL := p.MetadataURL()
 		tokenEndpoint, err := GetCallbackURL(metadataURL, c, logger)
 		if err != nil {
-			logger.Error("failed to get token endpoint", zap.String("metadataURL", metadataURL), zap.Error(err))
-			http.Error(w, "failed to get token endpoint", http.StatusInternalServerError)
+			switch {
+			case errors.Is(err, ErrFailedToCreateRequest),
+				errors.Is(err, ErrFailedToFetchMetadata),
+				errors.Is(err, ErrFailedToDecodeMetadata):
+
+				status := http.StatusInternalServerError
+				writePlainError(w, status, err, logger)
+
+			case errors.Is(err, ErrUnexpectedStatusCode),
+				errors.Is(err, ErrInvalidMetadataNoEndpoint):
+
+				status := http.StatusBadGateway
+				writePlainError(w, status, err, logger)
+
+			default:
+				status := http.StatusInternalServerError
+				writePlainError(w, status, err, logger)
+			}
 			return
 		}
 
 		bodyStr := BuildTokenRequestBody(code, p)
 		req, err := http.NewRequest("POST", tokenEndpoint, strings.NewReader(bodyStr))
 		if err != nil {
-			logger.Error("failed to create request to token endpoint", zap.String("tokenEndpoint", tokenEndpoint), zap.Error(err))
-			http.Error(w, "failed to create request", http.StatusInternalServerError)
+			status := http.StatusInternalServerError
+			writePlainError(w, status, err, logger)
 			return
 		}
 		req.Header.Set("Content-Type", "application/x-www-form-urlencoded")
@@ -53,8 +76,8 @@ func NewCallbackHandler(
 
 		resp, err := c.Do(req)
 		if err != nil {
-			logger.Error("token request failed", zap.Error(err))
-			http.Error(w, "failed to send token request", http.StatusBadGateway)
+			status := http.StatusBadGateway
+			writePlainError(w, status, err, logger)
 			return
 		}
 		defer func() {
@@ -64,19 +87,32 @@ func NewCallbackHandler(
 		}()
 
 		if resp.StatusCode != http.StatusOK {
-			body, _ := io.ReadAll(resp.Body)
-			logger.Warn("token endpoint returned non-200",
-				zap.Int("status", resp.StatusCode),
-				zap.ByteString("body", body),
-			)
-			http.Error(w, "token endpoint returned error", http.StatusBadGateway)
+			body, readErr := io.ReadAll(resp.Body)
+			status := http.StatusBadGateway
+
+			fields := []zap.Field{
+				zap.Int("upstream_status", resp.StatusCode),
+				zap.String("method", req.Method),
+				zap.String("url", req.URL.String()),
+			}
+
+			if readErr != nil {
+				fields = append(fields, zap.Error(readErr))
+				logger.Warn(http.StatusText(status)+": failed to read error response body", fields...)
+			} else {
+				fields = append(fields, zap.ByteString("body", body))
+				logger.Warn(http.StatusText(status)+": token endpoint returned non-200", fields...)
+			}
+
+			w.Header().Set("Content-Type", "text/plain; charset=utf-8")
+			http.Error(w, http.StatusText(status), status)
 			return
 		}
 
 		var tokenResp TokenResponse
 		if err := json.NewDecoder(resp.Body).Decode(&tokenResp); err != nil {
-			logger.Error("failed to decode token response", zap.Error(err))
-			http.Error(w, "failed to decode token response", http.StatusInternalServerError)
+			status := http.StatusInternalServerError
+			writePlainError(w, status, err, logger)
 			return
 		}
 
@@ -88,8 +124,8 @@ func NewCallbackHandler(
 		)
 
 		if err := json.NewEncoder(w).Encode(tokenResp); err != nil {
-			logger.Error("failed to write token response", zap.Error(err))
-			http.Error(w, "failed to encode token response", http.StatusInternalServerError)
+			status := http.StatusInternalServerError
+			writePlainError(w, status, err, logger)
 			return
 		}
 	}
