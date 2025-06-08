@@ -2,15 +2,29 @@ package urlresolver
 
 import (
 	"errors"
+	"io"
 	"net/http"
+	"strings"
 	"testing"
 
+	"cognito-repeater-go/internal/httpclient"
 	"cognito-repeater-go/test/testhelpers"
 
 	"github.com/stretchr/testify/assert"
 
 	"go.uber.org/zap/zaptest"
 )
+
+func newMockHTTPClientWithMetadata(json string) httpclient.HTTPClient {
+	return &testhelpers.MockHTTPClient{
+		DoFunc: func(req *http.Request) (*http.Response, error) {
+			return &http.Response{
+				StatusCode: http.StatusOK,
+				Body:       io.NopCloser(strings.NewReader(json)),
+			}, nil
+		},
+	}
+}
 
 func TestFetchMetadata_Success(t *testing.T) {
 	t.Parallel()
@@ -23,7 +37,7 @@ func TestFetchMetadata_Success(t *testing.T) {
 		"jwks_uri": "https://example.com/jwks"
 	}`
 
-	mockClient := testhelpers.NewMockHTTPClientWithMetadata(mockJSON)
+	mockClient := newMockHTTPClientWithMetadata(mockJSON)
 	mockLogger := zaptest.NewLogger(t)
 
 	meta, err := FetchMetadata("https://mock-url.com/.well-known/openid-configuration", mockClient, mockLogger)
@@ -52,7 +66,7 @@ func TestFetchMetadata_BadJSON(t *testing.T) {
 	t.Parallel()
 
 	badJSON := `{ invalid json`
-	mockClient := testhelpers.NewMockHTTPClientWithMetadata(badJSON)
+	mockClient := newMockHTTPClientWithMetadata(badJSON)
 
 	mockLogger := zaptest.NewLogger(t)
 	_, err := FetchMetadata("https://mock-url.com", mockClient, mockLogger)
