@@ -27,7 +27,7 @@ func NewLoginHandler(
 		http.SetCookie(w, BuildStateCookie(state))
 
 		metadataURL := p.MetadataURL()
-		endpoint, err := GetLoginURL(metadataURL, c)
+		endpoint, err := GetLoginURL(metadataURL, c, logger)
 		if err != nil {
 			logger.Error("failed to get login URL", zap.String("metadata_url", metadataURL), zap.Error(err))
 			http.Error(w, err.Error(), http.StatusInternalServerError)
@@ -40,6 +40,8 @@ func NewLoginHandler(
 			http.Error(w, "invalid login URL", http.StatusInternalServerError)
 			return
 		}
+
+		logger.Info("redirecting to Cognito login", zap.String("url", url), zap.String("state", state))
 
 		http.Redirect(w, r, url, http.StatusFound)
 	}
