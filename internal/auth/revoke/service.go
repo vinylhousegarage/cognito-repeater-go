@@ -75,17 +75,5 @@ func SendRevokeRequest(
 		return nil, fmt.Errorf("failed to call revoke endpoint: %w", err)
 	}
 
-	defer func() {
-		if cerr := resp.Body.Close(); cerr != nil {
-			_ = cerr
-		}
-	}()
-
-	_, _ = io.Copy(io.Discard, resp.Body)
-
-	if resp.StatusCode != http.StatusOK {
-		return resp, fmt.Errorf("revocation failed: status=%s", resp.Status)
-	}
-
 	return resp, nil
 }
