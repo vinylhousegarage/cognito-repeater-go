@@ -2,7 +2,6 @@ package notfound
 
 import (
 	"io"
-	"log"
 	"net/http"
 
 	"go.uber.org/zap"
