@@ -11,6 +11,8 @@ import (
 	"cognito-repeater-go/test/testhelpers"
 
 	"github.com/stretchr/testify/assert"
+
+	"go.uber.org/zap"
 )
 
 func TestCallbackRouteReturnsTokenJSON(t *testing.T) {
@@ -43,7 +45,9 @@ func TestCallbackRouteReturnsTokenJSON(t *testing.T) {
 
 	provider := testhelpers.NewMockRouteDependencies()
 
-	r := router.NewRouter(provider, client)
+	mockLogger := zap.NewNop()
+
+	r := router.NewRouter(provider, client, mockLogger)
 
 	req := httptest.NewRequest(http.MethodGet, "/callback?code=abc123&state=xyz", nil)
 	req.AddCookie(&http.Cookie{Name: "oauth_state", Value: "xyz"})
