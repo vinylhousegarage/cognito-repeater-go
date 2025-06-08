@@ -21,7 +21,7 @@ func NewLoginHandler(
 	p deps.LoginHandlerProvider,
 	c httpclient.HTTPClient,
 	logger *zap.Logger,
-	) http.HandlerFunc {
+) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		state := GenerateState()
 		http.SetCookie(w, BuildStateCookie(state))

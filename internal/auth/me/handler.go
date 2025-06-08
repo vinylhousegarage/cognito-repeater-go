@@ -31,7 +31,7 @@ func NewMeHandler(
 	p deps.MeHandlerProvider,
 	c httpclient.HTTPClient,
 	logger *zap.Logger,
-	) http.HandlerFunc {
+) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		idToken, err := utils.ExtractFormValue(r)
 		if err != nil {

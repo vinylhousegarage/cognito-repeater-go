@@ -21,7 +21,7 @@ func NewLogoutHandler(
 	p deps.LogoutHandlerProvider,
 	c httpclient.HTTPClient,
 	logger *zap.Logger,
-	) http.HandlerFunc {
+) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		metadataURL := p.MetadataURL()
 		endpoint, err := GetLogoutURL(metadataURL, c)

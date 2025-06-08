@@ -39,7 +39,7 @@ func NewWhoamiHandler(
 	p deps.WhoamiHandlerProvider,
 	cli httpclient.HTTPClient,
 	logger *zap.Logger,
-	) http.HandlerFunc {
+) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		_ = logger
 

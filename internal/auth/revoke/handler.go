@@ -32,7 +32,7 @@ func NewRevokeHandler(
 	p deps.RevokeHandlerProvider,
 	cli httpclient.HTTPClient,
 	logger *zap.Logger,
-	) http.HandlerFunc {
+) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		refreshToken, err := utils.ExtractFormValue(r)
 		if err != nil {
