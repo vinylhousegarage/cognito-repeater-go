@@ -1,6 +1,7 @@
 package login
 
 import (
+	"errors"
 	"net/http"
 	"net/http/httptest"
 	"testing"
@@ -10,7 +11,9 @@ import (
 	"go.uber.org/zap"
 )
 
-func TestGetLoginURLReturnsExpectedEndpoint(t *testing.T) {
+var mockLogger = zap.NewNop()
+
+func TestGetLoginURL_Success(t *testing.T) {
 	t.Parallel()
 
 	ts := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
@@ -19,15 +22,31 @@ func TestGetLoginURLReturnsExpectedEndpoint(t *testing.T) {
 	}))
 	defer ts.Close()
 
-	mockLogger := zap.NewNop()
-
 	endpoint, err := GetLoginURL(ts.URL, http.DefaultClient, mockLogger)
 
-	assert.NoError(t, err, "failed to fetch authorization endpoint")
+	assert.NoError(t, err)
 	assert.Equal(t, "https://example.com/oauth2/authorize", endpoint)
 }
 
-func TestGetLoginURLStatusCode500(t *testing.T) {
+func TestGetLoginURL_RequestCreationError(t *testing.T) {
+	t.Parallel()
+
+	_, err := GetLoginURL(":", http.DefaultClient, mockLogger)
+
+	assert.Error(t, err)
+	assert.ErrorIs(t, err, ErrFailedToCreateRequest)
+}
+
+func TestGetLoginURL_HTTPClientError(t *testing.T) {
+	t.Parallel()
+
+	_, err := GetLoginURL("http://invalid.host.local", http.DefaultClient, mockLogger)
+
+	assert.Error(t, err)
+	assert.ErrorIs(t, err, ErrFailedToFetchMetadata)
+}
+
+func TestGetLoginURL_StatusCodeError(t *testing.T) {
 	t.Parallel()
 
 	ts := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
@@ -35,9 +54,38 @@ func TestGetLoginURLStatusCode500(t *testing.T) {
 	}))
 	defer ts.Close()
 
-	mockLogger := zap.NewNop()
+	_, err := GetLoginURL(ts.URL, http.DefaultClient, mockLogger)
+
+	assert.Error(t, err)
+	assert.ErrorIs(t, err, ErrUnexpectedStatusCode)
+}
+
+func TestGetLoginURL_DecodeError(t *testing.T) {
+	t.Parallel()
+
+	ts := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		w.WriteHeader(http.StatusOK)
+		_, _ = w.Write([]byte(`{invalid json}`))
+	}))
+	defer ts.Close()
 
 	_, err := GetLoginURL(ts.URL, http.DefaultClient, mockLogger)
 
-	assert.Error(t, err, "unexpected status code")
+	assert.Error(t, err)
+	assert.ErrorIs(t, err, ErrFailedToDecodeMetadata)
+}
+
+func TestGetLoginURL_MissingAuthorizationEndpoint(t *testing.T) {
+	t.Parallel()
+
+	ts := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		w.WriteHeader(http.StatusOK)
+		_, _ = w.Write([]byte(`{"authorization_endpoint": ""}`))
+	}))
+	defer ts.Close()
+
+	_, err := GetLoginURL(ts.URL, http.DefaultClient, mockLogger)
+
+	assert.Error(t, err)
+	assert.ErrorIs(t, err, ErrMissingAuthorizationEndpoint)
 }
