@@ -53,7 +53,7 @@ func GetLoginURL(
 	}
 
 	if meta.AuthorizationEndpoint == "" {
-		logger.Error("metadata response missing authorization_endpoint")
+		logger.Error("missing authorization_endpoint in metadata response")
 		return "", ErrInvalidMetadataNoEndpoint
 	}
 
