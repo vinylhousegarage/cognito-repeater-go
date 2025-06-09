@@ -2,19 +2,14 @@ package login
 
 import (
 	"errors"
-	"io"
 	"net/http"
 	"net/http/httptest"
 	"net/url"
-	"strings"
 	"testing"
 
-	"cognito-repeater-go/internal/httpclient"
 	"cognito-repeater-go/test/testhelpers"
 
 	"github.com/stretchr/testify/assert"
-
-	"go.uber.org/zap"
 )
 
 func TestNewLoginHandler_RedirectsToLoginEndpoint(t *testing.T) {
@@ -76,7 +71,7 @@ func TestNewLoginHandler_MetadataFetchFails(t *testing.T) {
 	req := httptest.NewRequest(http.MethodGet, "/login", nil)
 	w := httptest.NewRecorder()
 
-	NewLoginHandler(&testhelpers.MockCfg, client, testhelpers.mockLogger)(w, req)
+	NewLoginHandler(&testhelpers.MockCfg, client, testhelpers.MockLogger)(w, req)
 
 	assert.Equal(t, http.StatusInternalServerError, w.Result().StatusCode)
 }
