@@ -3,7 +3,6 @@ package callback
 import "errors"
 
 var (
-	ErrEmptyTokenEndpoint        = errors.New("token_endpoint is empty")
 	ErrFailedToCreateRequest     = errors.New("failed to create request")
 	ErrFailedToDecodeMetadata    = errors.New("failed to decode metadata")
 	ErrFailedToFetchMetadata     = errors.New("failed to fetch metadata")
