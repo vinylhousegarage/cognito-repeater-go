@@ -4,6 +4,7 @@ import (
 	"net/http"
 
 	"cognito-repeater-go/internal/auth/deps"
+	"cognito-repeater-go/internal/auth/utils"
 	"cognito-repeater-go/internal/httpclient"
 
 	"go.uber.org/zap"
