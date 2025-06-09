@@ -8,8 +8,6 @@ import (
 	"cognito-repeater-go/test/testhelpers"
 
 	"github.com/stretchr/testify/assert"
-
-	"go.uber.org/zap"
 )
 
 func TestGetLoginURL_Success(t *testing.T) {
