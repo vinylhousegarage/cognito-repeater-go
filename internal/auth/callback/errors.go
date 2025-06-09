@@ -8,4 +8,5 @@ var (
 	ErrMissingCode               = errors.New("missing code")
 	ErrMissingState              = errors.New("missing state")
 	ErrMissingStateCookie        = errors.New("missing oauth_state cookie")
+	ErrUnexpectedStatusCode      = errors.New("unexpected status code from metadata endpoint")
 )
