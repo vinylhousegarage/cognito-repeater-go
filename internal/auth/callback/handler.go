@@ -38,24 +38,17 @@ func NewCallbackHandler(
 		metadataURL := p.MetadataURL()
 		tokenEndpoint, err := GetCallbackURL(metadataURL, c, logger)
 		if err != nil {
+			var status int
 			switch {
-			case errors.Is(err, ErrFailedToCreateRequest),
-				errors.Is(err, ErrFailedToFetchMetadata),
-				errors.Is(err, ErrFailedToDecodeMetadata):
-
-				status := http.StatusInternalServerError
-				utils.WritePlainError(w, status, err, logger)
-
 			case errors.Is(err, ErrUnexpectedStatusCode),
 				errors.Is(err, ErrInvalidMetadataNoEndpoint):
-
-				status := http.StatusBadGateway
-				utils.WritePlainError(w, status, err, logger)
-
+				status = http.StatusBadGateway
+				logger.Warn("upstream returned unexpected metadata", zap.Error(err))
 			default:
-				status := http.StatusInternalServerError
-				utils.WritePlainError(w, status, err, logger)
+				status = http.StatusInternalServerError
+				logger.Error("failed to resolve token endpoint", zap.Error(err))
 			}
+			utils.WritePlainError(w, status, err, logger)
 			return
 		}
 
@@ -107,7 +100,7 @@ func NewCallbackHandler(
 		var tokenResp TokenResponse
 		if err := json.NewDecoder(resp.Body).Decode(&tokenResp); err != nil {
 			status := http.StatusInternalServerError
-			utils.writePlainError(w, status, err, logger)
+			utils.WritePlainError(w, status, err, logger)
 			return
 		}
 
