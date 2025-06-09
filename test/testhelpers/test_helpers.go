@@ -8,6 +8,8 @@ import (
 	"cognito-repeater-go/internal/auth/deps"
 	"cognito-repeater-go/internal/config"
 	"cognito-repeater-go/internal/httpclient"
+
+	"go.uber.org/zap"
 )
 
 var MockCfg = config.Config{
@@ -87,3 +89,20 @@ func NewMockRevokeHandlerProvider(metadataURL, clientSecret, clientID string) de
 		UserPoolClientIDStr: clientID,
 	}
 }
+
+func NewMockHTTPClientOKWithAuthEndpoint() httpclient.HTTPClient {
+	return &MockHTTPClient{
+		DoFunc: func(req *http.Request) (*http.Response, error) {
+			return &http.Response{
+				StatusCode: http.StatusOK,
+				Body: io.NopCloser(strings.NewReader(
+					`{"authorization_endpoint": "https://example.com/oauth2/authorize"}`,
+				)),
+			}, nil
+		},
+	}
+}
+
+var MockProvider = &MockCfg
+var MockClient = NewMockHTTPClientOKWithAuthEndpoint()
+var MockLogger = zap.NewNop()

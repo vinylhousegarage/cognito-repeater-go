@@ -1,9 +1,11 @@
 package login
 
 import (
+	"errors"
 	"net/http"
 
 	"cognito-repeater-go/internal/auth/deps"
+	"cognito-repeater-go/internal/auth/utils"
 	"cognito-repeater-go/internal/httpclient"
 
 	"go.uber.org/zap"
@@ -29,15 +31,32 @@ func NewLoginHandler(
 		metadataURL := p.MetadataURL()
 		endpoint, err := GetLoginURL(metadataURL, c, logger)
 		if err != nil {
-			logger.Error("failed to get login URL", zap.String("metadata_url", metadataURL), zap.Error(err))
-			http.Error(w, err.Error(), http.StatusInternalServerError)
+			var status int
+			switch {
+			case errors.Is(err, ErrUnexpectedStatusCode),
+				errors.Is(err, ErrMissingAuthorizationEndpoint):
+				status = http.StatusBadGateway
+				logger.Warn("invalid metadata received from upstream", zap.Error(err))
+			default:
+				status = http.StatusInternalServerError
+				logger.Error("failed to retrieve or parse metadata", zap.Error(err))
+			}
+			utils.WritePlainError(w, status, err, logger)
 			return
 		}
 
 		url, err := BuildLoginURL(p, endpoint, state)
 		if err != nil {
-			logger.Error("failed to build login URL", zap.String("endpoint", endpoint), zap.Error(err))
-			http.Error(w, "invalid login URL", http.StatusInternalServerError)
+			var status int
+			switch {
+			case errors.Is(err, ErrFailedToParseLoginURL):
+				status = http.StatusBadGateway
+				logger.Warn("failed to parse login URL", zap.String("endpoint", endpoint), zap.Error(err))
+			default:
+				status = http.StatusInternalServerError
+				logger.Error("unexpected error while building login URL", zap.String("endpoint", endpoint), zap.Error(err))
+			}
+			utils.WritePlainError(w, status, err, logger)
 			return
 		}
 

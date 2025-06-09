@@ -54,5 +54,5 @@ func TestBuildLoginURL_InvalidEndpoint(t *testing.T) {
 	provider := &testhelpers.MockCfg
 	_, err := BuildLoginURL(provider, "://invalid-url", "state")
 	assert.Error(t, err)
-	assert.Contains(t, err.Error(), "missing protocol")
+	assert.ErrorIs(t, err, ErrFailedToParseLoginURL)
 }

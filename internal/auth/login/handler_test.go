@@ -1,45 +1,24 @@
 package login
 
 import (
-	"io"
+	"errors"
 	"net/http"
 	"net/http/httptest"
 	"net/url"
-	"strings"
 	"testing"
 
-	"cognito-repeater-go/internal/httpclient"
 	"cognito-repeater-go/test/testhelpers"
 
 	"github.com/stretchr/testify/assert"
-
-	"go.uber.org/zap"
 )
-
-func NewMockHTTPClientOKWithAuthEndpoint() httpclient.HTTPClient {
-	return &testhelpers.MockHTTPClient{
-		DoFunc: func(req *http.Request) (*http.Response, error) {
-			return &http.Response{
-				StatusCode: http.StatusOK,
-				Body: io.NopCloser(strings.NewReader(
-					`{"authorization_endpoint": "https://example.com/oauth2/authorize"}`,
-				)),
-			}, nil
-		},
-	}
-}
 
 func TestNewLoginHandler_RedirectsToLoginEndpoint(t *testing.T) {
 	t.Parallel()
 
-	mockProvider := &testhelpers.MockCfg
-	mockClient := NewMockHTTPClientOKWithAuthEndpoint()
-	mockLogger := zap.NewNop()
-
 	req := httptest.NewRequest(http.MethodGet, "/login", nil)
 	w := httptest.NewRecorder()
 
-	NewLoginHandler(mockProvider, mockClient, mockLogger)(w, req)
+	NewLoginHandler(testhelpers.MockProvider, testhelpers.MockClient, testhelpers.MockLogger)(w, req)
 
 	resp := w.Result()
 	assert.Equal(t, http.StatusFound, resp.StatusCode)
@@ -57,14 +36,10 @@ func TestNewLoginHandler_RedirectsToLoginEndpoint(t *testing.T) {
 func TestNewLoginHandlerSetsStateCookie(t *testing.T) {
 	t.Parallel()
 
-	mockProvider := &testhelpers.MockCfg
-	mockClient := NewMockHTTPClientOKWithAuthEndpoint()
-	mockLogger := zap.NewNop()
-
 	req := httptest.NewRequest(http.MethodGet, "/login", nil)
 	w := httptest.NewRecorder()
 
-	NewLoginHandler(mockProvider, mockClient, mockLogger)(w, req)
+	NewLoginHandler(testhelpers.MockProvider, testhelpers.MockClient, testhelpers.MockLogger)(w, req)
 
 	resp := w.Result()
 
@@ -83,4 +58,20 @@ func TestNewLoginHandlerSetsStateCookie(t *testing.T) {
 	assert.True(t, stateCookie.Secure)
 	assert.Equal(t, "/", stateCookie.Path)
 	assert.Equal(t, http.SameSiteLaxMode, stateCookie.SameSite)
+}
+
+func TestNewLoginHandler_MetadataFetchFails(t *testing.T) {
+	t.Parallel()
+
+	client := &testhelpers.MockHTTPClient{
+		DoFunc: func(req *http.Request) (*http.Response, error) {
+			return nil, errors.New("network error")
+		},
+	}
+	req := httptest.NewRequest(http.MethodGet, "/login", nil)
+	w := httptest.NewRecorder()
+
+	NewLoginHandler(&testhelpers.MockCfg, client, testhelpers.MockLogger)(w, req)
+
+	assert.Equal(t, http.StatusInternalServerError, w.Result().StatusCode)
 }

@@ -2,7 +2,6 @@ package login
 
 import (
 	"encoding/json"
-	"fmt"
 	"io"
 	"net/http"
 
@@ -23,13 +22,13 @@ func GetLoginURL(
 	req, err := http.NewRequest("GET", metadataURL, nil)
 	if err != nil {
 		logger.Error("failed to create request", zap.String("url", metadataURL), zap.Error(err))
-		return "", fmt.Errorf("failed to create request: %w", err)
+		return "", ErrFailedToCreateRequest
 	}
 
 	resp, err := client.Do(req)
 	if err != nil {
 		logger.Error("failed to fetch metadata", zap.String("url", metadataURL), zap.Error(err))
-		return "", fmt.Errorf("failed to fetch metadata: %w", err)
+		return "", ErrFailedToFetchMetadata
 	}
 	defer func() {
 		if cerr := resp.Body.Close(); cerr != nil {
@@ -43,18 +42,18 @@ func GetLoginURL(
 			zap.Int("status", resp.StatusCode),
 			zap.ByteString("body", body),
 		)
-		return "", fmt.Errorf("unexpected status code: %d", resp.StatusCode)
+		return "", ErrUnexpectedStatusCode
 	}
 
 	var meta LoginMetadata
 	if err := json.NewDecoder(resp.Body).Decode(&meta); err != nil {
 		logger.Error("failed to decode metadata JSON", zap.Error(err))
-		return "", fmt.Errorf("failed to decode metadata: %w", err)
+		return "", ErrFailedToDecodeMetadata
 	}
 
 	if meta.AuthorizationEndpoint == "" {
-		logger.Error("metadata response missing authorization_endpoint")
-		return "", fmt.Errorf("invalid metadata: authorization_endpoint is empty")
+		logger.Error("missing authorization_endpoint in metadata response")
+		return "", ErrMissingAuthorizationEndpoint
 	}
 
 	logger.Info("authorization_endpoint retrieved successfully", zap.String("authorization_endpoint", meta.AuthorizationEndpoint))
