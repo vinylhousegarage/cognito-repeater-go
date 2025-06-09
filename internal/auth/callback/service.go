@@ -2,7 +2,6 @@ package callback
 
 import (
 	"encoding/json"
-	"fmt"
 	"io"
 	"net/http"
 
