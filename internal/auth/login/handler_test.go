@@ -1,6 +1,7 @@
 package login
 
 import (
+	"errors"
 	"io"
 	"net/http"
 	"net/http/httptest"
@@ -29,12 +30,12 @@ func NewMockHTTPClientOKWithAuthEndpoint() httpclient.HTTPClient {
 	}
 }
 
+var mockProvider = &testhelpers.MockCfg
+var mockClient = NewMockHTTPClientOKWithAuthEndpoint()
+var mockLogger = zap.NewNop()
+
 func TestNewLoginHandler_RedirectsToLoginEndpoint(t *testing.T) {
 	t.Parallel()
-
-	mockProvider := &testhelpers.MockCfg
-	mockClient := NewMockHTTPClientOKWithAuthEndpoint()
-	mockLogger := zap.NewNop()
 
 	req := httptest.NewRequest(http.MethodGet, "/login", nil)
 	w := httptest.NewRecorder()
@@ -56,10 +57,6 @@ func TestNewLoginHandler_RedirectsToLoginEndpoint(t *testing.T) {
 
 func TestNewLoginHandlerSetsStateCookie(t *testing.T) {
 	t.Parallel()
-
-	mockProvider := &testhelpers.MockCfg
-	mockClient := NewMockHTTPClientOKWithAuthEndpoint()
-	mockLogger := zap.NewNop()
 
 	req := httptest.NewRequest(http.MethodGet, "/login", nil)
 	w := httptest.NewRecorder()
@@ -83,4 +80,20 @@ func TestNewLoginHandlerSetsStateCookie(t *testing.T) {
 	assert.True(t, stateCookie.Secure)
 	assert.Equal(t, "/", stateCookie.Path)
 	assert.Equal(t, http.SameSiteLaxMode, stateCookie.SameSite)
+}
+
+func TestNewLoginHandler_MetadataFetchFails(t *testing.T) {
+	t.Parallel()
+
+	client := &testhelpers.MockHTTPClient{
+		DoFunc: func(req *http.Request) (*http.Response, error) {
+			return nil, errors.New("network error")
+		},
+	}
+	req := httptest.NewRequest(http.MethodGet, "/login", nil)
+	w := httptest.NewRecorder()
+
+	NewLoginHandler(&testhelpers.MockCfg, client, mockLogger)(w, req)
+
+	assert.Equal(t, http.StatusInternalServerError, w.Result().StatusCode)
 }
