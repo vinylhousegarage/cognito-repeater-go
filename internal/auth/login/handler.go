@@ -45,8 +45,16 @@ func NewLoginHandler(
 
 		url, err := BuildLoginURL(p, endpoint, state)
 		if err != nil {
-			logger.Error("failed to build login URL", zap.String("endpoint", endpoint), zap.Error(err))
-			http.Error(w, "invalid login URL", http.StatusInternalServerError)
+			var status int
+			switch {
+			case errors.Is(err, ErrFailedToParseLoginURL):
+				status = http.StatusBadGateway
+				logger.Warn("failed to parse login URL", zap.String("endpoint", endpoint), zap.Error(err))
+			default:
+				status = http.StatusInternalServerError
+				logger.Error("unexpected error while building login URL", zap.String("endpoint", endpoint), zap.Error(err))
+			}
+			utils.WritePlainError(w, status, err, logger)
 			return
 		}
 
