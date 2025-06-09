@@ -41,7 +41,7 @@ func NewCallbackHandler(
 			var status int
 			switch {
 			case errors.Is(err, ErrUnexpectedStatusCode),
-				errors.Is(err, ErrInvalidMetadataNoEndpoint):
+				errors.Is(err, ErrMissingTokenEndpoint):
 				status = http.StatusBadGateway
 				logger.Warn("upstream returned unexpected metadata", zap.Error(err))
 			default:
