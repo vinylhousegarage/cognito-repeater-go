@@ -2,7 +2,6 @@ package login
 
 import (
 	"encoding/json"
-	"fmt"
 	"io"
 	"net/http"
 
