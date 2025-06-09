@@ -18,7 +18,11 @@ func TestWritePlainError(t *testing.T) {
 	WritePlainError(rec, http.StatusInternalServerError, errors.New("something went wrong"), logger)
 
 	resp := rec.Result()
-	defer resp.Body.Close()
+	defer func() {
+		if err := resp.Body.Close(); err != nil {
+			t.Errorf("failed to close response body: %v", err)
+		}
+	}()
 
 	assert.Equal(t, http.StatusInternalServerError, resp.StatusCode)
 	assert.Equal(t, "text/plain; charset=utf-8", resp.Header.Get("Content-Type"))
