@@ -54,7 +54,7 @@ func GetLoginURL(
 
 	if meta.AuthorizationEndpoint == "" {
 		logger.Error("missing authorization_endpoint in metadata response")
-		return "", ErrInvalidMetadataNoEndpoint
+		return "", ErrMissingAuthorizationEndpoint
 	}
 
 	logger.Info("authorization_endpoint retrieved successfully", zap.String("authorization_endpoint", meta.AuthorizationEndpoint))
