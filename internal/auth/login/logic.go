@@ -32,7 +32,7 @@ func BuildStateCookie(state string) *http.Cookie {
 func BuildLoginURL(p deps.LoginHandlerProvider, endpoint, state string) (string, error) {
 	loginURL, err := url.Parse(endpoint)
 	if err != nil {
-		return "", err
+		return "", ErrFailedToParseLoginURL
 	}
 	q := loginURL.Query()
 	q.Set("response_type", "code")
