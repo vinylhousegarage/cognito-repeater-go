@@ -8,6 +8,7 @@ import (
 	"strings"
 
 	"cognito-repeater-go/internal/auth/deps"
+	"cognito-repeater-go/internal/auth/utils"
 	"cognito-repeater-go/internal/httpclient"
 
 	"go.uber.org/zap"
@@ -21,12 +22,6 @@ type TokenResponse struct {
 	TokenType    string `json:"token_type"`
 }
 
-func writePlainError(w http.ResponseWriter, status int, err error, logger *zap.Logger) {
-	w.Header().Set("Content-Type", "text/plain; charset=utf-8")
-	logger.Error(http.StatusText(status), zap.Error(err))
-	http.Error(w, http.StatusText(status), status)
-}
-
 func NewCallbackHandler(
 	p deps.CallbackHandlerProvider,
 	c httpclient.HTTPClient,
@@ -36,7 +31,7 @@ func NewCallbackHandler(
 		code, err := ValidateCallbackRequest(r)
 		if err != nil {
 			status := http.StatusBadRequest
-			writePlainError(w, status, err, logger)
+			utils.WritePlainError(w, status, err, logger)
 			return
 		}
 
@@ -49,17 +44,17 @@ func NewCallbackHandler(
 				errors.Is(err, ErrFailedToDecodeMetadata):
 
 				status := http.StatusInternalServerError
-				writePlainError(w, status, err, logger)
+				utils.WritePlainError(w, status, err, logger)
 
 			case errors.Is(err, ErrUnexpectedStatusCode),
 				errors.Is(err, ErrInvalidMetadataNoEndpoint):
 
 				status := http.StatusBadGateway
-				writePlainError(w, status, err, logger)
+				utils.WritePlainError(w, status, err, logger)
 
 			default:
 				status := http.StatusInternalServerError
-				writePlainError(w, status, err, logger)
+				utils.WritePlainError(w, status, err, logger)
 			}
 			return
 		}
@@ -68,7 +63,7 @@ func NewCallbackHandler(
 		req, err := http.NewRequest("POST", tokenEndpoint, strings.NewReader(bodyStr))
 		if err != nil {
 			status := http.StatusInternalServerError
-			writePlainError(w, status, err, logger)
+			utils.WritePlainError(w, status, err, logger)
 			return
 		}
 		req.Header.Set("Content-Type", "application/x-www-form-urlencoded")
@@ -77,7 +72,7 @@ func NewCallbackHandler(
 		resp, err := c.Do(req)
 		if err != nil {
 			status := http.StatusBadGateway
-			writePlainError(w, status, err, logger)
+			utils.WritePlainError(w, status, err, logger)
 			return
 		}
 		defer func() {
@@ -112,7 +107,7 @@ func NewCallbackHandler(
 		var tokenResp TokenResponse
 		if err := json.NewDecoder(resp.Body).Decode(&tokenResp); err != nil {
 			status := http.StatusInternalServerError
-			writePlainError(w, status, err, logger)
+			utils.writePlainError(w, status, err, logger)
 			return
 		}
 
@@ -125,7 +120,7 @@ func NewCallbackHandler(
 
 		if err := json.NewEncoder(w).Encode(tokenResp); err != nil {
 			status := http.StatusInternalServerError
-			writePlainError(w, status, err, logger)
+			utils.WritePlainError(w, status, err, logger)
 			return
 		}
 	}
