@@ -146,5 +146,5 @@ func TestGetCallbackURL_EmptyTokenEndpoint(t *testing.T) {
 
 	_, err := GetCallbackURL(ts.URL, http.DefaultClient, zap.NewNop())
 
-	assert.ErrorIs(t, err, ErrInvalidMetadataNoEndpoint)
+	assert.ErrorIs(t, err, ErrMissingTokenEndpoint)
 }

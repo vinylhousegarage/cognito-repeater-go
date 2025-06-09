@@ -83,8 +83,8 @@ func GetCallbackURL(
 	}
 
 	if meta.TokenEndpoint == "" {
-		logger.Error("metadata response missing token_endpoint")
-		return "", ErrInvalidMetadataNoEndpoint
+		logger.Error("missing token_endpoint in metadata response")
+		return "", ErrMissingTokenEndpoint
 	}
 
 	logger.Info("token_endpoint retrieved successfully", zap.String("token_endpoint", meta.TokenEndpoint))

@@ -41,12 +41,12 @@ func NewCallbackHandler(
 			var status int
 			switch {
 			case errors.Is(err, ErrUnexpectedStatusCode),
-				errors.Is(err, ErrInvalidMetadataNoEndpoint):
+				errors.Is(err, ErrMissingTokenEndpoint):
 				status = http.StatusBadGateway
-				logger.Warn("upstream returned unexpected metadata", zap.Error(err))
+				logger.Warn("GetCallbackURL returned an upstream error", zap.Error(err))
 			default:
 				status = http.StatusInternalServerError
-				logger.Error("failed to resolve token endpoint", zap.Error(err))
+				logger.Error("GetLoginURL failed due to internal error", zap.Error(err))
 			}
 			utils.WritePlainError(w, status, err, logger)
 			return
