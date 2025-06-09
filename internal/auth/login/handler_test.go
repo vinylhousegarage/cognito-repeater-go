@@ -17,30 +17,13 @@ import (
 	"go.uber.org/zap"
 )
 
-func NewMockHTTPClientOKWithAuthEndpoint() httpclient.HTTPClient {
-	return &testhelpers.MockHTTPClient{
-		DoFunc: func(req *http.Request) (*http.Response, error) {
-			return &http.Response{
-				StatusCode: http.StatusOK,
-				Body: io.NopCloser(strings.NewReader(
-					`{"authorization_endpoint": "https://example.com/oauth2/authorize"}`,
-				)),
-			}, nil
-		},
-	}
-}
-
-var mockProvider = &testhelpers.MockCfg
-var mockClient = NewMockHTTPClientOKWithAuthEndpoint()
-var mockLogger = zap.NewNop()
-
 func TestNewLoginHandler_RedirectsToLoginEndpoint(t *testing.T) {
 	t.Parallel()
 
 	req := httptest.NewRequest(http.MethodGet, "/login", nil)
 	w := httptest.NewRecorder()
 
-	NewLoginHandler(mockProvider, mockClient, mockLogger)(w, req)
+	NewLoginHandler(testhelpers.MockProvider, testhelpers.MockClient, testhelpers.MockLogger)(w, req)
 
 	resp := w.Result()
 	assert.Equal(t, http.StatusFound, resp.StatusCode)
@@ -61,7 +44,7 @@ func TestNewLoginHandlerSetsStateCookie(t *testing.T) {
 	req := httptest.NewRequest(http.MethodGet, "/login", nil)
 	w := httptest.NewRecorder()
 
-	NewLoginHandler(mockProvider, mockClient, mockLogger)(w, req)
+	NewLoginHandler(testhelpers.MockProvider, testhelpers.MockClient, testhelpers.MockLogger)(w, req)
 
 	resp := w.Result()
 
@@ -93,7 +76,7 @@ func TestNewLoginHandler_MetadataFetchFails(t *testing.T) {
 	req := httptest.NewRequest(http.MethodGet, "/login", nil)
 	w := httptest.NewRecorder()
 
-	NewLoginHandler(&testhelpers.MockCfg, client, mockLogger)(w, req)
+	NewLoginHandler(&testhelpers.MockCfg, client, testhelpers.mockLogger)(w, req)
 
 	assert.Equal(t, http.StatusInternalServerError, w.Result().StatusCode)
 }
