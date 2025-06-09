@@ -19,7 +19,7 @@ func TestGetLoginURL_Success(t *testing.T) {
 	}))
 	defer ts.Close()
 
-	endpoint, err := GetLoginURL(ts.URL, testhelpers.MockClient, testhelpers.MockLogger)
+	endpoint, err := GetLoginURL(ts.URL, http.DefaultClient, testhelpers.MockLogger)
 
 	assert.NoError(t, err)
 	assert.Equal(t, "https://example.com/oauth2/authorize", endpoint)
@@ -28,7 +28,7 @@ func TestGetLoginURL_Success(t *testing.T) {
 func TestGetLoginURL_RequestCreationError(t *testing.T) {
 	t.Parallel()
 
-	_, err := GetLoginURL(":", testhelpers.MockClient, testhelpers.MockLogger)
+	_, err := GetLoginURL(":", http.DefaultClient, testhelpers.MockLogger)
 
 	assert.Error(t, err)
 	assert.ErrorIs(t, err, ErrFailedToCreateRequest)
@@ -37,7 +37,7 @@ func TestGetLoginURL_RequestCreationError(t *testing.T) {
 func TestGetLoginURL_HTTPClientError(t *testing.T) {
 	t.Parallel()
 
-	_, err := GetLoginURL("http://invalid.host.local", testhelpers.MockClient, testhelpers.MockLogger)
+	_, err := GetLoginURL("http://invalid.host.local", http.DefaultClient, testhelpers.MockLogger)
 
 	assert.Error(t, err)
 	assert.ErrorIs(t, err, ErrFailedToFetchMetadata)
@@ -51,7 +51,7 @@ func TestGetLoginURL_StatusCodeError(t *testing.T) {
 	}))
 	defer ts.Close()
 
-	_, err := GetLoginURL(ts.URL, testhelpers.MockClient, testhelpers.MockLogger)
+	_, err := GetLoginURL(ts.URL, http.DefaultClient, testhelpers.MockLogger)
 
 	assert.Error(t, err)
 	assert.ErrorIs(t, err, ErrUnexpectedStatusCode)
@@ -66,7 +66,7 @@ func TestGetLoginURL_DecodeError(t *testing.T) {
 	}))
 	defer ts.Close()
 
-	_, err := GetLoginURL(ts.URL, testhelpers.MockClient, testhelpers.MockLogger)
+	_, err := GetLoginURL(ts.URL, http.DefaultClient, testhelpers.MockLogger)
 
 	assert.Error(t, err)
 	assert.ErrorIs(t, err, ErrFailedToDecodeMetadata)
@@ -81,7 +81,7 @@ func TestGetLoginURL_MissingAuthorizationEndpoint(t *testing.T) {
 	}))
 	defer ts.Close()
 
-	_, err := GetLoginURL(ts.URL, testhelpers.MockClient, testhelpers.MockLogger)
+	_, err := GetLoginURL(ts.URL, http.DefaultClient, testhelpers.MockLogger)
 
 	assert.Error(t, err)
 	assert.ErrorIs(t, err, ErrMissingAuthorizationEndpoint)
