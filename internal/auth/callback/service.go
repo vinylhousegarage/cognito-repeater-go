@@ -47,13 +47,13 @@ func GetCallbackURL(
 	req, err := http.NewRequest("GET", metadataURL, nil)
 	if err != nil {
 		logger.Error("failed to create request", zap.String("url", metadataURL), zap.Error(err))
-		return "", fmt.Errorf("%w: %v", ErrFailedToCreateRequest, err)
+		return "", fmt.Errorf("%w", err)
 	}
 
 	resp, err := client.Do(req)
 	if err != nil {
 		logger.Error("failed to fetch metadata", zap.String("url", metadataURL), zap.Error(err))
-		return "", fmt.Errorf("%w: %v", ErrFailedToFetchMetadata, err)
+		return "", fmt.Errorf("%w", err)
 	}
 	defer func() {
 		if cerr := resp.Body.Close(); cerr != nil {
@@ -80,7 +80,7 @@ func GetCallbackURL(
 	var meta callbackMetadata
 	if err := json.NewDecoder(resp.Body).Decode(&meta); err != nil {
 		logger.Error("failed to decode metadata JSON", zap.Error(err))
-		return "", fmt.Errorf("%w: %v", ErrFailedToDecodeMetadata, err)
+		return "", fmt.Errorf("%w", err)
 	}
 
 	if meta.TokenEndpoint == "" {
