@@ -1,6 +1,7 @@
 package callback
 
 import (
+	"errors"
 	"net/http"
 	"net/http/httptest"
 	"testing"
@@ -69,66 +70,81 @@ func TestValidateCallbackRequestStateMismatch(t *testing.T) {
 	assert.ErrorIs(t, err, ErrInvalidState)
 }
 
-func TestGetCallbackURLReturnsExpectedEndpoint(t *testing.T) {
+func TestGetCallbackURL_Success(t *testing.T) {
 	t.Parallel()
 
+	want := "https://example.com/token"
+
 	ts := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		w.WriteHeader(http.StatusOK)
-		_, _ = w.Write([]byte(`{"token_endpoint":"https://example.com/oauth2/token"}`))
+		_, _ = w.Write([]byte(`{"token_endpoint": "` + want + `"}`))
 	}))
 	defer ts.Close()
 
-	mockLogger := zap.NewNop()
+	endpoint, err := GetCallbackURL(ts.URL, http.DefaultClient, zap.NewNop())
 
-	endpoint, err := GetCallbackURL(ts.URL, http.DefaultClient, mockLogger)
-
-	assert.NoError(t, err, "failed to fetch token endpoint")
-	assert.Equal(t, "https://example.com/oauth2/token", endpoint)
+	assert.NoError(t, err)
+	assert.Equal(t, want, endpoint)
 }
 
-func TestGetCallbackURLStatusCode500(t *testing.T) {
+func TestGetCallbackURL_CreateRequestError(t *testing.T) {
+	t.Parallel()
+
+	badURL := "http://[::1]:namedport"
+
+	_, err := GetCallbackURL(badURL, http.DefaultClient, zap.NewNop())
+
+	assert.ErrorIs(t, err, ErrFailedToCreateRequest)
+}
+
+type errorClient struct{}
+
+func (e *errorClient) Do(req *http.Request) (*http.Response, error) {
+	return nil, errors.New("network failure")
+}
+
+func TestGetCallbackURL_FetchError(t *testing.T) {
+	t.Parallel()
+
+	_, err := GetCallbackURL("http://localhost", &errorClient{}, zap.NewNop())
+
+	assert.ErrorIs(t, err, ErrFailedToFetchMetadata)
+}
+
+func TestGetCallbackURL_UnexpectedStatusCode(t *testing.T) {
 	t.Parallel()
 
 	ts := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		http.Error(w, "server error", http.StatusInternalServerError)
+		http.Error(w, "not found", http.StatusNotFound)
 	}))
 	defer ts.Close()
 
-	mockLogger := zap.NewNop()
-
-	_, err := GetCallbackURL(ts.URL, http.DefaultClient, mockLogger)
+	_, err := GetCallbackURL(ts.URL, http.DefaultClient, zap.NewNop())
 
 	assert.ErrorIs(t, err, ErrUnexpectedStatusCode)
 }
 
-func TestGetCallbackURLMalformedJSON(t *testing.T) {
+func TestGetCallbackURL_DecodeError(t *testing.T) {
 	t.Parallel()
 
 	ts := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		w.WriteHeader(http.StatusOK)
 		_, _ = w.Write([]byte(`{"token_endpoint":`))
 	}))
 	defer ts.Close()
 
-	mockLogger := zap.NewNop()
-
-	_, err := GetCallbackURL(ts.URL, http.DefaultClient, mockLogger)
+	_, err := GetCallbackURL(ts.URL, http.DefaultClient, zap.NewNop())
 
 	assert.ErrorIs(t, err, ErrFailedToDecodeMetadata)
 }
 
-func TestGetCallbackURLMissingTokenEndpoint(t *testing.T) {
+func TestGetCallbackURL_EmptyTokenEndpoint(t *testing.T) {
 	t.Parallel()
 
 	ts := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		w.WriteHeader(http.StatusOK)
-		_, _ = w.Write([]byte(`{"issuer": "https://example.com"}`))
+		_, _ = w.Write([]byte(`{"token_endpoint": ""}`))
 	}))
 	defer ts.Close()
 
-	mockLogger := zap.NewNop()
-
-	_, err := GetCallbackURL(ts.URL, http.DefaultClient, mockLogger)
+	_, err := GetCallbackURL(ts.URL, http.DefaultClient, zap.NewNop())
 
 	assert.ErrorIs(t, err, ErrInvalidMetadataNoEndpoint)
 }

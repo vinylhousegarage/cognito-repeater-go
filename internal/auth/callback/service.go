@@ -2,7 +2,6 @@ package callback
 
 import (
 	"encoding/json"
-	"fmt"
 	"io"
 	"net/http"
 
@@ -47,13 +46,13 @@ func GetCallbackURL(
 	req, err := http.NewRequest("GET", metadataURL, nil)
 	if err != nil {
 		logger.Error("failed to create request", zap.String("url", metadataURL), zap.Error(err))
-		return "", fmt.Errorf("%w: %v", ErrFailedToCreateRequest, err)
+		return "", ErrFailedToCreateRequest
 	}
 
 	resp, err := client.Do(req)
 	if err != nil {
 		logger.Error("failed to fetch metadata", zap.String("url", metadataURL), zap.Error(err))
-		return "", fmt.Errorf("%w: %v", ErrFailedToFetchMetadata, err)
+		return "", ErrFailedToFetchMetadata
 	}
 	defer func() {
 		if cerr := resp.Body.Close(); cerr != nil {
@@ -74,13 +73,13 @@ func GetCallbackURL(
 			fields = append(fields, zap.ByteString("body", body))
 			logger.Warn("metadata returned non-200 response", fields...)
 		}
-		return "", fmt.Errorf("%w: %d", ErrUnexpectedStatusCode, resp.StatusCode)
+		return "", ErrUnexpectedStatusCode
 	}
 
 	var meta callbackMetadata
 	if err := json.NewDecoder(resp.Body).Decode(&meta); err != nil {
 		logger.Error("failed to decode metadata JSON", zap.Error(err))
-		return "", fmt.Errorf("%w: %v", ErrFailedToDecodeMetadata, err)
+		return "", ErrFailedToDecodeMetadata
 	}
 
 	if meta.TokenEndpoint == "" {
