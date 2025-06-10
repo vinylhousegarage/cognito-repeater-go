@@ -3,16 +3,19 @@ package utils
 import (
 	"fmt"
 	"net/http"
+
+	"go.uber.org/zap"
 )
 
-func ExtractFormValue(r *http.Request) (string, error) {
+func ExtractFormValue(r *http.Request, logger *zap.Logger) (string, error) {
 	if err := r.ParseForm(); err != nil {
-		return "", fmt.Errorf("failed to parse form: %w", err)
+		logger.Error("failed to parse form", zap.Error(err))
+		return "", ErrFailedToParseForm
 	}
 
 	token := r.FormValue("token")
 	if token == "" {
-		return "", fmt.Errorf("token is missing from body")
+		return "", ErrMissingToken
 	}
 
 	return token, nil
