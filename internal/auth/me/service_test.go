@@ -120,7 +120,7 @@ func TestFetchJWKSet_Success(t *testing.T) {
 func TestFetchJWKSet_RequestCreationError(t *testing.T) {
 	t.Parallel()
 
-	_, err := FetchJWKSURI(":", http.DefaultClient, testhelpers.MockLogger)
+	_, err := FetchJWKSet(":", http.DefaultClient, testhelpers.MockLogger)
 
 	assert.Error(t, err)
 	assert.ErrorIs(t, err, ErrFailedToCreateJWKSRequest)
