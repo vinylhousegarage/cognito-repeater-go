@@ -98,7 +98,7 @@ func FetchJWKSet(jwksURL string, client httpclient.HTTPClient, logger *zap.Logge
 
 	var set JWKSet
 	if err := json.NewDecoder(resp.Body).Decode(&set); err != nil {
-		logger.Error("failed to parse jwks JSON", zap.Error(err))
+		logger.Error("failed to decode jwks JSON", zap.Error(err))
 		return nil, fmt.Errorf("failed to parse jwks JSON: %w", err)
 	}
 
