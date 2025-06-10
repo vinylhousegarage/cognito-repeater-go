@@ -46,7 +46,7 @@ func NewCallbackHandler(
 				logger.Warn("GetCallbackURL returned an upstream error", zap.Error(err))
 			default:
 				status = http.StatusInternalServerError
-				logger.Error("GetLoginURL failed due to internal error", zap.Error(err))
+				logger.Error("GetCallbackURL failed due to internal error", zap.Error(err))
 			}
 			utils.WritePlainError(w, status, err, logger)
 			return
