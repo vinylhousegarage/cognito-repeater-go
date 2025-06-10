@@ -2,7 +2,6 @@ package me
 
 import (
 	"crypto/rsa"
-	"fmt"
 	"time"
 
 	"github.com/golang-jwt/jwt/v5"

@@ -9,8 +9,6 @@ import (
 	"cognito-repeater-go/test/testhelpers"
 
 	"github.com/stretchr/testify/assert"
-
-	"go.uber.org/zap"
 )
 
 func TestGetJWKSURI_Success(t *testing.T) {

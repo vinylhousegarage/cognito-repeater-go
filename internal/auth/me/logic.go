@@ -4,8 +4,6 @@ import (
 	"crypto/rsa"
 	"encoding/base64"
 	"encoding/json"
-	"errors"
-	"fmt"
 	"math/big"
 	"strings"
 

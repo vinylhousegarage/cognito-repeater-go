@@ -2,7 +2,6 @@ package me
 
 import (
 	"encoding/json"
-	"fmt"
 	"io"
 	"net/http"
 
@@ -19,7 +18,7 @@ func GetJWKSURI(
 	metadataURL string,
 	client httpclient.HTTPClient,
 	logger *zap.Logger,
-	) (string, error) {
+) (string, error) {
 	req, err := http.NewRequest("GET", metadataURL, nil)
 	if err != nil {
 		logger.Error("failed to create request", zap.String("url", metadataURL), zap.Error(err))

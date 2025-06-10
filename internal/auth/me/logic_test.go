@@ -2,10 +2,12 @@ package me
 
 import (
 	"encoding/base64"
+	"fmt"
 	"math/big"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
+	"go.uber.org/zap"
 )
 
 func TestExtractKIDFromToken(t *testing.T) {
