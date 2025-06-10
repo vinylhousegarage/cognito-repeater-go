@@ -36,10 +36,10 @@ func NewLoginHandler(
 			case errors.Is(err, ErrUnexpectedStatusCode),
 				errors.Is(err, ErrMissingAuthorizationEndpoint):
 				status = http.StatusBadGateway
-				logger.Warn("invalid metadata received from upstream", zap.Error(err))
+				logger.Warn("GetCLoginURL returned an upstream error", zap.Error(err))
 			default:
 				status = http.StatusInternalServerError
-				logger.Error("failed to retrieve or parse metadata", zap.Error(err))
+				logger.Error("GetLoginURL failed due to internal error", zap.Error(err))
 			}
 			utils.WritePlainError(w, status, err, logger)
 			return
