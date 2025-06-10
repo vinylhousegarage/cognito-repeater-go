@@ -36,7 +36,7 @@ func NewLoginHandler(
 			case errors.Is(err, ErrUnexpectedStatusCode),
 				errors.Is(err, ErrMissingAuthorizationEndpoint):
 				status = http.StatusBadGateway
-				logger.Warn("GetCLoginURL returned an upstream error", zap.Error(err))
+				logger.Warn("GetLoginURL returned an upstream error", zap.Error(err))
 			default:
 				status = http.StatusInternalServerError
 				logger.Error("GetLoginURL failed due to internal error", zap.Error(err))
