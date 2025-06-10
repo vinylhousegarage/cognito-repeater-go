@@ -52,18 +52,31 @@ func NewMeHandler(
 		}
 
 		metadataURL := p.MetadataURL()
-		endpoint, err := GetJWKSURI(metadataURL, c, logger)
+		jwksURL, err := GetJWKSURI(metadataURL, c, logger)
 		if err != nil {
 			var status int
+			var logMsg string
 			switch {
-			case errors.Is(err, ErrUnexpectedStatusCode),
-				errors.Is(err, ErrMissingAuthorizationEndpoint):
+			case errors.Is(err, ErrFailedToCreateRequest):
+				status = http.StatusInternalServerError
+				logMsg = "Failed to create JWKS URI request due to internal error"
+			case errors.Is(err, ErrFailedToFetchMetadata):
 				status = http.StatusBadGateway
-				logger.Warn("GetJWKSURI returned an upstream error", zap.Error(err))
+				logMsg = "Failed to fetch metadata from upstream service"
+			case errors.Is(err, ErrUnexpectedStatusCode):
+				status = http.StatusBadGateway
+				logMsg = "Upstream metadata endpoint returned unexpected status code"
+			case errors.Is(err, ErrFailedToDecodeMetadata):
+				status = http.StatusBadGateway
+				logMsg = "Failed to decode metadata JSON from upstream service"
+			case errors.Is(err, ErrMissingJWKSURI):
+				status = http.StatusBadGateway
+				logMsg = "JWKS URI is missing in metadata response from upstream service"
 			default:
 				status = http.StatusInternalServerError
-				logger.Error("GetJWKSURI failed due to internal error", zap.Error(err))
+				logMsg = "An unexpected internal error occurred while getting JWKS URI"
 			}
+			logger.Error(logMsg, zap.String("metadata_url", metadataURL), zap.Error(err))
 			utils.WritePlainError(w, status, err, logger)
 			return
 		}
