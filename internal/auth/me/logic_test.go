@@ -6,6 +6,8 @@ import (
 	"math/big"
 	"testing"
 
+	"cognito-repeater-go/test/testhelpers"
+
 	"github.com/stretchr/testify/assert"
 	"go.uber.org/zap"
 )
@@ -20,7 +22,7 @@ func TestExtractKIDFromToken(t *testing.T) {
 		encodedHeader := base64.RawURLEncoding.EncodeToString([]byte(header))
 		token := encodedHeader + ".payload.signature"
 
-		kid, err := ExtractKIDFromToken(token)
+		kid, err := ExtractKIDFromToken(token, testhelpers.MockLogger)
 		assert.NoError(t, err)
 		assert.Equal(t, "example-kid", kid)
 	})
@@ -29,7 +31,7 @@ func TestExtractKIDFromToken(t *testing.T) {
 		t.Parallel()
 
 		token := "just.onepart"
-		_, err := ExtractKIDFromToken(token)
+		_, err := ExtractKIDFromToken(token, testhelpers.MockLogger)
 		assert.Error(t, err)
 		assert.ErrorIs(t, err, ErrInvalidJWTFormat)
 	})
@@ -38,7 +40,7 @@ func TestExtractKIDFromToken(t *testing.T) {
 		t.Parallel()
 
 		token := "!!invalid!!base64.payload.signature"
-		_, err := ExtractKIDFromToken(token)
+		_, err := ExtractKIDFromToken(token, testhelpers.MockLogger)
 		assert.Error(t, err)
 		assert.ErrorIs(t, err, ErrFailedToDecodeJWTHeader)
 	})
@@ -50,7 +52,7 @@ func TestExtractKIDFromToken(t *testing.T) {
 		encoded := base64.RawURLEncoding.EncodeToString([]byte(invalidJSON))
 		token := encoded + ".payload.signature"
 
-		_, err := ExtractKIDFromToken(token)
+		_, err := ExtractKIDFromToken(token, testhelpers.MockLogger)
 		assert.Error(t, err)
 		assert.ErrorIs(t, err, ErrFailedToParseJWTHeader)
 	})
@@ -62,7 +64,7 @@ func TestExtractKIDFromToken(t *testing.T) {
 		encoded := base64.RawURLEncoding.EncodeToString([]byte(header))
 		token := encoded + ".payload.signature"
 
-		_, err := ExtractKIDFromToken(token)
+		_, err := ExtractKIDFromToken(token, testhelpers.MockLogger)
 		assert.Error(t, err)
 		assert.ErrorIs(t, err, ErrMissingKID)
 	})
@@ -76,7 +78,7 @@ func TestFindJWKByKID(t *testing.T) {
 		set := &JWKSet{
 			Keys: []JWK{{Kid: "key1"}, {Kid: "key2"}},
 		}
-		jwk, err := FindJWKByKID("key2", set)
+		jwk, err := FindJWKByKID("key2", set, testhelpers.MockLogger)
 		assert.NoError(t, err)
 		assert.Equal(t, "key2", jwk.Kid)
 	})
@@ -84,7 +86,7 @@ func TestFindJWKByKID(t *testing.T) {
 	t.Run("set is nil", func(t *testing.T) {
 		t.Parallel()
 
-		_, err := FindJWKByKID("any", nil)
+		_, err := FindJWKByKID("any", nil, testhelpers.MockLogger)
 		assert.ErrorIs(t, err, ErrJWKSetNil)
 	})
 
@@ -94,7 +96,7 @@ func TestFindJWKByKID(t *testing.T) {
 		set := &JWKSet{
 			Keys: []JWK{{Kid: "key1"}, {Kid: "key2"}},
 		}
-		_, err := FindJWKByKID("missing", set)
+		_, err := FindJWKByKID("missing", set, testhelpers.MockLogger)
 		assert.ErrorIs(t, err, ErrJWKNotFound)
 	})
 }

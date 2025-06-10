@@ -35,7 +35,7 @@ func NewMeHandler(
 	logger *zap.Logger,
 ) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		idToken, err := utils.ExtractFormValue(r)
+		idToken, err := utils.ExtractFormValue(r, logger)
 		if err != nil {
 			var status int
 			switch {
