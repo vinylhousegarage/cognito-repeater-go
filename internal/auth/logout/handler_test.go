@@ -31,9 +31,7 @@ func TestNewLogoutHandlerRedirectsToLogoutEndpoint(t *testing.T) {
 	req := httptest.NewRequest(http.MethodGet, "/logout", nil)
 	w := httptest.NewRecorder()
 
-	mockLogger := zap.NewNop()
-
-	handler := NewLogoutHandler(&MockLogoutConfig{}, mockClient, mockLogger)
+	handler := NewLogoutHandler(&MockLogoutConfig{}, mockClient, testhelpers.MockLogger)
 
 	handler.ServeHTTP(w, req)
 
