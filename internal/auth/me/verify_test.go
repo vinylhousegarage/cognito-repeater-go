@@ -19,6 +19,8 @@ func generateTestToken(t *testing.T, claims jwt.RegisteredClaims, privateKey *rs
 	return signed
 }
 
+var testTime = time.Date(2025, time.June, 10, 10, 0, 0, 0, time.UTC)
+
 func TestParseAndVerifyJWT_Success(t *testing.T) {
 	t.Parallel()
 
@@ -28,12 +30,12 @@ func TestParseAndVerifyJWT_Success(t *testing.T) {
 		Issuer:    "test-issuer",
 		Subject:   "user-123",
 		Audience:  []string{"test-aud"},
-		ExpiresAt: jwt.NewNumericDate(time.Now().Add(1 * time.Hour)),
+		ExpiresAt: jwt.NewNumericDate(testTime.Add(1 * time.Hour)),
 	}
 
 	token := generateTestToken(t, claims, privKey)
 
-	result, err := ParseAndVerifyJWT(token, &privKey.PublicKey, "test-issuer", "test-aud")
+	result, err := ParseAndVerifyJWT(token, &privKey.PublicKey, "test-issuer", "test-aud", testTime)
 	assert.NoError(t, err)
 	assert.Equal(t, "user-123", result.Subject)
 }
@@ -47,12 +49,12 @@ func TestParseAndVerifyJWT_InvalidAlg(t *testing.T) {
 		Issuer:    "test-issuer",
 		Subject:   "user-123",
 		Audience:  []string{"test-aud"},
-		ExpiresAt: jwt.NewNumericDate(time.Now().Add(1 * time.Hour)),
+		ExpiresAt: jwt.NewNumericDate(testTime.Add(1 * time.Hour)),
 	})
 	signed, err := token.SignedString([]byte("secret"))
 	assert.NoError(t, err)
 
-	_, err = ParseAndVerifyJWT(signed, &privKey.PublicKey, "test-issuer", "test-aud", time.Now())
+	_, err = ParseAndVerifyJWT(signed, &privKey.PublicKey, "test-issuer", "test-aud", testTime)
 	assert.ErrorIs(t, err, ErrInvalidSigningAlg)
 }
 
@@ -63,7 +65,7 @@ func TestParseAndVerifyJWT_InvalidToken(t *testing.T) {
 
 	brokenToken := "this.is.not.a.valid.jwt"
 
-	_, err := ParseAndVerifyJWT(brokenToken, &privKey.PublicKey, "test-issuer", "test-aud", time.Now())
+	_, err := ParseAndVerifyJWT(brokenToken, &privKey.PublicKey, "test-issuer", "test-aud", testTime)
 	assert.ErrorIs(t, err, ErrJWTParseFailed)
 }
 
@@ -76,12 +78,12 @@ func TestParseAndVerifyJWT_Expired(t *testing.T) {
 		Issuer:    "test-issuer",
 		Subject:   "user-123",
 		Audience:  []string{"test-aud"},
-		ExpiresAt: jwt.NewNumericDate(time.Now().Add(-1 * time.Hour)), // 過去
+		ExpiresAt: jwt.NewNumericDate(testTime.Add(-1 * time.Hour)),
 	}
 
 	token := generateTestToken(t, claims, privKey)
 
-	_, err := ParseAndVerifyJWT(token, &privKey.PublicKey, "test-issuer", "test-aud")
+	_, err := ParseAndVerifyJWT(token, &privKey.PublicKey, "test-issuer", "test-aud", testTime)
 	assert.ErrorIs(t, err, ErrTokenExpired)
 }
 
@@ -94,12 +96,12 @@ func TestParseAndVerifyJWT_InvalidIssuer(t *testing.T) {
 		Issuer:    "wrong-issuer",
 		Subject:   "user-123",
 		Audience:  []string{"test-aud"},
-		ExpiresAt: jwt.NewNumericDate(time.Now().Add(1 * time.Hour)),
+		ExpiresAt: jwt.NewNumericDate(testTime.Add(1 * time.Hour)),
 	}
 
 	token := generateTestToken(t, claims, privKey)
 
-	_, err := ParseAndVerifyJWT(token, &privKey.PublicKey, "expected-issuer", "test-aud")
+	_, err := ParseAndVerifyJWT(token, &privKey.PublicKey, "expected-issuer", "test-aud", testTime)
 	assert.ErrorIs(t, err, ErrInvalidIssuer)
 }
 
@@ -112,12 +114,12 @@ func TestParseAndVerifyJWT_InvalidAudience(t *testing.T) {
 		Issuer:    "test-issuer",
 		Subject:   "user-123",
 		Audience:  []string{"wrong-aud"},
-		ExpiresAt: jwt.NewNumericDate(time.Now().Add(1 * time.Hour)),
+		ExpiresAt: jwt.NewNumericDate(testTime.Add(1 * time.Hour)),
 	}
 
 	token := generateTestToken(t, claims, privKey)
 
-	_, err := ParseAndVerifyJWT(token, &privKey.PublicKey, "test-issuer", "expected-aud")
+	_, err := ParseAndVerifyJWT(token, &privKey.PublicKey, "test-issuer", "expected-aud", testTime)
 	assert.ErrorIs(t, err, ErrInvalidAudience)
 }
 
@@ -130,11 +132,11 @@ func TestParseAndVerifyJWT_MissingSub(t *testing.T) {
 	claims := jwt.RegisteredClaims{
 		Issuer:    "test-issuer",
 		Audience:  []string{"test-aud"},
-		ExpiresAt: jwt.NewNumericDate(time.Now().Add(1 * time.Hour)), // Subject 欠落
+		ExpiresAt: jwt.NewNumericDate(testTime.Add(1 * time.Hour)),
 	}
 
 	token := generateTestToken(t, claims, privKey)
 
-	_, err = ParseAndVerifyJWT(token, &privKey.PublicKey, "test-issuer", "test-aud")
+	_, err = ParseAndVerifyJWT(token, &privKey.PublicKey, "test-issuer", "test-aud", testTime)
 	assert.ErrorIs(t, err, ErrMissingSubject)
 }
