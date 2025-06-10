@@ -6,13 +6,18 @@ import (
 	"strings"
 	"testing"
 
+	"cognito-repeater-go/internal/auth/utils"
 	"cognito-repeater-go/internal/config"
 	"cognito-repeater-go/test/testhelpers"
+
+	"github.com/stretchr/testify/assert"
 
 	"go.uber.org/zap"
 )
 
 func TestNewMeHandler_MissingAuthorizationHeader(t *testing.T) {
+	t.Parallel()
+
 	cfg := &config.Config{
 		Region:           "ap-northeast-1",
 		ClientSecret:     "client-secret",
@@ -23,20 +28,15 @@ func TestNewMeHandler_MissingAuthorizationHeader(t *testing.T) {
 		UserPoolID:       "ap-northeast-1_Abc123XYZ",
 	}
 
-	mockLogger := zap.NewNop()
-
-	handler := NewMeHandler(cfg, &testhelpers.MockHTTPClient{}, mockLogger)
+	handler := NewMeHandler(cfg, &testhelpers.MockHTTPClient{}, testhelpers.MockLogger)
 
 	req := httptest.NewRequest(http.MethodPost, "/me", nil)
 	rr := httptest.NewRecorder()
 
 	handler.ServeHTTP(rr, req)
 
-	if rr.Code != http.StatusBadRequest {
-		t.Errorf("expected status 400, got %d", rr.Code)
-	}
+	assert.Equal(t, http.StatusBadRequest, rr.Code, "expected status 400 Bad Request")
 
-	if !strings.Contains(rr.Body.String(), "missing or malformed access token") {
-		t.Errorf("unexpected response body: %s", rr.Body.String())
-	}
+	expectedBody := utils.ErrMissingToken.Error()
+	assert.Equal(t, expectedBody, strings.TrimSpace(rr.Body.String()), "unexpected response body")
 }
