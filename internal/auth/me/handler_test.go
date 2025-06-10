@@ -11,8 +11,6 @@ import (
 	"cognito-repeater-go/test/testhelpers"
 
 	"github.com/stretchr/testify/assert"
-
-	"go.uber.org/zap"
 )
 
 func TestNewMeHandler_MissingAuthorizationHeader(t *testing.T) {
