@@ -28,21 +28,26 @@ func generateTestToken(t *testing.T, claims jwt.RegisteredClaims, privateKey *rs
 }
 
 type MockMeHandlerProvider struct {
-	mockMetadataURL string
-	mockIssuer      string
 	mockAudience    string
+	mockGetJWKSURI  string
+	mockIssuer      string
+	mockMetadataURL string
 }
 
-func (m *MockMeHandlerProvider) MetadataURL() string {
-	return m.mockMetadataURL
+func (m *MockMeHandlerProvider) Audience() string {
+	return m.mockAudience
+}
+
+func (m *MockMeHandlerProvider) GetJWKSURI() string {
+	return m.mockGetJWKSURI
 }
 
 func (m *MockMeHandlerProvider) Issuer() string {
 	return m.mockIssuer
 }
 
-func (m *MockMeHandlerProvider) Audience() string {
-	return m.mockAudience
+func (m *MockMeHandlerProvider) MetadataURL() string {
+	return m.mockMetadataURL
 }
 
 func TestNewMeHandler_Success(t *testing.T) {
