@@ -11,6 +11,8 @@ import (
 )
 
 func TestNewRootHandlerRedirectsToLogin(t *testing.T) {
+	t.Parallel()
+
 	req := httptest.NewRequest(http.MethodGet, "/", nil)
 	w := httptest.NewRecorder()
 

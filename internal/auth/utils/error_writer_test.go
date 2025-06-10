@@ -12,6 +12,8 @@ import (
 )
 
 func TestWritePlainError(t *testing.T) {
+	t.Parallel()
+
 	rec := httptest.NewRecorder()
 	logger := zaptest.NewLogger(t)
 

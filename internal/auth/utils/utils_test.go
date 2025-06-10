@@ -10,6 +10,8 @@ import (
 )
 
 func TestExtractFormValueFromBody_Success(t *testing.T) {
+	t.Parallel()
+
 	body := "token=abc.def.ghi"
 	req := httptest.NewRequest(http.MethodPost, "/me", strings.NewReader(body))
 	req.Header.Set("Content-Type", "application/x-www-form-urlencoded")
@@ -21,6 +23,8 @@ func TestExtractFormValueFromBody_Success(t *testing.T) {
 }
 
 func TestExtractFormValue_MissingToken(t *testing.T) {
+	t.Parallel()
+
 	body := "" // token がない
 	req := httptest.NewRequest(http.MethodPost, "/me", strings.NewReader(body))
 	req.Header.Set("Content-Type", "application/x-www-form-urlencoded")
