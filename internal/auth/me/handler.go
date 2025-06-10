@@ -26,6 +26,7 @@ import (
 // @Failure 400 {object} response.ErrorResponse "Bad Request"
 // @Failure 401 {object} response.ErrorResponse "Unauthorized"
 // @Failure 500 {object} response.ErrorResponse "Internal Server Error"
+// @Failure 502 {object} response.ErrorResponse "Internal Bad Gateway"
 // @Router /me [post]
 func NewMeHandler(
 	p deps.MeHandlerProvider,
@@ -35,50 +36,126 @@ func NewMeHandler(
 	return func(w http.ResponseWriter, r *http.Request) {
 		idToken, err := utils.ExtractFormValue(r)
 		if err != nil {
-			logger.Warn("failed to extract token from form", zap.Error(err))
-			response.WriteJSONError(w, http.StatusBadRequest, "missing or malformed access token", logger)
+			var status int
+			switch {
+			case errors.Is(err, utils.ErrFailedToParseForm),
+				errors.Is(err, utils.ErrMissingToken):
+				status = http.StatusBadRequest
+				logger.Warn("ExtractFormValue returned an upstream error", zap.Error(err))
+			default:
+				status = http.StatusInternalServerError
+				logger.Error("ExtractFormValue failed due to internal error", zap.Error(err))
+			}
+			utils.WritePlainError(w, status, err, logger)
 			return
 		}
 
-		jwksURL, err := GetJWKSURI(p.MetadataURL(), c, logger)
+		metadataURL := p.MetadataURL()
+		endpoint, err := GetJWKSURI(metadataURL, c, logger)
 		if err != nil {
-			logger.Error("failed to fetch JWKS URI", zap.String("metadata_url", p.MetadataURL()), zap.Error(err))
-			response.WriteJSONError(w, http.StatusInternalServerError, "internal server error", logger)
+			var status int
+			switch {
+			case errors.Is(err, ErrUnexpectedStatusCode),
+				errors.Is(err, ErrMissingAuthorizationEndpoint):
+				status = http.StatusBadGateway
+				logger.Warn("GetJWKSURI returned an upstream error", zap.Error(err))
+			default:
+				status = http.StatusInternalServerError
+				logger.Error("GetJWKSURI failed due to internal error", zap.Error(err))
+			}
+			utils.WritePlainError(w, status, err, logger)
 			return
 		}
 
 		jwkSet, err := FetchJWKSet(jwksURL, c, logger)
 		if err != nil {
-			logger.Error("failed to fetch JWKS", zap.String("metadata_url", jwksURL), zap.Error(err))
-			response.WriteJSONError(w, http.StatusInternalServerError, "internal server error", logger)
+			var status int
+			var logMsg string
+			switch {
+			case errors.Is(err, ErrFailedToFetchJWKS):
+				status = http.StatusBadGateway
+				logMsg = "FetchJWKSet returned an upstream error"
+			default:
+				status = http.StatusInternalServerError
+				logMsg = "FetchJWKSet failed due to internal error"
+			}
+			logger.Error(logMsg, zap.Error(err))
+			utils.WritePlainError(w, status, err, logger)
 			return
 		}
 
-		kid, err := ExtractKIDFromToken(idToken)
+		kid, err := ExtractKIDFromToken(idToken, logger)
 		if err != nil {
-			logger.Warn("failed to extract kid from token", zap.Error(err))
-			response.WriteJSONError(w, http.StatusBadRequest, "invalid token format", logger)
+			var status int
+			switch {
+			case errors.Is(err, ErrInvalidJWTFormat),
+				errors.Is(err, ErrFailedToDecodeJWTHeader),
+				errors.Is(err, ErrFailedToParseJWTHeader),
+				errors.Is(err, ErrMissingKID):
+				status = http.StatusBadRequest
+				logger.Warn("ExtractKIDFromToken returned a client-side token error", zap.Error(err))
+			default:
+				status = http.StatusInternalServerError
+				logger.Error("ExtractKIDFromToken failed due to an unexpected internal error", zap.Error(err))
+			}
+			utils.WritePlainError(w, status, err, logger)
 			return
 		}
 
-		jwk, err := FindJWKByKID(kid, jwkSet)
+		jwk, err := FindJWKByKID(kid, jwkSet, logger)
 		if err != nil {
-			logger.Warn("jwk not found for given kid", zap.Error(err))
-			response.WriteJSONError(w, http.StatusUnauthorized, "unauthorized", logger)
+			var status int
+			switch {
+			case errors.Is(err, ErrJWKSetNil),
+				errors.Is(err, ErrJWKNotFound):
+				status = http.StatusUnauthorized
+				logger.Warn("FindJWKByKID returned an authentication error", zap.Error(err))
+			default:
+				status = http.StatusInternalServerError
+				logger.Error("FindJWKByKID failed due to an unexpected internal error", zap.Error(err))
+			}
+			utils.WritePlainError(w, status, err, logger)
 			return
 		}
 
-		pubKey, err := JWKToRSAPublicKey(jwk)
+		pubKey, err := JWKToRSAPublicKey(jwk, logger)
 		if err != nil {
-			logger.Error("failed to build RSA public key", zap.Error(err))
-			response.WriteJSONError(w, http.StatusInternalServerError, "internal server error", logger)
+			var status int
+			var logMsg string
+			switch {
+			case errors.Is(err, ErrInvalidN),
+				errors.Is(err, ErrInvalidE):
+				status = http.StatusInternalServerError
+				logMsg = "JWKToRSAPublicKey failed due to invalid JWK components or internal error"
+			default:
+				status = http.StatusInternalServerError
+				logMsg = "JWKToRSAPublicKey failed due to an unexpected internal error"
+			}
+			logger.Error(logMsg, zap.Error(err))
+			utils.WritePlainError(w, status, err, logger)
 			return
 		}
 
-		claims, err := ParseAndVerifyJWT(idToken, pubKey, p.Issuer(), p.Audience())
+		claims, err := ParseAndVerifyJWT(idToken, pubKey, p.Issuer(), p.Audience(), time.Now())
 		if err != nil {
-			logger.Warn("JWT signature or claims validation failed", zap.Error(err))
-			response.WriteJSONError(w, http.StatusUnauthorized, "invalid token", logger)
+			var status int
+			var logMsg string
+			switch {
+			case errors.Is(err, ErrJWTParseFailed),
+				errors.Is(err, ErrInvalidSigningAlg),
+				errors.Is(err, ErrTokenExpired),
+				errors.Is(err, ErrInvalidIssuer),
+				errors.Is(err, ErrMissingAudience),
+				errors.Is(err, ErrInvalidAudience),
+				errors.Is(err, ErrMissingSubject):
+				status = http.StatusUnauthorized
+				logMsg = "JWT validation failed due to authentication error"
+			default:
+				status = http.StatusInternalServerError
+				logMsg = "JWT validation failed due to an unexpected internal error"
+			}
+			logger.Warn(logMsg, zap.Error(err))
+			utils.WritePlainError(w, status, err, logger)
 			return
 		}
 
