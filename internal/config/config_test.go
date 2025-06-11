@@ -1,6 +1,7 @@
 package config
 
 import (
+	"os"
 	"testing"
 )
 
@@ -26,6 +27,8 @@ func TestLoadConfig_Success(t *testing.T) {
 
 func TestLoadConfig_MissingVars(t *testing.T) {
 	t.Parallel()
+
+	os.Clearenv()
 
 	_, err := LoadConfig()
 	if err == nil {
