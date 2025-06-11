@@ -98,7 +98,7 @@ func TestNewMeHandler_Success(t *testing.T) {
 		ExpiresAt: jwt.NewNumericDate(time.Now().UTC().Add(1 * time.Hour)),
 	}
 
-	validToken := generateTestToken(t, testClaims, privKey, "test-kid")
+	validToken := generateNewMeHandlerTestToken(t, testClaims, privKey, "test-kid")
 
 	formData := url.Values{}
 	formData.Set("token", validToken)
