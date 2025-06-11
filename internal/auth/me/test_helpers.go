@@ -17,5 +17,3 @@ func generateTestToken(t *testing.T, claims jwt.RegisteredClaims, privateKey *rs
 	assert.NoError(t, err)
 	return signed
 }
-
-var testTime = time.Date(2025, time.June, 10, 10, 0, 0, 0, time.UTC)
