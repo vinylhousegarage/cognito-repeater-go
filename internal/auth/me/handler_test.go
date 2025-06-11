@@ -1,7 +1,6 @@
 package me
 
 import (
-	"bytes"
 	"crypto/rand"
 	"crypto/rsa"
 	"encoding/base64"
@@ -13,8 +12,6 @@ import (
 	"strings"
 	"testing"
 	"time"
-
-	"cognito-repeater-go/test/testhelpers"
 
 	"github.com/golang-jwt/jwt/v5"
 	"github.com/stretchr/testify/assert"
@@ -116,7 +113,7 @@ func TestNewMeHandler_Success(t *testing.T) {
 	assert.Equal(t, http.StatusOK, rr.Code)
 	assert.Equal(t, "application/json", rr.Header().Get("Content-Type"))
 
-	var userResp me.UserResponse
+	var userResp UserResponse
 	err = json.NewDecoder(rr.Body).Decode(&userResp)
 	assert.NoError(t, err)
 	assert.Equal(t, "test-user-123", userResp.Sub)
