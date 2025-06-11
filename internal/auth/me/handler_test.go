@@ -107,8 +107,12 @@ func TestNewMeHandler_Success(t *testing.T) {
 	req.Header.Set("Content-Type", "application/x-www-form-urlencoded")
 	rr := httptest.NewRecorder()
 
-	handler := NewMeHandler(mockProvider, mockHTTPClient, zap.NewNop())
+	handler := NewMeHandler(mockProvider, mockHTTPClient, zap.NewExample())
 	handler.ServeHTTP(rr, req)
+
+	if rr.Code != http.StatusOK {
+		t.Logf("Response body (on error): %s", rr.Body.String())
+	}
 
 	assert.Equal(t, http.StatusOK, rr.Code)
 	assert.Equal(t, "application/json", rr.Header().Get("Content-Type"))
