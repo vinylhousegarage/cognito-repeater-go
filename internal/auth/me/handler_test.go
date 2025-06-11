@@ -18,6 +18,8 @@ import (
 
 	"github.com/golang-jwt/jwt/v5"
 	"github.com/stretchr/testify/assert"
+
+	"go.uber.org/zap"
 )
 
 type mockMeHandlerProvider struct {
@@ -42,8 +44,16 @@ func (m *mockHTTPClient) Do(req *http.Request) (*http.Response, error) {
 	}
 	return &http.Response{
 		StatusCode: http.StatusNotFound,
-		Body:       io.NopCloser(bytes.NewBufferString("")),
+		Body:       io.NopCloser(strings.NewReader("")),
 	}, nil
+}
+
+func generateTestToken(t *testing.T, claims jwt.RegisteredClaims, privKey *rsa.PrivateKey, kid string) string {
+	token := jwt.NewWithClaims(jwt.SigningMethodRS256, claims)
+	token.Header["kid"] = kid
+	signed, err := token.SignedString(privKey)
+	assert.NoError(t, err)
+	return signed
 }
 
 func TestNewMeHandler_Success(t *testing.T) {
@@ -60,8 +70,8 @@ func TestNewMeHandler_Success(t *testing.T) {
 
 	mockJwksURL := "http://mock-cognito/jwks"
 	mockMetadataURL := "http://mock-cognito/.well-known/openid-configuration"
-	mockIssuer := "https://cognito-idp." + testhelpers.MockCfg.Region + ".amazonaws.com/" + testhelpers.MockCfg.UserPoolID
-	mockAudience := testhelpers.MockCfg.UserPoolClientID
+	mockIssuer := "https://cognito-idp.us-west-2.amazonaws.com/mockpool"
+	mockAudience := "mockclientid"
 
 	metadataResponse := `{"jwks_uri": "` + mockJwksURL + `", "issuer": "` + mockIssuer + `"}`
 
@@ -91,27 +101,23 @@ func TestNewMeHandler_Success(t *testing.T) {
 		ExpiresAt: jwt.NewNumericDate(time.Now().UTC().Add(1 * time.Hour)),
 	}
 
-	tokenWithKid := jwt.NewWithClaims(jwt.SigningMethodRS256, testClaims)
-	tokenWithKid.Header["kid"] = "test-kid"
-	validToken := generateTestToken(t, testClaims, privKey)
+	validToken := generateTestToken(t, testClaims, privKey, "test-kid")
 
 	formData := url.Values{}
 	formData.Set("token", validToken)
 	reqBody := strings.NewReader(formData.Encode())
-
 	req := httptest.NewRequest(http.MethodPost, "/me", reqBody)
 	req.Header.Set("Content-Type", "application/x-www-form-urlencoded")
 	rr := httptest.NewRecorder()
 
-	handler := NewMeHandler(mockProvider, mockHTTPClient, testhelpers.MockLogger)
+	handler := NewMeHandler(mockProvider, mockHTTPClient, zap.NewNop())
 	handler.ServeHTTP(rr, req)
 
-	assert.Equal(t, http.StatusOK, rr.Code, "expected status 200 OK")
+	assert.Equal(t, http.StatusOK, rr.Code)
+	assert.Equal(t, "application/json", rr.Header().Get("Content-Type"))
 
-	assert.Equal(t, "application/json", rr.Header().Get("Content-Type"), "expected Content-Type to be application/json")
-
-	var userResp UserResponse
+	var userResp me.UserResponse
 	err = json.NewDecoder(rr.Body).Decode(&userResp)
-	assert.NoError(t, err, "failed to decode response body")
-	assert.Equal(t, "test-user-123", userResp.Sub, "expected sub claim to match")
+	assert.NoError(t, err)
+	assert.Equal(t, "test-user-123", userResp.Sub)
 }
