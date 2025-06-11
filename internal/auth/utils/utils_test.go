@@ -28,8 +28,8 @@ func TestExtractFormValue(t *testing.T) {
 	t.Run("failed to parse form", func(t *testing.T) {
 		t.Parallel()
 
-		req := httptest.NewRequest(http.MethodPost, "/me", strings.NewReader("invalid-form-data"))
-		req.Header.Set("Content-Type", "application/x-www-form-urlencoded; charset=invalid") // 不正なcharset
+		req := httptest.NewRequest(http.MethodPost, "/me", strings.NewReader("%"))
+		req.Header.Set("Content-Type", "application/x-www-form-urlencoded")
 
 		_, err := ExtractFormValue(req, zap.NewNop())
 		assert.ErrorIs(t, err, ErrFailedToParseForm)
