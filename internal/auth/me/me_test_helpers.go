@@ -7,8 +7,11 @@ import (
 	"io"
 	"math/big"
 	"net/http"
+	"net/httptest"
 	"strings"
+	"testing"
 
+	"github.com/golang-jwt/jwt/v5"
 	"github.com/stretchr/testify/assert"
 
 	"go.uber.org/zap"
