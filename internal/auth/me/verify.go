@@ -15,7 +15,6 @@ func ParseAndVerifyJWT(
 	idToken string,
 	pubKey *rsa.PublicKey,
 	expectedIss, expectedAud string,
-	now time.Time,
 ) (*MyClaims, error) {
 	claims := &MyClaims{}
 
@@ -28,8 +27,9 @@ func ParseAndVerifyJWT(
 			}
 			return pubKey, nil
 		},
-		jwt.WithTime(now),
 	)
+
+	now := time.Now()
 
 	if err != nil || !token.Valid {
 		return nil, ErrJWTParseFailed
