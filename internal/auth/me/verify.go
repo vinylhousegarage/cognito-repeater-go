@@ -2,7 +2,7 @@ package me
 
 import (
 	"crypto/rsa"
-	"time"
+	"errors"
 
 	"github.com/golang-jwt/jwt/v5"
 )
@@ -29,14 +29,15 @@ func ParseAndVerifyJWT(
 		},
 	)
 
-	now := time.Now()
-
-	if err != nil || !token.Valid {
+	if err != nil {
+		if errors.Is(err, jwt.ErrTokenExpired) {
+			return nil, ErrTokenExpired
+		}
 		return nil, ErrJWTParseFailed
 	}
 
-	if claims.ExpiresAt == nil || !claims.ExpiresAt.After(now) {
-		return nil, ErrTokenExpired
+	if !token.Valid {
+		return nil, ErrJWTParseFailed
 	}
 
 	if claims.Issuer != expectedIss {
@@ -46,7 +47,6 @@ func ParseAndVerifyJWT(
 	if len(claims.Audience) == 0 {
 		return nil, ErrMissingAudience
 	}
-
 	validAud := false
 	for _, aud := range claims.Audience {
 		if aud == expectedAud {
