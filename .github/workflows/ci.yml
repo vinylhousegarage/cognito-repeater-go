@@ -29,7 +29,7 @@ jobs:
       - name: Run Linter
         uses: golangci/golangci-lint-action@v5
         with:
-          version: v2.1.6
+          version: v1.64.8
           annotations: false
 
       - name: Run tests
