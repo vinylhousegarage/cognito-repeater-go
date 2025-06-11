@@ -4,7 +4,6 @@ import (
 	"encoding/json"
 	"errors"
 	"net/http"
-	"time"
 
 	"cognito-repeater-go/internal/auth/deps"
 	"cognito-repeater-go/internal/auth/utils"
@@ -150,7 +149,7 @@ func NewMeHandler(
 			return
 		}
 
-		claims, err := ParseAndVerifyJWT(idToken, pubKey, p.Issuer(), p.Audience(), time.Now())
+		claims, err := ParseAndVerifyJWT(idToken, pubKey, p.Issuer(), p.Audience())
 		if err != nil {
 			var status int
 			var logMsg string
