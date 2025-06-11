@@ -6,6 +6,7 @@ import (
 	"encoding/base64"
 	"encoding/json"
 	"io"
+	"math/big"
 	"net/http"
 	"net/http/httptest"
 	"net/url"
@@ -60,8 +61,10 @@ func TestNewMeHandler_Success(t *testing.T) {
 	assert.NoError(t, err)
 	pubKey := &privKey.PublicKey
 
+	eBytes := big.NewInt(int64(pubKey.E)).Bytes()
+	pubKeyE := base64.RawURLEncoding.EncodeToString(eBytes)
 	pubKeyN := base64.RawURLEncoding.EncodeToString(pubKey.N.Bytes())
-	pubKeyE := base64.RawURLEncoding.EncodeToString([]byte{byte(pubKey.E)})
+
 	jwkJSON := `{"alg":"RS256","e":"` + pubKeyE + `","kid":"test-kid","kty":"RSA","n":"` + pubKeyN + `"}`
 	jwkSetJSON := `{"keys": [` + jwkJSON + `]}`
 
