@@ -1,6 +1,7 @@
 package me
 
 import (
+	"bytes"
 	"crypto/rand"
 	"crypto/rsa"
 	"encoding/base64"
@@ -19,27 +20,30 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-type MockMeHandlerProvider struct {
+type mockMeHandlerProvider struct {
 	mockAudience    string
 	mockGetJWKSURI  string
 	mockIssuer      string
 	mockMetadataURL string
 }
 
-func (m *MockMeHandlerProvider) Audience() string {
-	return m.mockAudience
+func (m *mockMeHandlerProvider) Audience() string    { return m.mockAudience }
+func (m *mockMeHandlerProvider) GetJWKSURI() string  { return m.mockGetJWKSURI }
+func (m *mockMeHandlerProvider) Issuer() string      { return m.mockIssuer }
+func (m *mockMeHandlerProvider) MetadataURL() string { return m.mockMetadataURL }
+
+type mockHTTPClient struct {
+	Responses map[string]*http.Response
 }
 
-func (m *MockMeHandlerProvider) GetJWKSURI() string {
-	return m.mockGetJWKSURI
-}
-
-func (m *MockMeHandlerProvider) Issuer() string {
-	return m.mockIssuer
-}
-
-func (m *MockMeHandlerProvider) MetadataURL() string {
-	return m.mockMetadataURL
+func (m *mockHTTPClient) Do(req *http.Request) (*http.Response, error) {
+	if resp, ok := m.Responses[req.URL.String()]; ok {
+		return resp, nil
+	}
+	return &http.Response{
+		StatusCode: http.StatusNotFound,
+		Body:       io.NopCloser(bytes.NewBufferString("")),
+	}, nil
 }
 
 func TestNewMeHandler_Success(t *testing.T) {
@@ -63,7 +67,7 @@ func TestNewMeHandler_Success(t *testing.T) {
 
 	metadataResponse := `{"jwks_uri": "` + mockJwksURL + `", "issuer": "` + mockIssuer + `"}`
 
-	mockHTTPClient := &testhelpers.MockHTTPClient{
+	mockHTTPClient := &mockHTTPClient{
 		Responses: map[string]*http.Response{
 			mockMetadataURL: {
 				StatusCode: http.StatusOK,
@@ -76,7 +80,7 @@ func TestNewMeHandler_Success(t *testing.T) {
 		},
 	}
 
-	mockProvider := &MockMeHandlerProvider{
+	mockProvider := &mockMeHandlerProvider{
 		mockMetadataURL: mockMetadataURL,
 		mockIssuer:      mockIssuer,
 		mockAudience:    mockAudience,
