@@ -34,7 +34,7 @@ func TestParseAndVerifyJWT(t *testing.T) {
 			Audience:  []string{"test-aud"},
 			ExpiresAt: jwt.NewNumericDate(time.Now().UTC().Add(1 * time.Hour)),
 		}
-		token := generateTestToken(t, claims, privKey)
+		token := generateParseAndVerifyJWTTestToken(t, claims, privKey)
 		result, err := ParseAndVerifyJWT(token, &privKey.PublicKey, "test-issuer", "test-aud")
 		assert.NoError(t, err)
 		assert.Equal(t, "user-123", result.Subject)
@@ -75,7 +75,7 @@ func TestParseAndVerifyJWT(t *testing.T) {
 			ExpiresAt: jwt.NewNumericDate(time.Now().UTC().Add(-1 * time.Hour)),
 		}
 
-		token := generateTestToken(t, claims, privKey)
+		token := generateParseAndVerifyJWTTestToken(t, claims, privKey)
 
 		_, err := ParseAndVerifyJWT(token, &privKey.PublicKey, "test-issuer", "test-aud")
 		assert.ErrorIs(t, err, ErrTokenExpired)
@@ -91,7 +91,7 @@ func TestParseAndVerifyJWT(t *testing.T) {
 			ExpiresAt: jwt.NewNumericDate(time.Now().UTC().Add(1 * time.Hour)),
 		}
 
-		token := generateTestToken(t, claims, privKey)
+		token := generateParseAndVerifyJWTTestToken(t, claims, privKey)
 
 		_, err := ParseAndVerifyJWT(token, &privKey.PublicKey, "expected-issuer", "test-aud")
 		assert.ErrorIs(t, err, ErrInvalidIssuer)
@@ -107,7 +107,7 @@ func TestParseAndVerifyJWT(t *testing.T) {
 			ExpiresAt: jwt.NewNumericDate(time.Now().UTC().Add(1 * time.Hour)),
 		}
 
-		token := generateTestToken(t, claims, privKey)
+		token := generateParseAndVerifyJWTTestToken(t, claims, privKey)
 
 		_, err := ParseAndVerifyJWT(token, &privKey.PublicKey, "test-issuer", "expected-aud")
 		assert.ErrorIs(t, err, ErrInvalidAudience)
@@ -122,7 +122,7 @@ func TestParseAndVerifyJWT(t *testing.T) {
 			ExpiresAt: jwt.NewNumericDate(time.Now().UTC().Add(1 * time.Hour)),
 		}
 
-		token := generateTestToken(t, claims, privKey)
+		token := generateParseAndVerifyJWTTestToken(t, claims, privKey)
 
 		_, err := ParseAndVerifyJWT(token, &privKey.PublicKey, "test-issuer", "test-aud")
 		assert.ErrorIs(t, err, ErrMissingSubject)
