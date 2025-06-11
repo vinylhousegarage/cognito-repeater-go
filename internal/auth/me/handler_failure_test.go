@@ -1,22 +1,11 @@
 package me
 
 import (
-	"crypto/rand"
-	"crypto/rsa"
-	"encoding/base64"
-	"io"
-	"math/big"
-	"net/http"
-	"net/http/httptest"
-	"net/url"
-	"strings"
 	"testing"
 	"time"
 
 	"github.com/golang-jwt/jwt/v5"
 	"github.com/stretchr/testify/assert"
-
-	"go.uber.org/zap"
 )
 
 func TestNewMeHandler_Errors(t *testing.T) {
