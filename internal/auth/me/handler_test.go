@@ -45,7 +45,7 @@ func (m *mockHTTPClient) Do(req *http.Request) (*http.Response, error) {
 	}, nil
 }
 
-func generateTestToken(t *testing.T, claims jwt.RegisteredClaims, privKey *rsa.PrivateKey, kid string) string {
+func generateNewMeHandlerTestToken(t *testing.T, claims jwt.RegisteredClaims, privKey *rsa.PrivateKey, kid string) string {
 	token := jwt.NewWithClaims(jwt.SigningMethodRS256, claims)
 	token.Header["kid"] = kid
 	signed, err := token.SignedString(privKey)
