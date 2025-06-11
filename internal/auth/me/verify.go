@@ -30,14 +30,14 @@ func ParseAndVerifyJWT(
 	)
 
 	if err != nil {
-		if errors.Is(err, jwt.ErrTokenExpired) {
+		switch {
+		case errors.Is(err, ErrInvalidSigningAlg):
+			return nil, ErrInvalidSigningAlg
+		case errors.Is(err, jwt.ErrTokenExpired):
 			return nil, ErrTokenExpired
+		default:
+			return nil, ErrJWTParseFailed
 		}
-		return nil, ErrJWTParseFailed
-	}
-
-	if !token.Valid {
-		return nil, ErrJWTParseFailed
 	}
 
 	if claims.Issuer != expectedIss {
