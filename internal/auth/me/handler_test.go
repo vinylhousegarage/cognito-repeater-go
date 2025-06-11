@@ -53,8 +53,6 @@ func TestNewMeHandler_Success(t *testing.T) {
 	assert.NoError(t, err)
 	pubKey := &privKey.PublicKey
 
-	testTime := time.Date(2025, time.June, 10, 10, 0, 0, 0, time.UTC)
-
 	pubKeyN := base64.RawURLEncoding.EncodeToString(pubKey.N.Bytes())
 	pubKeyE := base64.RawURLEncoding.EncodeToString([]byte{byte(pubKey.E)})
 	jwkJSON := `{"alg":"RS256","e":"` + pubKeyE + `","kid":"test-kid","kty":"RSA","n":"` + pubKeyN + `"}`
@@ -90,7 +88,7 @@ func TestNewMeHandler_Success(t *testing.T) {
 		Issuer:    mockIssuer,
 		Audience:  []string{mockAudience},
 		Subject:   "test-user-123",
-		ExpiresAt: jwt.NewNumericDate(testTime.Add(1 * time.Hour)),
+		ExpiresAt: jwt.NewNumericDate(time.Now().UTC().Add(1 * time.Hour)),
 	}
 
 	tokenWithKid := jwt.NewWithClaims(jwt.SigningMethodRS256, testClaims)
