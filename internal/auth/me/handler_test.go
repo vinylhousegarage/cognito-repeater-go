@@ -56,6 +56,7 @@ func TestNewMeHandler_Success(t *testing.T) {
 	jwkJSON := `{"alg":"RS256","e":"` + pubKeyE + `","kid":"test-kid","kty":"RSA","n":"` + pubKeyN + `"}`
 	jwkSetJSON := `{"keys": [` + jwkJSON + `]}`
 
+	mockJwksURL := "http://mock-cognito/jwks"
 	mockMetadataURL := "http://mock-cognito/.well-known/openid-configuration"
 	mockIssuer := "https://cognito-idp." + testhelpers.MockCfg.Region + ".amazonaws.com/" + testhelpers.MockCfg.UserPoolID
 	mockAudience := testhelpers.MockCfg.UserPoolClientID
