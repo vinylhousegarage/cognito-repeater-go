@@ -43,7 +43,7 @@ func TestParseAndVerifyJWT(t *testing.T) {
 		signed, err := token.SignedString([]byte("secret"))
 		assert.NoError(t, err)
 
-		_, err := ParseAndVerifyJWT(signed, &privKey.PublicKey, "test-issuer", "test-aud")
+		_, err = ParseAndVerifyJWT(signed, &privKey.PublicKey, "test-issuer", "test-aud")
 		assert.ErrorIs(t, err, ErrInvalidSigningAlg)
 	})
 
