@@ -18,7 +18,7 @@ func ParseAndVerifyJWT(
 ) (*MyClaims, error) {
 	claims := &MyClaims{}
 
-	token, err := jwt.ParseWithClaims(
+	_, err := jwt.ParseWithClaims(
 		idToken,
 		claims,
 		func(token *jwt.Token) (interface{}, error) {
