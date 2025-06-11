@@ -17,19 +17,19 @@ func ParseAndVerifyJWT(
 	expectedIss, expectedAud string,
 	now time.Time,
 ) (*MyClaims, error) {
-  claims := &MyClaims{}
+	claims := &MyClaims{}
 
-  token, err := jwt.ParseWithClaims(
-    idToken,
-    claims,
-    func(token *jwt.Token) (interface{}, error) {
-      if token.Method.Alg() != jwt.SigningMethodRS256.Alg() {
-        return nil, ErrInvalidSigningAlg
-      }
-      return pubKey, nil
-    },
-    jwt.WithTime(now),
-  )
+	token, err := jwt.ParseWithClaims(
+		idToken,
+		claims,
+		func(token *jwt.Token) (interface{}, error) {
+			if token.Method.Alg() != jwt.SigningMethodRS256.Alg() {
+				return nil, ErrInvalidSigningAlg
+			}
+			return pubKey, nil
+		},
+		jwt.WithTime(now),
+	)
 
 	if err != nil || !token.Valid {
 		return nil, ErrJWTParseFailed
