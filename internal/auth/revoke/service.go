@@ -2,7 +2,6 @@ package revoke
 
 import (
 	"encoding/json"
-	"fmt"
 	"io"
 	"net/http"
 	"net/url"
