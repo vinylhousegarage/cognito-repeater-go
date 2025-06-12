@@ -4,34 +4,34 @@ import (
 	"crypto/rsa"
 	"encoding/base64"
 	"encoding/json"
-	"errors"
-	"fmt"
 	"math/big"
 	"strings"
+
+	"go.uber.org/zap"
 )
 
-var (
-	ErrInvalidJWTFormat = errors.New("invalid JWT format")
-	ErrMissingKID       = errors.New("kid not found in JWT header")
-)
-
-func ExtractKIDFromToken(token string) (string, error) {
+func ExtractKIDFromToken(token string, logger *zap.Logger) (string, error) {
 	parts := strings.Split(token, ".")
 	if len(parts) != 3 {
-		return "", fmt.Errorf("%w", ErrInvalidJWTFormat)
+		return "", ErrInvalidJWTFormat
 	}
 
 	headerSegment := parts[0]
 	decodedHeader, err := base64.RawURLEncoding.DecodeString(headerSegment)
 	if err != nil {
-		return "", fmt.Errorf("failed to decode JWT header: %w", err)
+		logger.Warn("failed to decode JWT header", zap.String("segment", headerSegment), zap.Error(err))
+		return "", ErrFailedToDecodeJWTHeader
 	}
 
 	var header struct {
 		Kid string `json:"kid"`
 	}
 	if err := json.Unmarshal(decodedHeader, &header); err != nil {
-		return "", fmt.Errorf("failed to parse JWT header JSON: %w", err)
+		logger.Warn("failed to parse JWT header JSON",
+			zap.ByteString("decodedHeader", decodedHeader),
+			zap.Error(err),
+		)
+		return "", ErrFailedToParseJWTHeader
 	}
 
 	if header.Kid == "" {
@@ -41,12 +41,7 @@ func ExtractKIDFromToken(token string) (string, error) {
 	return header.Kid, nil
 }
 
-var (
-	ErrJWKNotFound = errors.New("JWK not found")
-	ErrJWKSetNil   = errors.New("JWKSet is nil")
-)
-
-func FindJWKByKID(kid string, set *JWKSet) (*JWK, error) {
+func FindJWKByKID(kid string, set *JWKSet, logger *zap.Logger) (*JWK, error) {
 	if set == nil {
 		return nil, ErrJWKSetNil
 	}
@@ -56,10 +51,9 @@ func FindJWKByKID(kid string, set *JWKSet) (*JWK, error) {
 			return &key, nil
 		}
 	}
-	return nil, fmt.Errorf("JWK with kid %s not found: %w", kid, ErrJWKNotFound)
+	logger.Warn("kid not found in JWK set", zap.String("kid", kid))
+	return nil, ErrJWKNotFound
 }
-
-var ErrInvalidBase64URL = errors.New("invalid base64url encoding")
 
 func Base64URLToBigInt(b64 string) (*big.Int, error) {
 	decoded, err := base64.RawURLEncoding.DecodeString(b64)
@@ -70,11 +64,6 @@ func Base64URLToBigInt(b64 string) (*big.Int, error) {
 	n := new(big.Int).SetBytes(decoded)
 	return n, nil
 }
-
-var (
-	ErrExponentTooLarge = errors.New("exponent too large to fit in int")
-	ErrInvalidExponent  = errors.New("invalid exponent value")
-)
 
 func BuildRSAPublicKey(n *big.Int, e *big.Int) (*rsa.PublicKey, error) {
 	if !e.IsInt64() {
@@ -92,14 +81,16 @@ func BuildRSAPublicKey(n *big.Int, e *big.Int) (*rsa.PublicKey, error) {
 	}, nil
 }
 
-func JWKToRSAPublicKey(jwk *JWK) (*rsa.PublicKey, error) {
+func JWKToRSAPublicKey(jwk *JWK, logger *zap.Logger) (*rsa.PublicKey, error) {
 	n, err := Base64URLToBigInt(jwk.N)
 	if err != nil {
-		return nil, fmt.Errorf("invalid n: %w", err)
+		logger.Error("failed to convert modulus from base64", zap.String("n", jwk.N), zap.Error(err))
+		return nil, ErrInvalidN
 	}
 	e, err := Base64URLToBigInt(jwk.E)
 	if err != nil {
-		return nil, fmt.Errorf("invalid e: %w", err)
+		logger.Error("failed to convert exponent from base64", zap.String("e", jwk.E), zap.Error(err))
+		return nil, ErrInvalidE
 	}
 	return BuildRSAPublicKey(n, e)
 }

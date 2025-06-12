@@ -9,8 +9,6 @@ import (
 	"cognito-repeater-go/test/testhelpers"
 
 	"github.com/stretchr/testify/assert"
-
-	"go.uber.org/zap"
 )
 
 func TestGetJWKSURI_Success(t *testing.T) {
@@ -22,87 +20,72 @@ func TestGetJWKSURI_Success(t *testing.T) {
 	}))
 	defer ts.Close()
 
-	mockLogger := zap.NewNop()
-
-	endpoint, err := GetJWKSURI(ts.URL, http.DefaultClient, mockLogger)
+	endpoint, err := GetJWKSURI(ts.URL, http.DefaultClient, testhelpers.MockLogger)
 
 	assert.NoError(t, err, "failed to fetch jwks_uri")
 	assert.Equal(t, "https://example.com/dummy/.well-known/jwks.json", endpoint)
 }
 
+func TestGetJWKSURI_RequestCreationError(t *testing.T) {
+	t.Parallel()
+
+	_, err := GetJWKSURI(":", http.DefaultClient, testhelpers.MockLogger)
+
+	assert.Error(t, err)
+	assert.ErrorIs(t, err, ErrFailedToCreateRequest)
+}
+
 func TestGetJWKSURI_HTTPClientError(t *testing.T) {
 	t.Parallel()
 
-	mockClient := &testhelpers.MockHTTPClient{
-		DoFunc: func(req *http.Request) (*http.Response, error) {
-			return nil, errors.New("simulated network failure")
-		},
-	}
+	_, err := GetJWKSURI("http://invalid.host.local", http.DefaultClient, testhelpers.MockLogger)
 
-	mockLogger := zap.NewNop()
-
-	_, err := GetJWKSURI("https://example.com", mockClient, mockLogger)
 	assert.Error(t, err)
-	assert.Contains(t, err.Error(), "failed to fetch metadata")
+	assert.ErrorIs(t, err, ErrFailedToFetchMetadata)
 }
 
 func TestGetJWKSURI_StatusCodeError(t *testing.T) {
 	t.Parallel()
 
-	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, _ *http.Request) {
-		http.Error(w, "internal error", http.StatusInternalServerError)
+	ts := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		http.Error(w, "server error", http.StatusInternalServerError)
 	}))
-	defer server.Close()
+	defer ts.Close()
 
-	mockClient := &http.Client{}
-	mockLogger := zap.NewNop()
+	_, err := GetJWKSURI(ts.URL, http.DefaultClient, testhelpers.MockLogger)
 
-	_, err := GetJWKSURI(server.URL, mockClient, mockLogger)
 	assert.Error(t, err)
-	assert.Contains(t, err.Error(), "unexpected status code")
+	assert.ErrorIs(t, err, ErrUnexpectedStatusCode)
 }
 
-func TestGetJWKSURI_InvalidJSON(t *testing.T) {
+func TestGetJWKSURI_DecodeError(t *testing.T) {
 	t.Parallel()
 
-	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, _ *http.Request) {
-		_, _ = w.Write([]byte(`{ "jwks_uri": `))
+	ts := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		w.WriteHeader(http.StatusOK)
+		_, _ = w.Write([]byte(`{invalid json}`))
 	}))
-	defer server.Close()
+	defer ts.Close()
 
-	mockClient := &http.Client{}
-	mockLogger := zap.NewNop()
+	_, err := GetJWKSURI(ts.URL, http.DefaultClient, testhelpers.MockLogger)
 
-	_, err := GetJWKSURI(server.URL, mockClient, mockLogger)
 	assert.Error(t, err)
-	assert.Contains(t, err.Error(), "failed to decode metadata")
+	assert.ErrorIs(t, err, ErrFailedToDecodeMetadata)
 }
 
-func TestGetJWKSURI_EmptyJWKSURI(t *testing.T) {
+func TestGetJWKSURI_ErrMissingJWKSURI(t *testing.T) {
 	t.Parallel()
 
-	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, _ *http.Request) {
-		_, _ = w.Write([]byte(`{ "jwks_uri": "" }`))
+	ts := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		w.WriteHeader(http.StatusOK)
+		_, _ = w.Write([]byte(`{"end_session_endpoint": ""}`))
 	}))
-	defer server.Close()
+	defer ts.Close()
 
-	mockClient := &http.Client{}
-	mockLogger := zap.NewNop()
+	_, err := GetJWKSURI(ts.URL, http.DefaultClient, testhelpers.MockLogger)
 
-	_, err := GetJWKSURI(server.URL, mockClient, mockLogger)
 	assert.Error(t, err)
-	assert.Contains(t, err.Error(), "jwks_uri is empty")
-}
-
-func TestGetJWKSURI_InvalidURL(t *testing.T) {
-	t.Parallel()
-
-	mockClient := &http.Client{}
-	mockLogger := zap.NewNop()
-
-	_, err := GetJWKSURI("http://[::1]:namedport", mockClient, mockLogger)
-	assert.Error(t, err)
-	assert.Contains(t, err.Error(), "failed to create request")
+	assert.ErrorIs(t, err, ErrMissingJWKSURI)
 }
 
 func TestFetchJWKSet_Success(t *testing.T) {
@@ -127,14 +110,20 @@ func TestFetchJWKSet_Success(t *testing.T) {
 	}))
 	defer server.Close()
 
-	mockClient := &http.Client{}
-	mockLogger := zap.NewNop()
-
-	jwks, err := FetchJWKSet(server.URL, mockClient, mockLogger)
+	jwks, err := FetchJWKSet(server.URL, http.DefaultClient, testhelpers.MockLogger)
 
 	assert.NoError(t, err)
 	assert.Len(t, jwks.Keys, 1)
 	assert.Equal(t, "example-kid", jwks.Keys[0].Kid)
+}
+
+func TestFetchJWKSet_RequestCreationError(t *testing.T) {
+	t.Parallel()
+
+	_, err := FetchJWKSet(":", http.DefaultClient, testhelpers.MockLogger)
+
+	assert.Error(t, err)
+	assert.ErrorIs(t, err, ErrFailedToCreateJWKSRequest)
 }
 
 type roundTripFunc func(*http.Request) (*http.Response, error)
@@ -143,7 +132,7 @@ func (f roundTripFunc) RoundTrip(req *http.Request) (*http.Response, error) {
 	return f(req)
 }
 
-func TestFetchJWKSet_HTTPError(t *testing.T) {
+func TestFetchJWKSet_HTTPClientError(t *testing.T) {
 	t.Parallel()
 
 	brokenClient := &http.Client{
@@ -152,14 +141,12 @@ func TestFetchJWKSet_HTTPError(t *testing.T) {
 		}),
 	}
 
-	mockLogger := zap.NewNop()
-
-	_, err := FetchJWKSet("https://example.com/jwks", brokenClient, mockLogger)
+	_, err := FetchJWKSet("https://example.com/jwks", brokenClient, testhelpers.MockLogger)
 	assert.Error(t, err)
-	assert.Contains(t, err.Error(), "failed to fetch jwks")
+	assert.ErrorIs(t, err, ErrFailedToFetchJWKS)
 }
 
-func TestFetchJWKSet_InvalidJSON(t *testing.T) {
+func TestFetchJWKSet_DecodeError(t *testing.T) {
 	t.Parallel()
 
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, _ *http.Request) {
@@ -167,10 +154,7 @@ func TestFetchJWKSet_InvalidJSON(t *testing.T) {
 	}))
 	defer server.Close()
 
-	mockClient := &http.Client{}
-	mockLogger := zap.NewNop()
-
-	_, err := FetchJWKSet(server.URL, mockClient, mockLogger)
+	_, err := FetchJWKSet(server.URL, http.DefaultClient, testhelpers.MockLogger)
 	assert.Error(t, err)
-	assert.Contains(t, err.Error(), "failed to parse jwks JSON")
+	assert.ErrorIs(t, err, ErrFailedToDecodeJWKS)
 }

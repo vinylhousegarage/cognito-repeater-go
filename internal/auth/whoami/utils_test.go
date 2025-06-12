@@ -8,6 +8,8 @@ import (
 )
 
 func TestExtractAuthHeaderToken_Success(t *testing.T) {
+	t.Parallel()
+
 	req := httptest.NewRequest("GET", "/me", nil)
 	req.Header.Set("Authorization", "Bearer test.token.value")
 
@@ -17,6 +19,8 @@ func TestExtractAuthHeaderToken_Success(t *testing.T) {
 }
 
 func TestExtractAuthHeaderToken_MissingHeader(t *testing.T) {
+	t.Parallel()
+
 	req := httptest.NewRequest("GET", "/me", nil)
 
 	_, err := ExtractAuthHeaderToken(req)
@@ -25,6 +29,8 @@ func TestExtractAuthHeaderToken_MissingHeader(t *testing.T) {
 }
 
 func TestExtractAuthHeaderToken_InvalidFormat(t *testing.T) {
+	t.Parallel()
+
 	req := httptest.NewRequest("GET", "/me", nil)
 	req.Header.Set("Authorization", "Basic abc123")
 

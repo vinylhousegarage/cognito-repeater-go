@@ -7,36 +7,52 @@ import (
 	"testing"
 
 	"github.com/stretchr/testify/assert"
+	"go.uber.org/zap"
 )
 
-func TestExtractFormValueFromBody_Success(t *testing.T) {
-	body := "token=abc.def.ghi"
-	req := httptest.NewRequest(http.MethodPost, "/me", strings.NewReader(body))
-	req.Header.Set("Content-Type", "application/x-www-form-urlencoded")
+func TestExtractFormValue(t *testing.T) {
+	t.Parallel()
 
-	token, err := ExtractFormValue(req)
+	t.Run("success", func(t *testing.T) {
+		t.Parallel()
 
-	assert.NoError(t, err)
-	assert.Equal(t, "abc.def.ghi", token)
-}
+		body := "token=abc.def.ghi"
+		req := httptest.NewRequest(http.MethodPost, "/me", strings.NewReader(body))
+		req.Header.Set("Content-Type", "application/x-www-form-urlencoded")
 
-func TestExtractFormValue_MissingToken(t *testing.T) {
-	body := "" // token がない
-	req := httptest.NewRequest(http.MethodPost, "/me", strings.NewReader(body))
-	req.Header.Set("Content-Type", "application/x-www-form-urlencoded")
+		token, err := ExtractFormValue(req, zap.NewNop())
+		assert.NoError(t, err)
+		assert.Equal(t, "abc.def.ghi", token)
+	})
 
-	_, err := ExtractFormValue(req)
+	t.Run("failed to parse form", func(t *testing.T) {
+		t.Parallel()
 
-	assert.Error(t, err)
-	assert.Contains(t, err.Error(), "token is missing")
-}
+		req := httptest.NewRequest(http.MethodPost, "/me", strings.NewReader("%"))
+		req.Header.Set("Content-Type", "application/x-www-form-urlencoded")
 
-func TestExtractFormValue_BadFormEncoding(t *testing.T) {
-	req := httptest.NewRequest(http.MethodPost, "/me", strings.NewReader("{invalid-json}"))
-	req.Header.Set("Content-Type", "application/json") // 違う形式
+		_, err := ExtractFormValue(req, zap.NewNop())
+		assert.ErrorIs(t, err, ErrFailedToParseForm)
+	})
 
-	_, err := ExtractFormValue(req)
+	t.Run("missing token", func(t *testing.T) {
+		t.Parallel()
 
-	assert.Error(t, err)
-	assert.Contains(t, err.Error(), "token is missing from body")
+		body := ""
+		req := httptest.NewRequest(http.MethodPost, "/me", strings.NewReader(body))
+		req.Header.Set("Content-Type", "application/x-www-form-urlencoded")
+
+		_, err := ExtractFormValue(req, zap.NewNop())
+		assert.ErrorIs(t, err, ErrMissingToken)
+	})
+
+	t.Run("bad form encoding", func(t *testing.T) {
+		t.Parallel()
+
+		req := httptest.NewRequest(http.MethodPost, "/me", strings.NewReader("{invalid-json}"))
+		req.Header.Set("Content-Type", "application/json")
+
+		_, err := ExtractFormValue(req, zap.NewNop())
+		assert.ErrorIs(t, err, ErrMissingToken)
+	})
 }

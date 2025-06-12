@@ -34,7 +34,7 @@ func NewRevokeHandler(
 	logger *zap.Logger,
 ) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		refreshToken, err := utils.ExtractFormValue(r)
+		refreshToken, err := utils.ExtractFormValue(r, logger)
 		if err != nil {
 			logger.Warn("failed to extract token from form", zap.Error(err))
 			response.WriteJSONError(w, http.StatusBadRequest, err.Error(), logger)
