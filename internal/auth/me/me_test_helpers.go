@@ -138,6 +138,14 @@ func ServeMeHandler(req *http.Request, provider deps.MeHandlerProvider, client h
 	return rr
 }
 
+// 400 Bad Request Response
+func AssertBadRequestResponse(t *testing.T, rr *httptest.ResponseRecorder) {
+	t.Helper()
+	assert.Equal(t, http.StatusBadRequest, rr.Code)
+	assert.Contains(t, rr.Body.String(), "Bad Request")
+}
+
+// 401 Unauthorized Response
 func AssertUnauthorizedResponse(t *testing.T, rr *httptest.ResponseRecorder) {
 	t.Helper()
 
@@ -145,6 +153,21 @@ func AssertUnauthorizedResponse(t *testing.T, rr *httptest.ResponseRecorder) {
 	assert.Contains(t, rr.Body.String(), "Unauthorized")
 }
 
+// 500 Internal Server Error Response
+func AssertInternalServerErrorResponse(t *testing.T, rr *httptest.ResponseRecorder) {
+	t.Helper()
+	assert.Equal(t, http.StatusInternalServerError, rr.Code)
+	assert.Contains(t, rr.Body.String(), "Internal Server Error")
+}
+
+// 502 Bad Gateway Response
+func AssertBadGatewayResponse(t *testing.T, rr *httptest.ResponseRecorder) {
+	t.Helper()
+	assert.Equal(t, http.StatusBadGateway, rr.Code)
+	assert.Contains(t, rr.Body.String(), "Bad Gateway")
+}
+
+// test_helpers build function
 func setupWithClaims(t *testing.T, claims jwt.RegisteredClaims) *httptest.ResponseRecorder {
 	t.Helper()
 
