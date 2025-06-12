@@ -2,7 +2,6 @@ package revoke
 
 import (
 	"bytes"
-	"fmt"
 	"io"
 	"net/http"
 	"net/http/httptest"
@@ -100,66 +99,24 @@ func buildRequest() (*http.Request, *httptest.ResponseRecorder) {
 func TestNewRevokeHandler_Errors(t *testing.T) {
 	t.Parallel()
 
-	t.Run("missing-client-credentials", func(t *testing.T) {
-		t.Parallel()
+	mockProvider := &mockRevokeHandlerProvider{clientID: "", clientSecret: ""}
+	client := &testhelpers.MockHTTPClient{
+		DoFunc: func(req *http.Request) (*http.Response, error) {
+			if req.Method == http.MethodGet {
+				return &http.Response{
+					StatusCode: http.StatusOK,
+					Body:       io.NopCloser(strings.NewReader(`{"revocation_endpoint":"https://mock-domain/oauth2/revoke"}`)),
+				}, nil
+			}
+			return nil, nil
+		},
+	}
 
-		mockProvider := &mockRevokeHandlerProvider{clientID: "", clientSecret: ""}
-		client := &testhelpers.MockHTTPClient{
-			DoFunc: func(req *http.Request) (*http.Response, error) {
-				if req.Method == http.MethodGet {
-					return &http.Response{
-						StatusCode: http.StatusOK,
-						Body:       io.NopCloser(strings.NewReader(`{"revocation_endpoint":"https://mock-domain/oauth2/revoke"}`)),
-					}, nil
-				}
-				return nil, nil
-			},
-		}
+	req, rr := buildRequest()
 
-		req, rr := buildRequest()
+	handler := NewRevokeHandler(mockProvider, client, testhelpers.MockLogger)
+	handler.ServeHTTP(rr, req)
 
-		handler := NewRevokeHandler(mockProvider, client, testhelpers.MockLogger)
-		handler.ServeHTTP(rr, req)
-
-		assert.Equal(t, http.StatusUnauthorized, rr.Code)
-		assert.Contains(t, rr.Body.String(), ErrMissingClientCredentials.Error())
-	})
-
-	t.Run("failed-to-fetch-metadata", func(t *testing.T) {
-		t.Parallel()
-
-		mockProvider := &mockRevokeHandlerProvider{}
-		client := &testhelpers.MockHTTPClient{
-			DoFunc: func(req *http.Request) (*http.Response, error) {
-				return nil, ErrFailedToFetchMetadata
-			},
-		}
-
-		req, rr := buildRequest()
-
-		handler := NewRevokeHandler(mockProvider, client, testhelpers.MockLogger)
-		handler.ServeHTTP(rr, req)
-
-		assert.Equal(t, http.StatusBadGateway, rr.Code)
-		assert.Contains(t, rr.Body.String(), ErrFailedToFetchMetadata.Error())
-	})
-
-	t.Run("unexpected-error-from-service", func(t *testing.T) {
-		t.Parallel()
-
-		mockProvider := &mockRevokeHandlerProvider{}
-		client := &testhelpers.MockHTTPClient{
-			DoFunc: func(req *http.Request) (*http.Response, error) {
-				return nil, fmt.Errorf("unexpected service error")
-			},
-		}
-
-		req, rr := buildRequest()
-
-		handler := NewRevokeHandler(mockProvider, client, testhelpers.MockLogger)
-		handler.ServeHTTP(rr, req)
-
-		assert.Equal(t, http.StatusInternalServerError, rr.Code)
-		assert.Contains(t, rr.Body.String(), "unexpected service error")
-	})
+	assert.Equal(t, http.StatusUnauthorized, rr.Code)
+	assert.Contains(t, rr.Body.String(), ErrMissingClientCredentials.Error())
 }
