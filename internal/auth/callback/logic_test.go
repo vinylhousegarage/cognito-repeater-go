@@ -13,6 +13,8 @@ import (
 )
 
 func TestBuildTokenRequestBody(t *testing.T) {
+	t.Parallel()
+
 	var cfg deps.CallbackHandlerProvider = &config.Config{
 		UserPoolClientID: "abc123",
 		RedirectURI:      "https://example.com/callback",
@@ -34,6 +36,8 @@ func TestBuildTokenRequestBody(t *testing.T) {
 }
 
 func TestBuildBasicAuthHeader(t *testing.T) {
+	t.Parallel()
+
 	var cfg deps.CallbackHandlerProvider = &config.Config{
 		UserPoolClientID: "my-client-id",
 		ClientSecret:     "super-secret",
