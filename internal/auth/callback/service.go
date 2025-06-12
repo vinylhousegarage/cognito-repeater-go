@@ -71,7 +71,7 @@ func GetCallbackURL(
 			logger.Warn("failed to read response body", fields...)
 		} else {
 			fields = append(fields, zap.ByteString("body", body))
-			logger.Warn("metadata returned non-200 response", fields...)
+			logger.Warn("unexpected response from metadata", fields...)
 		}
 		return "", ErrUnexpectedStatusCode
 	}
@@ -83,7 +83,7 @@ func GetCallbackURL(
 	}
 
 	if meta.TokenEndpoint == "" {
-		logger.Error("missing token_endpoint in metadata response")
+		logger.Error("missing token_endpoint")
 		return "", ErrMissingTokenEndpoint
 	}
 

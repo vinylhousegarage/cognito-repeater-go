@@ -41,7 +41,7 @@ func GetJWKSURI(
 		if readErr != nil {
 			logger.Warn("failed to read metadata response body", zap.Error(readErr))
 		} else {
-			logger.Error("unexpected status code from metadata endpoint",
+			logger.Error("unexpected response from metadata",
 				zap.Int("status", resp.StatusCode),
 				zap.ByteString("body", body),
 			)
@@ -56,7 +56,7 @@ func GetJWKSURI(
 	}
 
 	if meta.JWKSURI == "" {
-		logger.Error("missing jwks_uri in metadata response")
+		logger.Error("missing jwks_uri")
 		return "", ErrMissingJWKSURI
 	}
 
