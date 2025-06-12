@@ -88,7 +88,7 @@ func TestNewMeHandler_Errors(t *testing.T) {
 		req := NewTokenPostRequest(brokenToken)
 		rr := ServeMeHandler(req, env.Provider, mockHTTPClient, env.Logger)
 
-		AssertUnauthorizedResponse(t, rr)
+		AssertBadRequestResponse(t, rr)
 	})
 
 	t.Run("unsupported-algorithm", func(t *testing.T) {
@@ -113,7 +113,7 @@ func TestNewMeHandler_Errors(t *testing.T) {
 		req := NewTokenPostRequest(tokenStr)
 		rr := ServeMeHandler(req, env.Provider, mockHTTPClient, env.Logger)
 
-		AssertUnauthorizedResponse(t, rr)
+		AssertBadRequestResponse(t, rr)
 	})
 
 	t.Run("missing-kid-in-header", func(t *testing.T) {
@@ -140,7 +140,7 @@ func TestNewMeHandler_Errors(t *testing.T) {
 		req := NewTokenPostRequest(tokenStr)
 		rr := ServeMeHandler(req, env.Provider, mockHTTPClient, env.Logger)
 
-		AssertUnauthorizedResponse(t, rr)
+		AssertBadRequestResponse(t, rr)
 	})
 
 	t.Run("kid-not-found-in-jwk-set", func(t *testing.T) {
