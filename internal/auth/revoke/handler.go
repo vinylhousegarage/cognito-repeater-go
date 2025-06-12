@@ -61,7 +61,7 @@ func NewRevokeHandler(
 		clientSecret := strings.TrimSpace(p.ClientSecretValue())
 		clientID := strings.TrimSpace(p.UserPoolClientIDValue())
 
-		resp, err := SendRevokeRequest(revokeURL, cli, refreshToken, clientID, clientSecret)
+		resp, err := SendRevokeRequest(revokeURL, cli, refreshToken, clientID, clientSecret, logger)
 		if err != nil {
 			switch {
 			case errors.Is(err, ErrMissingClientCredentials):
