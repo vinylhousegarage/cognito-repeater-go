@@ -9,12 +9,9 @@ import (
 	"strings"
 	"testing"
 
-	"cognito-repeater-go/internal/auth/revoke"
-	"cognito-repeater-go/internal/httpclient"
 	"cognito-repeater-go/test/testhelpers"
 
 	"github.com/stretchr/testify/assert"
-	"go.uber.org/zap"
 )
 
 func TestGetRevokeURL_Success(t *testing.T) {

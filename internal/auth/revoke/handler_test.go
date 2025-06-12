@@ -13,10 +13,9 @@ import (
 
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
-	"go.uber.org/zap"
 )
 
-type mockRevokeHandlerProvider struct{
+type mockRevokeHandlerProvider struct {
 	clientID     string
 	clientSecret string
 }
@@ -58,9 +57,9 @@ func TestNewRevokeHandler_Success(t *testing.T) {
 					require.Equal(t, "mock-secret", p)
 				}
 				defer func() {
-						if err := req.Body.Close(); err != nil {
-								t.Logf("failed to close request body: %v", err)
-						}
+					if err := req.Body.Close(); err != nil {
+						t.Logf("failed to close request body: %v", err)
+					}
 				}()
 				body, err := io.ReadAll(req.Body)
 				require.NoError(t, err)
@@ -80,8 +79,8 @@ func TestNewRevokeHandler_Success(t *testing.T) {
 	rr := httptest.NewRecorder()
 
 	handler := NewRevokeHandler(&mockRevokeHandlerProvider{
-    clientID:     "mock-client-id",
-    clientSecret: "mock-secret",
+		clientID:     "mock-client-id",
+		clientSecret: "mock-secret",
 	}, client, testhelpers.MockLogger)
 
 	handler.ServeHTTP(rr, req)
@@ -91,11 +90,11 @@ func TestNewRevokeHandler_Success(t *testing.T) {
 }
 
 func buildRequest() (*http.Request, *httptest.ResponseRecorder) {
-    form := "token=mock-refresh-token"
-    req := httptest.NewRequest(http.MethodPost, "/revoke", strings.NewReader(form))
-    req.Header.Set("Content-Type", "application/x-www-form-urlencoded")
-    rr := httptest.NewRecorder()
-    return req, rr
+	form := "token=mock-refresh-token"
+	req := httptest.NewRequest(http.MethodPost, "/revoke", strings.NewReader(form))
+	req.Header.Set("Content-Type", "application/x-www-form-urlencoded")
+	rr := httptest.NewRecorder()
+	return req, rr
 }
 
 func TestNewRevokeHandler_Errors(t *testing.T) {
