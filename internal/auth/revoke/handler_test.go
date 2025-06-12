@@ -9,7 +9,7 @@ import (
 	"strings"
 	"testing"
 
-	"cognito-repeater-go/internal/testhelpers"
+	"cognito-repeater-go/test/testhelpers"
 
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
