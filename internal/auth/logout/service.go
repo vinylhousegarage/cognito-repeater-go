@@ -38,7 +38,7 @@ func GetLogoutURL(
 
 	if resp.StatusCode != http.StatusOK {
 		body, _ := io.ReadAll(resp.Body)
-		logger.Error("unexpected status code from metadata endpoint",
+		logger.Error("unexpected response from metadata",
 			zap.Int("status", resp.StatusCode),
 			zap.ByteString("body", body),
 		)
@@ -52,7 +52,7 @@ func GetLogoutURL(
 	}
 
 	if meta.EndSessionEndpoint == "" {
-		logger.Error("missing end_session_endpoint in metadata response")
+		logger.Error("missing end_session_endpoint")
 		return "", ErrMissingEndSessionEndpoint
 	}
 
