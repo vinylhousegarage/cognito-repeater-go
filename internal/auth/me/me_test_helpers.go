@@ -22,6 +22,17 @@ import (
 	"go.uber.org/zap"
 )
 
+type MeTestEnv struct {
+	PrivKey         *rsa.PrivateKey
+	PubKey          *rsa.PublicKey
+	MockJwksURL     string
+	MockMetadataURL string
+	MockIssuer      string
+	MockAudience    string
+	Logger          *zap.Logger
+	Provider        deps.MeHandlerProvider
+}
+
 func NewTestEnv(t *testing.T) *MeTestEnv {
 	privKey, err := rsa.GenerateKey(rand.Reader, 2048)
 	assert.NoError(t, err)
