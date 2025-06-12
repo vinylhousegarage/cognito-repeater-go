@@ -1,13 +1,11 @@
 package utils
 
 import (
-	"os"
 	"testing"
 )
 
 func TestMask_ShowFullSecrets(t *testing.T) {
-	os.Setenv("DEBUG_SHOW_SECRETS", "1") // 強制的にtrueにするため"1"を有効フラグに使用
-	utils.ShowFullSecrets = true
+	t.Setenv("DEBUG_SHOW_SECRETS", "1")
 
 	got := Mask("secret123")
 	want := "secret123"
@@ -17,7 +15,7 @@ func TestMask_ShowFullSecrets(t *testing.T) {
 }
 
 func TestMask_HiddenFull(t *testing.T) {
-	ShowFullSecrets = false
+	t.Setenv("DEBUG_SHOW_SECRETS", "0")
 
 	tests := []struct {
 		input string
