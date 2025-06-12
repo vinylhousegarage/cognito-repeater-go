@@ -64,10 +64,8 @@ func NewRevokeHandler(
 		if err != nil {
 			switch {
 			case errors.Is(err, ErrMissingClientCredentials):
-				logger.Error("missing client credentials", zap.Error(err))
 				response.WriteJSONError(w, http.StatusUnauthorized, err.Error(), logger)
 			case errors.Is(err, ErrFailedToSendRevokeRequest):
-				logger.Error("failed to send revoke request", zap.Error(err))
 				response.WriteJSONError(w, http.StatusBadGateway, err.Error(), logger)
 			default:
 				logger.Error("unexpected response from revocation_endpoint", zap.Error(err))
