@@ -110,6 +110,17 @@ func buildMockHTTPClient(metadataURL, jwksURL, issuer, jwkJSON string) *mockHTTP
 	}
 }
 
+func generateNewMeHandlerTestToken(t *testing.T, claims jwt.RegisteredClaims, privKey *rsa.PrivateKey, kid string) string {
+	t.Helper()
+
+	token := jwt.NewWithClaims(jwt.SigningMethodRS256, claims)
+	token.Header["kid"] = kid
+	signed, err := token.SignedString(privKey)
+	assert.NoError(t, err)
+
+	return signed
+}
+
 func NewTokenPostRequest(token string) *http.Request {
 	form := url.Values{}
 	form.Set("token", token)
