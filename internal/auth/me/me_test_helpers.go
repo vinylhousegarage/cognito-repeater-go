@@ -59,6 +59,32 @@ func NewTestEnv(t *testing.T) *MeTestEnv {
 	}
 }
 
+type mockMeHandlerProvider struct {
+	mockAudience    string
+	mockGetJWKSURI  string
+	mockIssuer      string
+	mockMetadataURL string
+}
+
+func (m *mockMeHandlerProvider) Audience() string    { return m.mockAudience }
+func (m *mockMeHandlerProvider) GetJWKSURI() string  { return m.mockGetJWKSURI }
+func (m *mockMeHandlerProvider) Issuer() string      { return m.mockIssuer }
+func (m *mockMeHandlerProvider) MetadataURL() string { return m.mockMetadataURL }
+
+type mockHTTPClient struct {
+	Responses map[string]*http.Response
+}
+
+func (m *mockHTTPClient) Do(req *http.Request) (*http.Response, error) {
+	if resp, ok := m.Responses[req.URL.String()]; ok {
+		return resp, nil
+	}
+	return &http.Response{
+		StatusCode: http.StatusNotFound,
+		Body:       io.NopCloser(strings.NewReader("")),
+	}, nil
+}
+
 func generateJWKJSON(pubKey *rsa.PublicKey, kid string) string {
 	eBytes := big.NewInt(int64(pubKey.E)).Bytes()
 	pubKeyE := base64.RawURLEncoding.EncodeToString(eBytes)
