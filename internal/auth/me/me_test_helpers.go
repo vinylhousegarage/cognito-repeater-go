@@ -13,6 +13,9 @@ import (
 	"strings"
 	"testing"
 
+	"cognito-repeater-go/internal/auth/deps"
+	"cognito-repeater-go/internal/httpclient"
+
 	"github.com/golang-jwt/jwt/v5"
 	"github.com/stretchr/testify/assert"
 
@@ -78,7 +81,7 @@ func NewTokenPostRequest(token string) *http.Request {
 	return req
 }
 
-func ServeMeHandler(req *http.Request, provider Provider, client HTTPClient, logger *zap.Logger) *httptest.ResponseRecorder {
+func ServeMeHandler(req *http.Request, provider deps.MeHandlerProvider, client httpclient.HTTPClient, logger *zap.Logger) *httptest.ResponseRecorder {
 	rr := httptest.NewRecorder()
 	handler := NewMeHandler(provider, client, logger)
 	handler.ServeHTTP(rr, req)
