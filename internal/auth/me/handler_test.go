@@ -8,6 +8,21 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
+func TestMeHandler_Success(t *testing.T) {
+	t.Parallel()
+
+	claims := jwt.RegisteredClaims{
+		Issuer:    "https://cognito-idp.us-west-2.amazonaws.com/mockpool",
+		Audience:  []string{"mockclientid"},
+		Subject:   "user-123",
+		ExpiresAt: jwt.NewNumericDate(time.Now().Add(1 * time.Hour)),
+	}
+
+	rr := setupWithClaims(t, claims)
+
+	assert.Equal(t, http.StatusOK, rr.Code)
+}
+
 func TestNewMeHandler_Errors(t *testing.T) {
 	t.Parallel()
 
