@@ -36,7 +36,6 @@ func TestNewMeHandler_Errors(t *testing.T) {
 		AssertUnauthorizedResponse(t, rr)
 	})
 
-
 	t.Run("invalid-issuer", func(t *testing.T) {
 		t.Parallel()
 
