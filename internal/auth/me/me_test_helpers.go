@@ -34,6 +34,8 @@ type MeTestEnv struct {
 }
 
 func NewTestEnv(t *testing.T) *MeTestEnv {
+	t.Helper()
+
 	privKey, err := rsa.GenerateKey(rand.Reader, 2048)
 	assert.NoError(t, err)
 
