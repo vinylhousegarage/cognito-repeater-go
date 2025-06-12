@@ -8,7 +8,7 @@ import (
 	"io"
 	"math/big"
 	"net/http"
-	"net/httptest"
+	"net/http/httptest"
 	"net/url"
 	"strings"
 	"testing"
