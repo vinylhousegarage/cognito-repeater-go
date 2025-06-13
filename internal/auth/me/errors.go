@@ -25,7 +25,7 @@ var (
 	ErrInvalidN                  = apperror.New(http.StatusInternalServerError, "invalid n (modulus)")              // 500 Internal Server Error
 	ErrInvalidSigningAlg         = apperror.New(http.StatusUnauthorized, "unexpected signing method")               // 401 Unauthorized
 	ErrJWKNotFound               = apperror.New(http.StatusUnauthorized, "JWK not found")                           // 401 Unauthorized
-	ErrJWKSetNil                 = apperror.New(http.StatusInternalServerError ,"JWKSet is nil")                    // 500 Internal Server Error
+	ErrJWKSetNil                 = apperror.New(http.StatusInternalServerError, "JWKSet is nil")                    // 500 Internal Server Error
 	ErrJWTParseFailed            = apperror.New(http.StatusInternalServerError, "failed to parse JWT")              // 500 Internal Server Error
 	ErrMissingAudience           = apperror.New(http.StatusUnauthorized, "audience claim is missing")               // 401 Unauthorized
 	ErrMissingJWKSURI            = apperror.New(http.StatusBadGateway, "missing jwks_uri")                          // 502 Bad Gateway

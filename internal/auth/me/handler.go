@@ -2,7 +2,6 @@ package me
 
 import (
 	"encoding/json"
-	"errors"
 	"net/http"
 
 	"cognito-repeater-go/internal/auth/deps"
