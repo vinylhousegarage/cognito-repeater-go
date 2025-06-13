@@ -81,7 +81,7 @@ func FetchUserinfo(
 	resp, err := client.Do(req)
 	if err != nil {
 		logger.Error("failed to fetch userinfo request", zap.String("url", userinfoURL), zap.Error(err))
-		return "", ErrFailedToFetchUserinfoRequest
+		return nil, ErrFailedToFetchUserinfoRequest
 	}
 	defer func() {
 		if cerr := resp.Body.Close(); cerr != nil {
