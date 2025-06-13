@@ -107,7 +107,9 @@ func TestNewMeHandler_Errors(t *testing.T) {
 			ExpiresAt: jwt.NewNumericDate(time.Now().UTC().Add(1 * time.Hour)),
 		}
 
-		tokenStr, err := jwt.NewWithClaims(jwt.SigningMethodHS256, claims).SignedString(hmacSecret)
+		token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
+		token.Header["kid"] = "test-kid"
+		tokenStr, err := token.SignedString(hmacSecret)
 		assert.NoError(t, err)
 
 		req := NewTokenPostRequest(tokenStr)
