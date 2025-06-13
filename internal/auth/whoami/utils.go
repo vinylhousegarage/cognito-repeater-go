@@ -1,20 +1,19 @@
 package whoami
 
 import (
-	"fmt"
 	"net/http"
 	"strings"
 )
 
 func ExtractAuthHeaderToken(r *http.Request) (string, error) {
-	authHeader := r.Header.Get("Authorization")
+	authHeader := strings.TrimSpace(r.Header.Get("Authorization"))
 	if authHeader == "" {
-		return "", fmt.Errorf("authorization header is missing")
+		return "", ErrMissingAuthorizationHeader
 	}
 
 	parts := strings.SplitN(authHeader, " ", 2)
 	if len(parts) != 2 || strings.ToLower(parts[0]) != "bearer" {
-		return "", fmt.Errorf("invalid authorization header format")
+		return "", ErrInvalidAuthorizationHeaderFormat
 	}
 
 	return parts[1], nil

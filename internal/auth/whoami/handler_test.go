@@ -12,6 +12,7 @@ import (
 
 	"cognito-repeater-go/internal/auth/deps"
 	"cognito-repeater-go/internal/httpclient"
+	"cognito-repeater-go/internal/response"
 	"cognito-repeater-go/test/testhelpers"
 
 	"github.com/stretchr/testify/assert"
@@ -87,7 +88,7 @@ func TestNewWhoamiHandler_MissingAuthorization(t *testing.T) {
 
 	body, err := io.ReadAll(resp.Body)
 	require.NoError(t, err)
-	assert.Contains(t, string(body), "authorization header is missing")
+	assert.Contains(t, string(body), "missing authorization header")
 }
 
 func TestNewWhoamiHandler_MetadataFetchError(t *testing.T) {
@@ -107,34 +108,29 @@ func TestNewWhoamiHandler_MetadataFetchError(t *testing.T) {
 	handler(w, req)
 
 	resp := w.Result()
-	assert.Equal(t, http.StatusInternalServerError, resp.StatusCode)
+	assert.Equal(t, http.StatusBadGateway, resp.StatusCode)
 
 	body, err := io.ReadAll(resp.Body)
 	require.NoError(t, err)
-	assert.Contains(t, string(body), "failed to get userinfo endpoint")
+
+	var respBody response.ErrorResponse
+	require.NoError(t, json.Unmarshal(body, &respBody))
+	assert.Equal(t, "failed to fetch metadata", respBody.Error)
 }
 
 func TestNewWhoamiHandler_UserinfoFetchUnauthorized(t *testing.T) {
 	t.Parallel()
 
 	cfg, cli := newTestDeps(func(req *http.Request) (*http.Response, error) {
-		if strings.Contains(req.URL.String(), "openid-configuration") {
-			rec := httptest.NewRecorder()
-			rec.WriteHeader(http.StatusOK)
-			if _, err := rec.WriteString(`{"userinfo_endpoint":"https://mock/userinfo"}`); err != nil {
-				return nil, fmt.Errorf("failed to write metadata: %w", err)
-			}
-			return rec.Result(), nil
-		}
 		if strings.Contains(req.URL.String(), "userinfo") {
-			rec := httptest.NewRecorder()
-			rec.WriteHeader(http.StatusUnauthorized)
-			if _, err := rec.WriteString(`{"error":"unauthorized"}`); err != nil {
-				return nil, fmt.Errorf("failed to write userinfo error: %w", err)
-			}
-			return rec.Result(), nil
+			return nil, errors.New("simulated userinfo fetch failure")
 		}
-		return nil, fmt.Errorf("unexpected request: %s", req.URL.String())
+		rec := httptest.NewRecorder()
+		rec.WriteHeader(http.StatusOK)
+
+		_, err := rec.WriteString(`{"userinfo_endpoint":"https://mock/userinfo"}`)
+		require.NoError(t, err)
+		return rec.Result(), nil
 	})
 
 	req := httptest.NewRequest(http.MethodGet, "/whoami", nil)
@@ -147,9 +143,12 @@ func TestNewWhoamiHandler_UserinfoFetchUnauthorized(t *testing.T) {
 	handler(w, req)
 
 	resp := w.Result()
-	assert.Equal(t, http.StatusUnauthorized, resp.StatusCode)
+	assert.Equal(t, http.StatusBadGateway, resp.StatusCode)
 
 	body, err := io.ReadAll(resp.Body)
 	require.NoError(t, err)
-	assert.Contains(t, string(body), "failed to fetch userinfo")
+
+	var respBody response.ErrorResponse
+	require.NoError(t, json.Unmarshal(body, &respBody))
+	assert.Equal(t, "failed to fetch userinfo request", respBody.Error)
 }

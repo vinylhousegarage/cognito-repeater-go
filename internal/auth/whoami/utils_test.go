@@ -24,8 +24,7 @@ func TestExtractAuthHeaderToken_MissingHeader(t *testing.T) {
 	req := httptest.NewRequest("GET", "/me", nil)
 
 	_, err := ExtractAuthHeaderToken(req)
-	assert.Error(t, err)
-	assert.Contains(t, err.Error(), "authorization header is missing")
+	assert.ErrorIs(t, err, ErrMissingAuthorizationHeader)
 }
 
 func TestExtractAuthHeaderToken_InvalidFormat(t *testing.T) {
@@ -35,6 +34,5 @@ func TestExtractAuthHeaderToken_InvalidFormat(t *testing.T) {
 	req.Header.Set("Authorization", "Basic abc123")
 
 	_, err := ExtractAuthHeaderToken(req)
-	assert.Error(t, err)
-	assert.Contains(t, err.Error(), "invalid authorization header format")
+	assert.ErrorIs(t, err, ErrInvalidAuthorizationHeaderFormat)
 }

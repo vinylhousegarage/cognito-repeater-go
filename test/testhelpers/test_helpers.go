@@ -1,6 +1,7 @@
 package testhelpers
 
 import (
+	"errors"
 	"io"
 	"net/http"
 	"strings"
@@ -106,3 +107,8 @@ func NewMockHTTPClientOKWithAuthEndpoint() httpclient.HTTPClient {
 var MockProvider = &MockCfg
 var MockClient = NewMockHTTPClientOKWithAuthEndpoint()
 var MockLogger = zap.NewNop()
+
+type ReadErrorCloser struct{}
+
+func (r *ReadErrorCloser) Read(p []byte) (int, error) { return 0, errors.New("read error") }
+func (r *ReadErrorCloser) Close() error               { return nil }
