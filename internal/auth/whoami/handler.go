@@ -48,7 +48,7 @@ func NewWhoamiHandler(
 			return
 		}
 
-		subRaw, ok := userinfo["sub"]
+		subRaw, ok := userinfo.sub
 		if !ok {
 			logger.Warn("missing subject (sub)", zap.Any("userinfo", userinfo))
 			response.WriteErrorResponse(w, ErrMissingSubject, logger)
