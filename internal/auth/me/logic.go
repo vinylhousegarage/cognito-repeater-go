@@ -52,7 +52,7 @@ func FindJWKByKID(kid string, set *JWKSet, logger *zap.Logger) (*JWK, error) {
 		}
 	}
 	logger.Warn("kid not found in JWK set", zap.String("kid", kid))
-	return nil, ErrJWKNotFound
+	return nil, ErrKIDNotFoundInJWKSet
 }
 
 func Base64URLToBigInt(b64 string) (*big.Int, error) {
