@@ -114,8 +114,7 @@ func TestNewWhoamiHandler_MetadataFetchError(t *testing.T) {
 	require.NoError(t, err)
 
 	var respBody response.ErrorResponse
-	err = json.Unmarshal(body, &respBody)
-	require.NoError(t, err)
+	require.NoError(t, json.Unmarshal(body, &respBody))
 	assert.Equal(t, "failed to fetch metadata", respBody.Error)
 }
 
@@ -150,7 +149,6 @@ func TestNewWhoamiHandler_UserinfoFetchUnauthorized(t *testing.T) {
 	require.NoError(t, err)
 
 	var respBody response.ErrorResponse
-	err = json.Unmarshal(body, &respBody)
-	require.NoError(t, err)
+	require.NoError(t, json.Unmarshal(body, &respBody))
 	assert.Equal(t, "failed to fetch userinfo request", respBody.Error)
 }
