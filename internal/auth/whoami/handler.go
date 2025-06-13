@@ -55,8 +55,8 @@ func NewWhoamiHandler(
 		}
 
 		w.Header().Set("Content-Type", "application/json")
-		if err := json.NewEncoder(w).Encode(resp); err != nil {
-			logger.Error("failed to write response", zap.Any("resp", resp), zap.Error(err))
+		if err := json.NewEncoder(w).Encode(userinfo); err != nil {
+			logger.Error("failed to write response", zap.Any("resp", userinfo), zap.Error(err))
 		}
 	}
 }
