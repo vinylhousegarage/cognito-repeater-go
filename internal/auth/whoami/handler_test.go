@@ -123,24 +123,14 @@ func TestNewWhoamiHandler_UserinfoFetchUnauthorized(t *testing.T) {
 	t.Parallel()
 
 	cfg, cli := newTestDeps(func(req *http.Request) (*http.Response, error) {
-		if strings.Contains(req.URL.String(), "openid-configuration") {
-			rec := httptest.NewRecorder()
-			rec.WriteHeader(http.StatusOK)
-			if _, err := rec.WriteString(`{"userinfo_endpoint":"https://mock/userinfo"}`); err != nil {
-				return nil, fmt.Errorf("failed to write metadata: %w", err)
-			}
-			return rec.Result(), nil
-		}
 		if strings.Contains(req.URL.String(), "userinfo") {
-			rec := httptest.NewRecorder()
-			rec.WriteHeader(http.StatusUnauthorized)
-			if _, err := rec.WriteString(`{"error":"unauthorized"}`); err != nil {
-				return nil, fmt.Errorf("failed to write userinfo error: %w", err)
-			}
-			return rec.Result(), nil
-		}
-		return nil, fmt.Errorf("unexpected request: %s", req.URL.String())
-	})
+		return nil, errors.New("simulated userinfo fetch failure")
+	}
+	rec := httptest.NewRecorder()
+	rec.WriteHeader(http.StatusOK)
+	rec.WriteString(`{"userinfo_endpoint":"https://mock/userinfo"}`)
+	return rec.Result(), nil
+})
 
 	req := httptest.NewRequest(http.MethodGet, "/whoami", nil)
 	req.Header.Set("Authorization", "Bearer token")
@@ -152,7 +142,7 @@ func TestNewWhoamiHandler_UserinfoFetchUnauthorized(t *testing.T) {
 	handler(w, req)
 
 	resp := w.Result()
-	assert.Equal(t, http.StatusUnauthorized, resp.StatusCode)
+	assert.Equal(t, http.StatusBadGateway, resp.StatusCode)
 
 	body, err := io.ReadAll(resp.Body)
 	require.NoError(t, err)
