@@ -128,7 +128,9 @@ func TestNewWhoamiHandler_UserinfoFetchUnauthorized(t *testing.T) {
 		}
 		rec := httptest.NewRecorder()
 		rec.WriteHeader(http.StatusOK)
-		rec.WriteString(`{"userinfo_endpoint":"https://mock/userinfo"}`)
+
+		_, err := rec.WriteString(`{"userinfo_endpoint":"https://mock/userinfo"}`)
+		require.NoError(t, err)
 		return rec.Result(), nil
 	})
 
