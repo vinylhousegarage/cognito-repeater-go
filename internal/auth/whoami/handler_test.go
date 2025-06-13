@@ -87,7 +87,7 @@ func TestNewWhoamiHandler_MissingAuthorization(t *testing.T) {
 
 	body, err := io.ReadAll(resp.Body)
 	require.NoError(t, err)
-	assert.Contains(t, string(body), "authorization header is missing")
+	assert.Contains(t, string(body), "missing authorization header")
 }
 
 func TestNewWhoamiHandler_MetadataFetchError(t *testing.T) {
@@ -111,7 +111,11 @@ func TestNewWhoamiHandler_MetadataFetchError(t *testing.T) {
 
 	body, err := io.ReadAll(resp.Body)
 	require.NoError(t, err)
-	assert.Contains(t, string(body), "failed to get userinfo endpoint")
+
+	var respBody response.ErrorResponse
+	err := json.NewDecoder(resp.Body).Decode(&respBody)
+	require.NoError(t, err)
+	assert.Equal(t, "failed to fetch metadata", respBody.Error)
 }
 
 func TestNewWhoamiHandler_UserinfoFetchUnauthorized(t *testing.T) {
@@ -151,5 +155,9 @@ func TestNewWhoamiHandler_UserinfoFetchUnauthorized(t *testing.T) {
 
 	body, err := io.ReadAll(resp.Body)
 	require.NoError(t, err)
-	assert.Contains(t, string(body), "failed to fetch userinfo")
+
+	var respBody response.ErrorResponse
+	err := json.NewDecoder(resp.Body).Decode(&respBody)
+	require.NoError(t, err)
+	assert.Equal(t, "failed to fetch userinfo request", respBody.Error)
 }
