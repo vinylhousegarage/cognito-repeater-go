@@ -39,7 +39,7 @@ func GetUserinfoURL(
 	body, err := io.ReadAll(resp.Body)
 	if err != nil {
 		logger.Error("failed to read metadata response body", zap.Error(err))
-		return nil, ErrFailedToReadMetadataResponse
+		return "", ErrFailedToReadMetadataResponse
 	}
 
 	if resp.StatusCode != http.StatusOK {
@@ -47,7 +47,7 @@ func GetUserinfoURL(
 			zap.Int("status", resp.StatusCode),
 			zap.ByteString("body", body),
 		)
-		return nil, ErrUnexpectedMetadataStatusCode
+		return "", ErrUnexpectedMetadataStatusCode
 	}
 
 	var meta UserinfoMetadata
