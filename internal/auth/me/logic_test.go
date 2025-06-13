@@ -9,13 +9,14 @@ import (
 	"cognito-repeater-go/test/testhelpers"
 
 	"github.com/stretchr/testify/assert"
+
 	"go.uber.org/zap"
 )
 
 func TestExtractKIDFromToken(t *testing.T) {
 	t.Parallel()
 
-	t.Run("valid token with kid", func(t *testing.T) {
+	t.Run("valid-token-with-kid", func(t *testing.T) {
 		t.Parallel()
 
 		header := `{"kid":"example-kid"}`
@@ -27,7 +28,7 @@ func TestExtractKIDFromToken(t *testing.T) {
 		assert.Equal(t, "example-kid", kid)
 	})
 
-	t.Run("invalid JWT format", func(t *testing.T) {
+	t.Run("invalid-JWT-format", func(t *testing.T) {
 		t.Parallel()
 
 		token := "just.onepart"
@@ -36,7 +37,7 @@ func TestExtractKIDFromToken(t *testing.T) {
 		assert.ErrorIs(t, err, ErrInvalidJWTFormat)
 	})
 
-	t.Run("invalid base64 in header", func(t *testing.T) {
+	t.Run("invalid-base64-in-header", func(t *testing.T) {
 		t.Parallel()
 
 		token := "!!invalid!!base64.payload.signature"
@@ -45,7 +46,7 @@ func TestExtractKIDFromToken(t *testing.T) {
 		assert.ErrorIs(t, err, ErrFailedToDecodeJWTHeader)
 	})
 
-	t.Run("invalid JSON in header", func(t *testing.T) {
+	t.Run("invalid-JSON-in-header", func(t *testing.T) {
 		t.Parallel()
 
 		invalidJSON := "{bad json}"
@@ -57,7 +58,7 @@ func TestExtractKIDFromToken(t *testing.T) {
 		assert.ErrorIs(t, err, ErrFailedToParseJWTHeader)
 	})
 
-	t.Run("missing kid in header", func(t *testing.T) {
+	t.Run("missing-kid-in-header", func(t *testing.T) {
 		t.Parallel()
 
 		header := `{"alg":"RS256"}`
@@ -83,14 +84,14 @@ func TestFindJWKByKID(t *testing.T) {
 		assert.Equal(t, "key2", jwk.Kid)
 	})
 
-	t.Run("set is nil", func(t *testing.T) {
+	t.Run("set-is-nil", func(t *testing.T) {
 		t.Parallel()
 
 		_, err := FindJWKByKID("any", nil, testhelpers.MockLogger)
 		assert.ErrorIs(t, err, ErrJWKSetNil)
 	})
 
-	t.Run("not found", func(t *testing.T) {
+	t.Run("not-found", func(t *testing.T) {
 		t.Parallel()
 
 		set := &JWKSet{
@@ -104,7 +105,7 @@ func TestFindJWKByKID(t *testing.T) {
 func TestBase64URLToBigInt(t *testing.T) {
 	t.Parallel()
 
-	t.Run("valid input", func(t *testing.T) {
+	t.Run("valid-input", func(t *testing.T) {
 		t.Parallel()
 
 		result, err := Base64URLToBigInt("AQAB")
@@ -112,7 +113,7 @@ func TestBase64URLToBigInt(t *testing.T) {
 		assert.Equal(t, big.NewInt(65537), result)
 	})
 
-	t.Run("invalid base64", func(t *testing.T) {
+	t.Run("invalid-base64", func(t *testing.T) {
 		t.Parallel()
 
 		_, err := Base64URLToBigInt("!!invalid!!")
@@ -134,7 +135,7 @@ func TestBuildRSAPublicKey(t *testing.T) {
 		assert.Equal(t, 65537, pubKey.E)
 	})
 
-	t.Run("exponent too large", func(t *testing.T) {
+	t.Run("exponent-too-large", func(t *testing.T) {
 		t.Parallel()
 		e := new(big.Int).Lsh(big.NewInt(1), 63)
 		n := big.NewInt(987654321)
@@ -143,7 +144,7 @@ func TestBuildRSAPublicKey(t *testing.T) {
 		assert.ErrorIs(t, err, ErrExponentTooLarge)
 	})
 
-	t.Run("invalid exponent values", func(t *testing.T) {
+	t.Run("invalid-exponent-values", func(t *testing.T) {
 		t.Parallel()
 		n := big.NewInt(1234567890)
 
@@ -177,7 +178,7 @@ func TestJWKToRSAPublicKey(t *testing.T) {
 		assert.Equal(t, new(big.Int).SetBytes([]byte{0xb1, 0x77, 0x21, 0xe3}), pubKey.N)
 	})
 
-	t.Run("invalid N", func(t *testing.T) {
+	t.Run("invalid-N", func(t *testing.T) {
 		t.Parallel()
 
 		jwk := &JWK{
@@ -189,7 +190,7 @@ func TestJWKToRSAPublicKey(t *testing.T) {
 		assert.ErrorIs(t, err, ErrInvalidN)
 	})
 
-	t.Run("invalid E", func(t *testing.T) {
+	t.Run("invalid-E", func(t *testing.T) {
 		t.Parallel()
 
 		jwk := &JWK{
