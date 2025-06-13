@@ -97,7 +97,7 @@ func TestFindJWKByKID(t *testing.T) {
 			Keys: []JWK{{Kid: "key1"}, {Kid: "key2"}},
 		}
 		_, err := FindJWKByKID("missing", set, testhelpers.MockLogger)
-		assert.ErrorIs(t, err, ErrJWKNotFound)
+		assert.ErrorIs(t, err, ErrKIDNotFoundInJWKSet)
 	})
 }
 
