@@ -45,7 +45,7 @@ func GetRevokeURL(
 			zap.Int("status", resp.StatusCode),
 			zap.ByteString("body", body),
 		)
-		return "", ErrUnexpectedStatusCode
+		return "", ErrUnexpectedMetadataStatusCode
 	}
 
 	var meta RevokeMetadata
