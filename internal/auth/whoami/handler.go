@@ -4,7 +4,6 @@ import (
 	"encoding/json"
 	"net/http"
 
-	"cognito-repeater-go/internal/apperror"
 	"cognito-repeater-go/internal/auth/deps"
 	"cognito-repeater-go/internal/httpclient"
 	"cognito-repeater-go/internal/response"
@@ -52,13 +51,13 @@ func NewWhoamiHandler(
 		subRaw, ok := userinfo["sub"]
 		if !ok {
 			logger.Warn("missing subject (sub)", zap.Any("userinfo", userinfo))
-			response.WriteErrorResponse(w, apperror.ErrMissingSubject, logger)
+			response.WriteErrorResponse(w, ErrMissingSubject, logger)
 			return
 		}
 		sub, ok := subRaw.(string)
 		if !ok {
 			logger.Warn("subject (sub) claim is not a string", zap.Any("subRaw", subRaw))
-			response.WriteErrorResponse(w, apperror.ErrSubjectIsNotString, logger)
+			response.WriteErrorResponse(w, ErrSubjectIsNotString, logger)
 			return
 		}
 
