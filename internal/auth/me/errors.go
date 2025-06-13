@@ -23,10 +23,10 @@ var (
 	ErrInvalidIssuer             = apperror.New(http.StatusUnauthorized, "unexpected issuer")                       // 401 Unauthorized
 	ErrInvalidJWTFormat          = apperror.New(http.StatusBadRequest, "invalid JWT format")                        // 400 Bad Request
 	ErrInvalidN                  = apperror.New(http.StatusInternalServerError, "invalid n (modulus)")              // 500 Internal Server Error
-	ErrInvalidSigningAlg         = apperror.New(http.StatusUnauthorized, "unexpected signing method")               // 401 Unauthorized
-	ErrJWKNotFound               = apperror.New(http.StatusUnauthorized, "JWK not found")                           // 401 Unauthorized
+	ErrInvalidSigningAlg         = apperror.New(http.StatusBadRequest, "unexpected signing method")                 // 400 Bad Request
 	ErrJWKSetNil                 = apperror.New(http.StatusInternalServerError, "JWKSet is nil")                    // 500 Internal Server Error
 	ErrJWTParseFailed            = apperror.New(http.StatusInternalServerError, "failed to parse JWT")              // 500 Internal Server Error
+	ErrKIDNotFoundInJWKSet       = apperror.New(http.StatusUnauthorized, "kid not found in JWK set")                // 401 Unauthorized
 	ErrMissingAudience           = apperror.New(http.StatusUnauthorized, "audience claim is missing")               // 401 Unauthorized
 	ErrMissingJWKSURI            = apperror.New(http.StatusBadGateway, "missing jwks_uri")                          // 502 Bad Gateway
 	ErrMissingKID                = apperror.New(http.StatusBadRequest, "kid not found in JWT header")               // 400 Bad Request

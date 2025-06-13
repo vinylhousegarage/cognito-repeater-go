@@ -36,7 +36,7 @@ func TestNewMeHandler_Errors(t *testing.T) {
 			ExpiresAt: jwt.NewNumericDate(time.Now().Add(1 * time.Hour)),
 		})
 
-		AssertUnauthorizedResponse(t, rr)
+		AssertUnauthorizedResponse(t, rr, ErrMissingSubject.Error())
 	})
 
 	t.Run("expired-token", func(t *testing.T) {
@@ -49,7 +49,7 @@ func TestNewMeHandler_Errors(t *testing.T) {
 			ExpiresAt: jwt.NewNumericDate(time.Now().Add(-1 * time.Hour)),
 		})
 
-		AssertUnauthorizedResponse(t, rr)
+		AssertUnauthorizedResponse(t, rr, ErrTokenExpired.Error())
 	})
 
 	t.Run("invalid-issuer", func(t *testing.T) {
@@ -62,7 +62,7 @@ func TestNewMeHandler_Errors(t *testing.T) {
 			ExpiresAt: jwt.NewNumericDate(time.Now().Add(1 * time.Hour)),
 		})
 
-		AssertUnauthorizedResponse(t, rr)
+		AssertUnauthorizedResponse(t, rr, ErrInvalidIssuer.Error())
 	})
 
 	t.Run("invalid-audience", func(t *testing.T) {
@@ -75,7 +75,7 @@ func TestNewMeHandler_Errors(t *testing.T) {
 			ExpiresAt: jwt.NewNumericDate(time.Now().Add(1 * time.Hour)),
 		})
 
-		AssertUnauthorizedResponse(t, rr)
+		AssertUnauthorizedResponse(t, rr, ErrInvalidAudience.Error())
 	})
 
 	t.Run("broken-jwt-format", func(t *testing.T) {
@@ -88,10 +88,10 @@ func TestNewMeHandler_Errors(t *testing.T) {
 		req := NewTokenPostRequest(brokenToken)
 		rr := ServeMeHandler(req, env.Provider, mockHTTPClient, env.Logger)
 
-		AssertBadRequestResponse(t, rr)
+		AssertBadRequestResponse(t, rr, ErrInvalidJWTFormat.Error())
 	})
 
-	t.Run("unsupported-algorithm", func(t *testing.T) {
+	t.Run("invalid-signing-alg", func(t *testing.T) {
 		t.Parallel()
 
 		env := NewTestEnv(t)
@@ -113,7 +113,7 @@ func TestNewMeHandler_Errors(t *testing.T) {
 		req := NewTokenPostRequest(tokenStr)
 		rr := ServeMeHandler(req, env.Provider, mockHTTPClient, env.Logger)
 
-		AssertBadRequestResponse(t, rr)
+		AssertBadRequestResponse(t, rr, ErrInvalidSigningAlg.Error())
 	})
 
 	t.Run("missing-kid-in-header", func(t *testing.T) {
@@ -140,7 +140,7 @@ func TestNewMeHandler_Errors(t *testing.T) {
 		req := NewTokenPostRequest(tokenStr)
 		rr := ServeMeHandler(req, env.Provider, mockHTTPClient, env.Logger)
 
-		AssertBadRequestResponse(t, rr)
+		AssertBadRequestResponse(t, rr, ErrMissingKID.Error())
 	})
 
 	t.Run("kid-not-found-in-jwk-set", func(t *testing.T) {
@@ -169,6 +169,6 @@ func TestNewMeHandler_Errors(t *testing.T) {
 		req := NewTokenPostRequest(tokenStr)
 		rr := ServeMeHandler(req, env.Provider, mockHTTPClient, env.Logger)
 
-		AssertUnauthorizedResponse(t, rr)
+		AssertUnauthorizedResponse(t, rr, ErrKIDNotFoundInJWKSet.Error())
 	})
 }
