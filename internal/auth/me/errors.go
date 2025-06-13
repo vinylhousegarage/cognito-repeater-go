@@ -15,6 +15,7 @@ var (
 	ErrFailedToFetchJWKS         = apperror.New(http.StatusBadGateway, "failed to fetch jwks")                      // 502 Bad Gateway
 	ErrFailedToFetchMetadata     = apperror.New(http.StatusBadGateway, "failed to fetch metadata")                  // 502 Bad Gateway
 	ErrFailedToParseJWTHeader    = apperror.New(http.StatusBadRequest, "failed to parse JWT header")                // 400 Bad Request
+	ErrFailedToWriteUserResponse = apperror.New(http.StatusInternalServerError, "failed to write user response")    // 500 Internal Server Error
 	ErrInvalidAudience           = apperror.New(http.StatusUnauthorized, "invalid audience")                        // 401 Unauthorized
 	ErrInvalidBase64URL          = apperror.New(http.StatusBadGateway, "invalid base64url encoding")                // 502 Bad Gateway
 	ErrInvalidE                  = apperror.New(http.StatusInternalServerError, "invalid e (exponent)")             // 500 Internal Server Error
