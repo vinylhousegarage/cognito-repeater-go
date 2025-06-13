@@ -117,6 +117,6 @@ func TestNewRevokeHandler_Errors(t *testing.T) {
 	handler := NewRevokeHandler(mockProvider, client, testhelpers.MockLogger)
 	handler.ServeHTTP(rr, req)
 
-	assert.Equal(t, http.StatusUnauthorized, rr.Code)
+	assert.Equal(t, http.StatusBadRequest, rr.Code)
 	assert.Contains(t, rr.Body.String(), ErrMissingClientCredentials.Error())
 }

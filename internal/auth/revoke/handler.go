@@ -1,8 +1,6 @@
 package revoke
 
 import (
-	"errors"
-	"fmt"
 	"net/http"
 	"strings"
 
@@ -26,8 +24,8 @@ import (
 // @Param token formData string true "Refresh token to be revoked"
 // @Success 204 {string} string "No Content"
 // @Failure 400 {object} response.ErrorResponse "Bad Request"
-// @Failure 502 {object} response.ErrorResponse "Bad Gateway"
 // @Failure 500 {object} response.ErrorResponse "Internal Server Error"
+// @Failure 502 {object} response.ErrorResponse "Bad Gateway"
 // @Router /revoke [post]
 func NewRevokeHandler(
 	p deps.RevokeHandlerProvider,
@@ -37,24 +35,13 @@ func NewRevokeHandler(
 	return func(w http.ResponseWriter, r *http.Request) {
 		refreshToken, err := utils.ExtractFormValue(r, logger)
 		if err != nil {
-			logger.Warn("failed to extract token from form", zap.Error(err))
-			response.WriteJSONError(w, http.StatusBadRequest, err.Error(), logger)
+			response.WriteErrorResponse(w, err, logger)
 			return
 		}
 
 		revokeURL, err := GetRevokeURL(p.MetadataURL(), cli, logger)
 		if err != nil {
-			switch {
-			case errors.Is(err, ErrFailedToFetchMetadata),
-				errors.Is(err, ErrFailedToDecodeMetadata),
-				errors.Is(err, ErrUnexpectedStatusCode),
-				errors.Is(err, ErrMissingRevocationEndpoint):
-				logger.Warn("GetRevokeURL returned an upstream error", zap.Error(err))
-				response.WriteJSONError(w, http.StatusBadGateway, err.Error(), logger)
-			default:
-				logger.Error("GetRevokeURL failed due to internal error", zap.Error(err))
-				response.WriteJSONError(w, http.StatusInternalServerError, err.Error(), logger)
-			}
+			response.WriteErrorResponse(w, err, logger)
 			return
 		}
 
@@ -63,27 +50,17 @@ func NewRevokeHandler(
 
 		resp, err := SendRevokeRequest(revokeURL, cli, refreshToken, clientID, clientSecret, logger)
 		if err != nil {
-			switch {
-			case errors.Is(err, ErrMissingClientCredentials):
-				response.WriteJSONError(w, http.StatusUnauthorized, err.Error(), logger)
-			case errors.Is(err, ErrFailedToSendRevokeRequest):
-				response.WriteJSONError(w, http.StatusBadGateway, err.Error(), logger)
-			default:
-				logger.Error("unexpected response from revocation_endpoint", zap.Error(err))
-				response.WriteJSONError(w, http.StatusInternalServerError, err.Error(), logger)
-			}
+			response.WriteErrorResponse(w, err, logger)
 			return
 		}
-		if resp != nil {
-			defer func() {
-				if err := resp.Body.Close(); err != nil {
-					logger.Warn("failed to close response body", zap.Error(err))
-				}
-			}()
-		}
+		defer func() {
+			if err := resp.Body.Close(); err != nil {
+				logger.Warn("failed to close response body", zap.Error(err))
+			}
+		}()
 
 		if resp.StatusCode != http.StatusOK && resp.StatusCode != http.StatusNoContent {
-			response.WriteJSONError(w, http.StatusBadGateway, fmt.Sprintf("revocation failed with status: %s", resp.Status), logger)
+			response.WriteErrorResponse(w, ErrUnexpectedRevokeStatusCode, logger)
 			return
 		}
 

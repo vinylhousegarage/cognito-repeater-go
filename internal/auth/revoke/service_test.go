@@ -59,7 +59,7 @@ func TestGetRevokeURL_Errors(t *testing.T) {
 		}
 
 		_, err := GetRevokeURL("http://dummy", client, testhelpers.MockLogger)
-		assert.ErrorIs(t, err, ErrUnexpectedStatusCode)
+		assert.ErrorIs(t, err, ErrUnexpectedMetadataStatusCode)
 	})
 
 	t.Run("invalid json response", func(t *testing.T) {
