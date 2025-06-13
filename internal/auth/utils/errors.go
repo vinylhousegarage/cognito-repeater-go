@@ -1,6 +1,9 @@
 package utils
 
-import "errors"
+import (
+	"cognito-repeater-go/internal/apperror"
+	"net/http"
+)
 
 var (
 	ErrFailedToParseForm = apperror.New(http.StatusBadRequest, "failed to parse form")       // 400 Bad Request
