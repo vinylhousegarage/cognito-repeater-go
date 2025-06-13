@@ -38,16 +38,16 @@ func GetUserinfoURL(
 
 	body, err := io.ReadAll(resp.Body)
 	if err != nil {
-			logger.Error("failed to read metadata response body", zap.Error(err))
-			return nil, ErrFailedToReadMetadataResponse
+		logger.Error("failed to read metadata response body", zap.Error(err))
+		return nil, ErrFailedToReadMetadataResponse
 	}
 
 	if resp.StatusCode != http.StatusOK {
-			logger.Error("unexpected response from metadata",
-					zap.Int("status", resp.StatusCode),
-					zap.ByteString("body", body),
-			)
-			return nil, ErrUnexpectedMetadataStatusCode
+		logger.Error("unexpected response from metadata",
+			zap.Int("status", resp.StatusCode),
+			zap.ByteString("body", body),
+		)
+		return nil, ErrUnexpectedMetadataStatusCode
 	}
 
 	var meta UserinfoMetadata
@@ -91,25 +91,25 @@ func FetchUserinfo(
 
 	body, err := io.ReadAll(resp.Body)
 	if err != nil {
-			logger.Error("failed to read userinfo response body", zap.Error(err))
-			return nil, ErrFailedToReadUserinfoResponse
+		logger.Error("failed to read userinfo response body", zap.Error(err))
+		return nil, ErrFailedToReadUserinfoResponse
 	}
 
 	if resp.StatusCode != http.StatusOK {
-			logger.Error("unexpected response from userinfo",
-					zap.Int("status", resp.StatusCode),
-					zap.ByteString("body", body),
-			)
-			return nil, ErrUnexpectedUserinfoStatusCode
+		logger.Error("unexpected response from userinfo",
+			zap.Int("status", resp.StatusCode),
+			zap.ByteString("body", body),
+		)
+		return nil, ErrUnexpectedUserinfoStatusCode
 	}
 
 	var meta UserInfoResponse
 	if err := json.Unmarshal(body, &meta); err != nil {
-			logger.Warn("failed to decode userinfo body",
-					zap.ByteString("body", body),
-					zap.Error(err),
-			)
-			return nil, ErrFailedToParseUserinfoResponse
+		logger.Warn("failed to decode userinfo body",
+			zap.ByteString("body", body),
+			zap.Error(err),
+		)
+		return nil, ErrFailedToParseUserinfoResponse
 	}
 
 	logger.Info("userinfo fetched successfully", zap.String("sub", meta.Sub))

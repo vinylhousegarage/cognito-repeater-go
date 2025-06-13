@@ -1,6 +1,7 @@
 package testhelpers
 
 import (
+	"errors"
 	"io"
 	"net/http"
 	"strings"

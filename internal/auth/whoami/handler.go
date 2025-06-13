@@ -2,7 +2,6 @@ package whoami
 
 import (
 	"encoding/json"
-	"errors"
 	"net/http"
 
 	"cognito-repeater-go/internal/apperror"

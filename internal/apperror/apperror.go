@@ -1,9 +1,5 @@
 package apperror
 
-import (
-	"net/http"
-)
-
 type AppError struct {
 	Code    int
 	Message string

@@ -1,7 +1,6 @@
 package whoami
 
 import (
-	"fmt"
 	"net/http"
 	"strings"
 )

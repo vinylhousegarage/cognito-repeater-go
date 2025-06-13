@@ -1,8 +1,8 @@
 package whoami
 
 import (
-	"net/http"
 	"cognito-repeater-go/internal/apperror"
+	"net/http"
 )
 
 var (
