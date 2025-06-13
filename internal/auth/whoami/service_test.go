@@ -1,112 +1,219 @@
 package whoami
 
 import (
+	"bytes"
 	"errors"
+	"io"
 	"net/http"
 	"net/http/httptest"
+	"strings"
 	"testing"
 
+	"cognito-repeater-go/internal/httpclient"
+	"cognito-repeater-go/test/testhelpers"
+
 	"github.com/stretchr/testify/assert"
+	"go.uber.org/zap/zaptest"
 )
 
-func TestGetUserinfoURLReturnsExpectedEndpoint(t *testing.T) {
+func TestGetUserinfoURL_Success(t *testing.T) {
 	t.Parallel()
 
 	ts := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(http.StatusOK)
-		_, _ = w.Write([]byte(`{"userinfo_endpoint": "https://example.com/oauth2/userinfo"}`))
+		_, _ = w.Write([]byte(`{"userinfo_endpoint":"https://example.com/oauth2/userInfo"}`))
 	}))
 	defer ts.Close()
 
-	endpoint, err := GetUserinfoURL(ts.URL, http.DefaultClient)
+	logger := zaptest.NewLogger(t)
+	endpoint, err := GetUserinfoURL(ts.URL, http.DefaultClient, logger)
 
 	assert.NoError(t, err, "failed to fetch userinfo_endpoint")
-	assert.Equal(t, "https://example.com/oauth2/userinfo", endpoint)
+	assert.Equal(t, "https://example.com/oauth2/userInfo", endpoint)
 }
 
-func TestGetUserinfoURLStatusCode500(t *testing.T) {
+func TestGetUserinfoURL_Errors(t *testing.T) {
 	t.Parallel()
 
-	ts := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		http.Error(w, "server error", http.StatusInternalServerError)
-	}))
-	defer ts.Close()
+	logger := zaptest.NewLogger(t)
 
-	_, err := GetUserinfoURL(ts.URL, http.DefaultClient)
+	t.Run("failed-to-fetch-metadata", func(t *testing.T) {
+		t.Parallel()
 
-	assert.Error(t, err, "unexpected status code")
+		client := &testhelpers.MockHTTPClient{
+			DoFunc: func(r *http.Request) (*http.Response, error) {
+				return nil, errors.New("network error")
+			},
+		}
+
+		_, err := GetUserinfoURL("http://dummy", client, logger)
+		assert.ErrorIs(t, err, ErrFailedToFetchMetadata)
+	})
+
+	t.Run("failed-to-read-body", func(t *testing.T) {
+		t.Parallel()
+
+		client := &testhelpers.MockHTTPClient{
+			DoFunc: func(r *http.Request) (*http.Response, error) {
+				return &http.Response{
+					StatusCode: http.StatusOK,
+					Body:       &testhelpers.ReadErrorCloser{},
+				}, nil
+			},
+		}
+
+		_, err := GetUserinfoURL("http://dummy", client, logger)
+		assert.ErrorIs(t, err, ErrFailedToReadMetadataResponse)
+	})
+
+	t.Run("unexpected-status-code", func(t *testing.T) {
+		t.Parallel()
+
+		client := &testhelpers.MockHTTPClient{
+			DoFunc: func(r *http.Request) (*http.Response, error) {
+				body := io.NopCloser(bytes.NewBufferString(`unexpected`))
+				return &http.Response{
+					StatusCode: http.StatusInternalServerError,
+					Body:       body,
+				}, nil
+			},
+		}
+
+		_, err := GetUserinfoURL("http://dummy", client, logger)
+		assert.ErrorIs(t, err, ErrUnexpectedMetadataStatusCode)
+	})
+
+	t.Run("invalid-json-response", func(t *testing.T) {
+		t.Parallel()
+
+		client := &testhelpers.MockHTTPClient{
+			DoFunc: func(r *http.Request) (*http.Response, error) {
+				body := io.NopCloser(bytes.NewBufferString(`invalid-json`))
+				return &http.Response{
+					StatusCode: http.StatusOK,
+					Body:       body,
+				}, nil
+			},
+		}
+
+		_, err := GetUserinfoURL("http://dummy", client, logger)
+		assert.ErrorIs(t, err, ErrFailedToDecodeMetadata)
+	})
+
+	t.Run("missing-userinfo_endpoint", func(t *testing.T) {
+		t.Parallel()
+
+		client := &testhelpers.MockHTTPClient{
+			DoFunc: func(r *http.Request) (*http.Response, error) {
+				body := io.NopCloser(bytes.NewBufferString(`{}`))
+				return &http.Response{
+					StatusCode: http.StatusOK,
+					Body:       body,
+				}, nil
+			},
+		}
+
+		_, err := GetUserinfoURL("http://dummy", client, logger)
+		assert.ErrorIs(t, err, ErrMissingUserinfoEndpoint)
+	})
 }
 
 func TestFetchUserinfo_Success(t *testing.T) {
 	t.Parallel()
 
-	const userinfoJSON = `{
-		"sub": "abc123",
-		"email": "user@example.com",
-		"email_verified": true
+	const jsonBody = `{
+		"sub": "abc-123-def-456"
 	}`
 
-	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, _ *http.Request) {
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		auth := r.Header.Get("Authorization")
+		assert.True(t, strings.HasPrefix(auth, "Bearer "), "Authorization header must be set")
+
 		w.WriteHeader(http.StatusOK)
-		_, _ = w.Write([]byte(userinfoJSON))
+		_, _ = w.Write([]byte(jsonBody))
 	}))
 	defer server.Close()
 
-	client := &http.Client{}
-	data, err := FetchUserinfo(server.URL, client, "dummy-token")
+	logger := zaptest.NewLogger(t)
+	userInfo, err := FetchUserinfo(server.URL, httpclient.HTTPClient(http.DefaultClient), "dummy-token", logger)
 
 	assert.NoError(t, err)
-	assert.Equal(t, "abc123", data["sub"])
-	assert.Equal(t, "user@example.com", data["email"])
-	assert.Equal(t, true, data["email_verified"])
+	assert.NotNil(t, userInfo)
+	assert.Equal(t, "abc-123-def-456", userInfo.Sub)
 }
 
-type roundTripFunc func(*http.Request) (*http.Response, error)
-
-func (f roundTripFunc) RoundTrip(req *http.Request) (*http.Response, error) {
-	return f(req)
-}
-
-func TestFetchUserinfo_HTTPError(t *testing.T) {
+func TestFetchUserinfo_Errors(t *testing.T) {
 	t.Parallel()
 
-	brokenClient := &http.Client{
-		Transport: roundTripFunc(func(*http.Request) (*http.Response, error) {
-			return nil, errors.New("simulated network error")
-		}),
-	}
+	logger := zaptest.NewLogger(t)
 
-	_, err := FetchUserinfo("https://example.com/oauth2/userinfo", brokenClient, "dummy-token")
+	t.Run("failed-to-create-request", func(t *testing.T) {
+		t.Parallel()
 
-	assert.Error(t, err)
-	assert.Contains(t, err.Error(), "failed to call userinfo endpoint")
-}
+		client := httpclient.HTTPClient(http.DefaultClient)
+		_, err := FetchUserinfo("://invalid-url", client, "token", logger)
 
-func TestFetchUserinfo_InvalidJSON(t *testing.T) {
-	t.Parallel()
+		assert.ErrorIs(t, err, ErrFailedToCreateUserinfoRequest)
+	})
 
-	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, _ *http.Request) {
-		_, _ = w.Write([]byte(`{"keys": [`))
-	}))
-	defer server.Close()
+	t.Run("http-client-do-error", func(t *testing.T) {
+		t.Parallel()
 
-	client := &http.Client{}
-	_, err := FetchUserinfo(server.URL, client, "dummy-token")
-	assert.Error(t, err)
-	assert.Contains(t, err.Error(), "failed to parse userinfo response")
-}
+		brokenClient := &testhelpers.MockHTTPClient{
+			DoFunc: func(req *http.Request) (*http.Response, error) {
+				return nil, errors.New("network error")
+			},
+		}
 
-func TestFetchUserinfo_StatusCodeNotOK(t *testing.T) {
-	t.Parallel()
+		_, err := FetchUserinfo("https://example.com", brokenClient, "token", logger)
+		assert.ErrorIs(t, err, ErrFailedToFetchUserinfoRequest)
+	})
 
-	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, _ *http.Request) {
-		http.Error(w, "forbidden", http.StatusForbidden)
-	}))
-	defer server.Close()
+	t.Run("read-body-error", func(t *testing.T) {
+		t.Parallel()
 
-	client := &http.Client{}
-	_, err := FetchUserinfo(server.URL, client, "dummy-token")
+		client := &testhelpers.MockHTTPClient{
+			DoFunc: func(req *http.Request) (*http.Response, error) {
+				return &http.Response{
+					StatusCode: http.StatusOK,
+					Body:       &testhelpers.ReadErrorCloser{},
+				}, nil
+			},
+		}
 
-	assert.Error(t, err)
-	assert.Contains(t, err.Error(), "userinfo endpoint returned status")
+		_, err := FetchUserinfo("https://example.com", client, "token", logger)
+		assert.ErrorIs(t, err, ErrFailedToReadUserinfoResponse)
+	})
+
+	t.Run("unexpected-userinfo-response", func(t *testing.T) {
+		t.Parallel()
+
+		client := &testhelpers.MockHTTPClient{
+			DoFunc: func(req *http.Request) (*http.Response, error) {
+				return &http.Response{
+					StatusCode: http.StatusForbidden,
+					Body:       io.NopCloser(strings.NewReader(`access denied`)),
+				}, nil
+			},
+		}
+
+		_, err := FetchUserinfo("https://example.com", client, "token", logger)
+		assert.ErrorIs(t, err, ErrUnexpectedUserinfoStatusCode)
+	})
+
+	t.Run("invalid-json", func(t *testing.T) {
+		t.Parallel()
+
+		client := &testhelpers.MockHTTPClient{
+			DoFunc: func(req *http.Request) (*http.Response, error) {
+				return &http.Response{
+					StatusCode: http.StatusOK,
+					Body:       io.NopCloser(strings.NewReader(`{invalid}`)),
+				}, nil
+			},
+		}
+
+		_, err := FetchUserinfo("https://example.com", client, "token", logger)
+		assert.ErrorIs(t, err, ErrFailedToParseUserinfoResponse)
+	})
 }
