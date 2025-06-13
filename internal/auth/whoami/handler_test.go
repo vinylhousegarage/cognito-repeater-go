@@ -108,7 +108,7 @@ func TestNewWhoamiHandler_MetadataFetchError(t *testing.T) {
 	handler(w, req)
 
 	resp := w.Result()
-	assert.Equal(t, http.StatusInternalServerError, resp.StatusCode)
+	assert.Equal(t, http.StatusBadGateway, resp.StatusCode)
 
 	body, err := io.ReadAll(resp.Body)
 	require.NoError(t, err)
@@ -124,13 +124,13 @@ func TestNewWhoamiHandler_UserinfoFetchUnauthorized(t *testing.T) {
 
 	cfg, cli := newTestDeps(func(req *http.Request) (*http.Response, error) {
 		if strings.Contains(req.URL.String(), "userinfo") {
-		return nil, errors.New("simulated userinfo fetch failure")
-	}
-	rec := httptest.NewRecorder()
-	rec.WriteHeader(http.StatusOK)
-	rec.WriteString(`{"userinfo_endpoint":"https://mock/userinfo"}`)
-	return rec.Result(), nil
-})
+			return nil, errors.New("simulated userinfo fetch failure")
+		}
+		rec := httptest.NewRecorder()
+		rec.WriteHeader(http.StatusOK)
+		rec.WriteString(`{"userinfo_endpoint":"https://mock/userinfo"}`)
+		return rec.Result(), nil
+	})
 
 	req := httptest.NewRequest(http.MethodGet, "/whoami", nil)
 	req.Header.Set("Authorization", "Bearer token")
