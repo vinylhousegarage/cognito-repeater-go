@@ -2,7 +2,10 @@ package response
 
 import (
 	"encoding/json"
+	"errors"
 	"net/http"
+
+	"cognito-repeater-go/internal/apperror"
 
 	"go.uber.org/zap"
 )
@@ -19,5 +22,16 @@ func WriteJSONError(w http.ResponseWriter, status int, msg string, logger *zap.L
 
 	if err := json.NewEncoder(w).Encode(ErrorResponse{Error: msg}); err != nil {
 		logger.Error("failed to write error response", zap.Error(err))
+	}
+}
+
+// WriteErrorResponse handles errors, using *AppError if available.
+func WriteErrorResponse(w http.ResponseWriter, err error, logger *zap.Logger) {
+	var appErr *apperror.AppError
+	if errors.As(err, &appErr) {
+		WriteJSONError(w, appErr.StatusCode(), appErr.Error(), logger)
+	} else {
+		logger.Error("unhandled internal error", zap.Error(err))
+		WriteJSONError(w, http.StatusInternalServerError, "internal server error", logger)
 	}
 }
