@@ -139,32 +139,52 @@ func ServeMeHandler(req *http.Request, provider deps.MeHandlerProvider, client h
 }
 
 // 400 Bad Request Response
-func AssertBadRequestResponse(t *testing.T, rr *httptest.ResponseRecorder) {
+func AssertBadRequestResponse(t *testing.T, rr *httptest.ResponseRecorder, expectedMessage string) {
 	t.Helper()
 	assert.Equal(t, http.StatusBadRequest, rr.Code)
-	assert.Contains(t, rr.Body.String(), "Bad Request")
+
+	var body map[string]string
+	err := json.Unmarshal(rr.Body.Bytes(), &body)
+	require.NoError(t, err)
+
+	assert.Equal(t, expectedMessage, body["error"])
 }
 
 // 401 Unauthorized Response
-func AssertUnauthorizedResponse(t *testing.T, rr *httptest.ResponseRecorder) {
+func AssertUnauthorizedResponse(t *testing.T, rr *httptest.ResponseRecorder, expectedMessage string) {
 	t.Helper()
 
 	assert.Equal(t, http.StatusUnauthorized, rr.Code)
-	assert.Contains(t, rr.Body.String(), "Unauthorized")
+
+	var body map[string]string
+	err := json.Unmarshal(rr.Body.Bytes(), &body)
+	require.NoError(t, err)
+
+	assert.Equal(t, expectedMessage, body["error"])
 }
 
 // 500 Internal Server Error Response
-func AssertInternalServerErrorResponse(t *testing.T, rr *httptest.ResponseRecorder) {
+func AssertInternalServerErrorResponse(t *testing.T, rr *httptest.ResponseRecorder, expectedMessage string) {
 	t.Helper()
 	assert.Equal(t, http.StatusInternalServerError, rr.Code)
-	assert.Contains(t, rr.Body.String(), "Internal Server Error")
+
+	var body map[string]string
+	err := json.Unmarshal(rr.Body.Bytes(), &body)
+	require.NoError(t, err)
+
+	assert.Equal(t, expectedMessage, body["error"])
 }
 
 // 502 Bad Gateway Response
-func AssertBadGatewayResponse(t *testing.T, rr *httptest.ResponseRecorder) {
+func AssertBadGatewayResponse(t *testing.T, rr *httptest.ResponseRecorder, expectedMessage string) {
 	t.Helper()
 	assert.Equal(t, http.StatusBadGateway, rr.Code)
-	assert.Contains(t, rr.Body.String(), "Bad Gateway")
+
+	var body map[string]string
+	err := json.Unmarshal(rr.Body.Bytes(), &body)
+	require.NoError(t, err)
+
+	assert.Equal(t, expectedMessage, body["error"])
 }
 
 // test_helpers build function
