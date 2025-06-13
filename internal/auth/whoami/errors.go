@@ -18,7 +18,6 @@ var (
 	ErrMissingAuthorizationHeader       = apperror.New(http.StatusUnauthorized, "missing authorization header")             // 401 Unauthorized
 	ErrMissingSubject                   = apperror.New(http.StatusUnauthorized, "missing subject (sub)")                    // 401 Unauthorized
 	ErrMissingUserinfoEndpoint          = apperror.New(http.StatusBadGateway, "missing userinfo_endpoint")                  // 502 Bad Gateway
-	ErrSubjectIsNotString               = apperror.New(http.StatusUnauthorized, "subject (sub) claim is not a string")      // 401 Unauthorized
 	ErrUnexpectedMetadataStatusCode     = apperror.New(http.StatusBadGateway, "unexpected response from metadata")          // 502 Bad Gateway
 	ErrUnexpectedUserinfoStatusCode     = apperror.New(http.StatusBadGateway, "unexpected response from userinfo")          // 502 Bad Gateway
 )

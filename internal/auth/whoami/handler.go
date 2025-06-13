@@ -48,21 +48,10 @@ func NewWhoamiHandler(
 			return
 		}
 
-		subRaw, ok := userinfo.sub
-		if !ok {
+		if userinfo.Sub == "" {
 			logger.Warn("missing subject (sub)", zap.Any("userinfo", userinfo))
 			response.WriteErrorResponse(w, ErrMissingSubject, logger)
 			return
-		}
-		sub, ok := subRaw.(string)
-		if !ok {
-			logger.Warn("subject (sub) claim is not a string", zap.Any("subRaw", subRaw))
-			response.WriteErrorResponse(w, ErrSubjectIsNotString, logger)
-			return
-		}
-
-		resp := UserInfoResponse{
-			Sub: sub,
 		}
 
 		w.Header().Set("Content-Type", "application/json")
