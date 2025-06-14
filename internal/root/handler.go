@@ -12,7 +12,7 @@ import (
 // @Description It performs an HTTP redirect (status code 302) to /login.
 // @Tags system
 // @Produce plain
-// @Success 302 {string} string "Found"
+// @Success 302 {string} string "Found: Redirect with Location header"
 // @Router / [get]
 func NewRootHandler(logger *zap.Logger) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
