@@ -1,7 +1,7 @@
 package notfound
 
 import (
-	"io"
+	"encoding/json"
 	"net/http"
 
 	"go.uber.org/zap"
@@ -10,16 +10,17 @@ import (
 // @Summary Simulate 404 Not Found
 // @Description Returns a simulated 404 Not Found error response
 // @Tags error
-// @Produce plain
-// @Failure 404 {string} string "not found 404"
+// @Produce json
+// @Failure 404 {object} notfound.ErrorSimulationResponse "Simulated 404 Not Found"
 // @Router /error/404 [get]
 func NewError404Handler(logger *zap.Logger) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		w.Header().Set("Content-Type", "text/plain")
+		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusNotFound)
 
-		if _, err := io.WriteString(w, "not found 404"); err != nil {
-			logger.Error("failed to write 404 message", zap.Error(err))
+		resp := ErrorSimulationResponse{Message: "Simulated 404 Not Found"}
+		if err := json.NewEncoder(w).Encode(resp); err != nil {
+			logger.Error("failed to write 404 simulation response", zap.Error(err))
 		}
 	}
 }

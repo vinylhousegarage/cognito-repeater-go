@@ -1,27 +1,26 @@
 package simulatederrors_test
 
 import (
-	"io"
+	"encoding/json"
 	"net/http"
 	"net/http/httptest"
 	"testing"
 
 	"cognito-repeater-go/internal/router"
+	"cognito-repeater-go/internal/simulatederrors/notfound"
 	"cognito-repeater-go/test/testhelpers"
 
 	"github.com/stretchr/testify/assert"
-
-	"go.uber.org/zap"
 )
 
-func TestError404RouteReturnsPlainTextNotFound(t *testing.T) {
+func TestError404RouteReturnsJSONNotFound(t *testing.T) {
 	t.Parallel()
 
-	deps := testhelpers.NewMockRouteDependencies()
-	cli := testhelpers.NewMockHTTPClientOK()
-	mockLogger := zap.NewNop()
-
-	r := router.NewRouter(deps, cli, mockLogger)
+	r := router.NewRouter(
+		testhelpers.NewMockRouteDependencies(),
+		testhelpers.NewMockHTTPClientOK(),
+		testhelpers.MockLogger,
+	)
 
 	req := httptest.NewRequest(http.MethodGet, "/error/404", nil)
 	w := httptest.NewRecorder()
@@ -29,9 +28,21 @@ func TestError404RouteReturnsPlainTextNotFound(t *testing.T) {
 	r.ServeHTTP(w, req)
 
 	resp := w.Result()
-	body, err := io.ReadAll(resp.Body)
-	assert.NoError(t, err, "failed to read response body")
+
+	t.Cleanup(func() {
+		err := resp.Body.Close()
+		if err != nil {
+			t.Errorf("failed to close response body: %v", err)
+		}
+	})
 
 	assert.Equal(t, http.StatusNotFound, resp.StatusCode)
-	assert.Equal(t, "not found 404", string(body))
+	assert.Equal(t, "application/json", resp.Header.Get("Content-Type"))
+
+	var got notfound.ErrorSimulationResponse
+	err := json.NewDecoder(resp.Body).Decode(&got)
+	assert.NoError(t, err)
+
+	expected := notfound.ErrorSimulationResponse{Message: "Simulated 404 Not Found"}
+	assert.Equal(t, expected, got)
 }
