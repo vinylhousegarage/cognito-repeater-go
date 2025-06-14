@@ -143,7 +143,7 @@ func TestFetchJWKSet_HTTPClientError(t *testing.T) {
 
 	_, err := FetchJWKSet("https://example.com/jwks", brokenClient, testhelpers.MockLogger)
 	assert.Error(t, err)
-	assert.ErrorIs(t, err, ErrFailedToFetchJWKS)
+	assert.ErrorIs(t, err, ErrFailedToFetchJWKSet)
 }
 
 func TestFetchJWKSet_DecodeError(t *testing.T) {

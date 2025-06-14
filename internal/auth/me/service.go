@@ -87,7 +87,7 @@ func FetchJWKSet(jwksURL string, client httpclient.HTTPClient, logger *zap.Logge
 	resp, err := client.Do(req)
 	if err != nil {
 		logger.Error("failed to fetch jwks", zap.String("url", jwksURL), zap.Error(err))
-		return nil, ErrFailedToFetchJWKS
+		return nil, ErrFailedToFetchJWKSet
 	}
 	defer func() {
 		if cerr := resp.Body.Close(); cerr != nil {

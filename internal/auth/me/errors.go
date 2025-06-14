@@ -12,7 +12,7 @@ var (
 	ErrFailedToDecodeJWKSet         = apperror.New(http.StatusBadGateway, "failed to decode jwks JSON")                // 502 Bad Gateway
 	ErrFailedToDecodeJWTHeader      = apperror.New(http.StatusBadRequest, "failed to decode JWT header")               // 400 Bad Request
 	ErrFailedToDecodeMetadata       = apperror.New(http.StatusBadGateway, "failed to decode metadata")                 // 502 Bad Gateway
-	ErrFailedToFetchJWKS            = apperror.New(http.StatusBadGateway, "failed to fetch jwks")                      // 502 Bad Gateway
+	ErrFailedToFetchJWKSet          = apperror.New(http.StatusBadGateway, "failed to fetch jwks")                      // 502 Bad Gateway
 	ErrFailedToFetchMetadata        = apperror.New(http.StatusBadGateway, "failed to fetch metadata")                  // 502 Bad Gateway
 	ErrFailedToParseJWTHeader       = apperror.New(http.StatusBadRequest, "failed to parse JWT header")                // 400 Bad Request
 	ErrFailedToWriteUserResponse    = apperror.New(http.StatusInternalServerError, "failed to write user response")    // 500 Internal Server Error
