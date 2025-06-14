@@ -46,7 +46,7 @@ func GetJWKSURI(
 				zap.ByteString("body", body),
 			)
 		}
-		return "", ErrUnexpectedStatusCode
+		return "", ErrUnexpectedMetadataStatusCode
 	}
 
 	var meta JWKSMetadata
@@ -81,13 +81,13 @@ func FetchJWKSet(jwksURL string, client httpclient.HTTPClient, logger *zap.Logge
 	req, err := http.NewRequest("GET", jwksURL, nil)
 	if err != nil {
 		logger.Error("failed to create jwks request", zap.String("url", jwksURL), zap.Error(err))
-		return nil, ErrFailedToCreateJWKSRequest
+		return nil, ErrFailedToCreateJWKSetRequest
 	}
 
 	resp, err := client.Do(req)
 	if err != nil {
 		logger.Error("failed to fetch jwks", zap.String("url", jwksURL), zap.Error(err))
-		return nil, ErrFailedToFetchJWKS
+		return nil, ErrFailedToFetchJWKSet
 	}
 	defer func() {
 		if cerr := resp.Body.Close(); cerr != nil {
@@ -98,7 +98,7 @@ func FetchJWKSet(jwksURL string, client httpclient.HTTPClient, logger *zap.Logge
 	var set JWKSet
 	if err := json.NewDecoder(resp.Body).Decode(&set); err != nil {
 		logger.Error("failed to decode jwks JSON", zap.Error(err))
-		return nil, ErrFailedToDecodeJWKS
+		return nil, ErrFailedToDecodeJWKSet
 	}
 
 	logger.Info("jwks successfully fetched", zap.Int("key_count", len(set.Keys)))

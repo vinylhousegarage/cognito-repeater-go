@@ -55,7 +55,7 @@ func TestGetJWKSURI_StatusCodeError(t *testing.T) {
 	_, err := GetJWKSURI(ts.URL, http.DefaultClient, testhelpers.MockLogger)
 
 	assert.Error(t, err)
-	assert.ErrorIs(t, err, ErrUnexpectedStatusCode)
+	assert.ErrorIs(t, err, ErrUnexpectedMetadataStatusCode)
 }
 
 func TestGetJWKSURI_DecodeError(t *testing.T) {
@@ -123,7 +123,7 @@ func TestFetchJWKSet_RequestCreationError(t *testing.T) {
 	_, err := FetchJWKSet(":", http.DefaultClient, testhelpers.MockLogger)
 
 	assert.Error(t, err)
-	assert.ErrorIs(t, err, ErrFailedToCreateJWKSRequest)
+	assert.ErrorIs(t, err, ErrFailedToCreateJWKSetRequest)
 }
 
 type roundTripFunc func(*http.Request) (*http.Response, error)
@@ -143,7 +143,7 @@ func TestFetchJWKSet_HTTPClientError(t *testing.T) {
 
 	_, err := FetchJWKSet("https://example.com/jwks", brokenClient, testhelpers.MockLogger)
 	assert.Error(t, err)
-	assert.ErrorIs(t, err, ErrFailedToFetchJWKS)
+	assert.ErrorIs(t, err, ErrFailedToFetchJWKSet)
 }
 
 func TestFetchJWKSet_DecodeError(t *testing.T) {
@@ -156,5 +156,5 @@ func TestFetchJWKSet_DecodeError(t *testing.T) {
 
 	_, err := FetchJWKSet(server.URL, http.DefaultClient, testhelpers.MockLogger)
 	assert.Error(t, err)
-	assert.ErrorIs(t, err, ErrFailedToDecodeJWKS)
+	assert.ErrorIs(t, err, ErrFailedToDecodeJWKSet)
 }
