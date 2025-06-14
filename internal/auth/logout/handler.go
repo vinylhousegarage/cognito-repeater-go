@@ -1,12 +1,11 @@
 package logout
 
 import (
-	"errors"
 	"net/http"
 
 	"cognito-repeater-go/internal/auth/deps"
-	"cognito-repeater-go/internal/auth/utils"
 	"cognito-repeater-go/internal/httpclient"
+	"cognito-repeater-go/internal/response"
 
 	"go.uber.org/zap"
 )
@@ -18,6 +17,7 @@ import (
 // @Produce plain
 // @Success 302 {string} string "Found"
 // @Failure 500 {string} string "Internal Server Error"
+// @Failure 502 {string} string "Bad Gateway"
 // @Router /logout [get]
 func NewLogoutHandler(
 	p deps.LogoutHandlerProvider,
@@ -28,17 +28,7 @@ func NewLogoutHandler(
 		metadataURL := p.MetadataURL()
 		endpoint, err := GetLogoutURL(metadataURL, c, logger)
 		if err != nil {
-			var status int
-			switch {
-			case errors.Is(err, ErrUnexpectedStatusCode),
-				errors.Is(err, ErrMissingEndSessionEndpoint):
-				status = http.StatusBadGateway
-				logger.Warn("GetLogoutURL returned an upstream error", zap.Error(err))
-			default:
-				status = http.StatusInternalServerError
-				logger.Error("GetLogoutURL failed due to internal error", zap.Error(err))
-			}
-			utils.WritePlainError(w, status, err, logger)
+			response.WriteErrorResponse(w, err, logger)
 			return
 		}
 
