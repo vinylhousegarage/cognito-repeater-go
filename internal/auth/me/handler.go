@@ -14,10 +14,8 @@ import (
 
 // @Summary Verify ID token and return user info
 // @Description Verifies the provided ID token using Cognito's JWKS and returns the subject (sub) claim.
-// @Description This endpoint expects a form-encoded POST request and should be called from a secure backend environment.
-// @Description To verify an ID token, send a POST request with the following body:
-// @Description token=ID_TOKEN_VALUE
-// @Description Content-Type: application/x-www-form-urlencoded
+// This endpoint expects a form-encoded POST request and should be called from a secure backend environment.
+// To verify an ID token, send a POST request with the following body: token=ID_TOKEN_VALUE and Content-Type: application/x-www-form-urlencoded.
 // @Tags user
 // @Accept application/x-www-form-urlencoded
 // @Produce json
@@ -27,6 +25,7 @@ import (
 // @Failure 401 {object} response.ErrorResponse "Unauthorized"
 // @Failure 500 {object} response.ErrorResponse "Internal Server Error"
 // @Failure 502 {object} response.ErrorResponse "Internal Bad Gateway"
+// @Security BearerAuth
 // @Router /me [post]
 func NewMeHandler(
 	p deps.MeHandlerProvider,
