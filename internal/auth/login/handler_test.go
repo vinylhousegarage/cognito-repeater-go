@@ -73,5 +73,5 @@ func TestNewLoginHandler_MetadataFetchFails(t *testing.T) {
 
 	NewLoginHandler(&testhelpers.MockCfg, client, testhelpers.MockLogger)(w, req)
 
-	assert.Equal(t, http.StatusInternalServerError, w.Result().StatusCode)
+	assert.Equal(t, http.StatusBadGateway, w.Result().StatusCode)
 }
