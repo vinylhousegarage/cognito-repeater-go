@@ -33,7 +33,7 @@ func NewLoginHandler(
 		if err != nil {
 			var status int
 			switch {
-			case errors.Is(err, ErrUnexpectedStatusCode),
+			case errors.Is(err, ErrUnexpectedMetadataStatusCode),
 				errors.Is(err, ErrMissingAuthorizationEndpoint):
 				status = http.StatusBadGateway
 				logger.Warn("GetLoginURL returned an upstream error", zap.Error(err))

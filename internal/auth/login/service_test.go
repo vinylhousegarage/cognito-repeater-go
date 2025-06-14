@@ -54,7 +54,7 @@ func TestGetLoginURL_StatusCodeError(t *testing.T) {
 	_, err := GetLoginURL(ts.URL, http.DefaultClient, testhelpers.MockLogger)
 
 	assert.Error(t, err)
-	assert.ErrorIs(t, err, ErrUnexpectedStatusCode)
+	assert.ErrorIs(t, err, ErrUnexpectedMetadataStatusCode)
 }
 
 func TestGetLoginURL_DecodeError(t *testing.T) {
