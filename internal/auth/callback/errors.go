@@ -1,6 +1,9 @@
 package callback
 
-import "apperror"
+import (
+	"cognito-repeater-go/internal/apperror"
+	"net/http"
+)
 
 var (
 	ErrFailedToCreateRequest        = apperror.New(http.StatusInternalServerError, "failed to create request") // 500 Internal Server Error
