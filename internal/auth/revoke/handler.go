@@ -14,6 +14,8 @@ import (
 
 // @Summary Revoke refresh token
 // @Description Revokes a refresh token by calling the Cognito revocation endpoint.
+// @Description This will invalidate the refresh token and prevent further token refresh or reuse,
+// @Description effectively ending the user session.
 // @Description This endpoint accepts a form-encoded POST request and should be called from a secure backend environment.
 // @Description
 // @Description Example form body:
