@@ -123,7 +123,7 @@ func TestFetchJWKSet_RequestCreationError(t *testing.T) {
 	_, err := FetchJWKSet(":", http.DefaultClient, testhelpers.MockLogger)
 
 	assert.Error(t, err)
-	assert.ErrorIs(t, err, ErrFailedToCreateJWKSRequest)
+	assert.ErrorIs(t, err, ErrFailedToCreateJWKSetRequest)
 }
 
 type roundTripFunc func(*http.Request) (*http.Response, error)

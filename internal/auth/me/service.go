@@ -81,7 +81,7 @@ func FetchJWKSet(jwksURL string, client httpclient.HTTPClient, logger *zap.Logge
 	req, err := http.NewRequest("GET", jwksURL, nil)
 	if err != nil {
 		logger.Error("failed to create jwks request", zap.String("url", jwksURL), zap.Error(err))
-		return nil, ErrFailedToCreateJWKSRequest
+		return nil, ErrFailedToCreateJWKSetRequest
 	}
 
 	resp, err := client.Do(req)
