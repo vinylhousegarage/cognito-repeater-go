@@ -15,9 +15,9 @@ import (
 // @Description This endpoint is intended to be accessed via a web browser as it performs a redirect.
 // @Tags auth
 // @Produce plain
-// @Success 302 {string} string "Found"
-// @Failure 500 {string} string "Internal Server Error"
-// @Failure 502 {string} string "Bad Gateway"
+// @Success 302 {string} string "Found: Redirect with Location header"
+// @Failure 500 {object} response.ErrorResponse "Internal Server Error"
+// @Failure 502 {object} response.ErrorResponse "Bad Gateway"
 // @Router /logout [get]
 func NewLogoutHandler(
 	p deps.LogoutHandlerProvider,
