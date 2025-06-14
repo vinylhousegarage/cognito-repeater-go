@@ -31,32 +31,13 @@ func NewLoginHandler(
 		metadataURL := p.MetadataURL()
 		endpoint, err := GetLoginURL(metadataURL, c, logger)
 		if err != nil {
-			var status int
-			switch {
-			case errors.Is(err, ErrUnexpectedMetadataStatusCode),
-				errors.Is(err, ErrMissingAuthorizationEndpoint):
-				status = http.StatusBadGateway
-				logger.Warn("GetLoginURL returned an upstream error", zap.Error(err))
-			default:
-				status = http.StatusInternalServerError
-				logger.Error("GetLoginURL failed due to internal error", zap.Error(err))
-			}
-			utils.WritePlainError(w, status, err, logger)
+			response.WriteErrorResponse(w, err, logger)
 			return
 		}
 
 		url, err := BuildLoginURL(p, endpoint, state)
 		if err != nil {
-			var status int
-			switch {
-			case errors.Is(err, ErrFailedToParseLoginURL):
-				status = http.StatusBadGateway
-				logger.Warn("failed to parse login URL", zap.String("endpoint", endpoint), zap.Error(err))
-			default:
-				status = http.StatusInternalServerError
-				logger.Error("unexpected error while building login URL", zap.String("endpoint", endpoint), zap.Error(err))
-			}
-			utils.WritePlainError(w, status, err, logger)
+			response.WriteErrorResponse(w, err, logger)
 			return
 		}
 
