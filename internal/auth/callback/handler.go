@@ -10,6 +10,7 @@ import (
 	"cognito-repeater-go/internal/auth/deps"
 	"cognito-repeater-go/internal/auth/utils"
 	"cognito-repeater-go/internal/httpclient"
+	"cognito-repeater-go/internal/response"
 
 	"go.uber.org/zap"
 )
@@ -30,33 +31,21 @@ func NewCallbackHandler(
 	return func(w http.ResponseWriter, r *http.Request) {
 		code, err := ValidateCallbackRequest(r)
 		if err != nil {
-			status := http.StatusBadRequest
-			utils.WritePlainError(w, status, err, logger)
+			response.WriteErrorResponse(w, err, logger)
 			return
 		}
 
 		metadataURL := p.MetadataURL()
 		tokenEndpoint, err := GetCallbackURL(metadataURL, c, logger)
 		if err != nil {
-			var status int
-			switch {
-			case errors.Is(err, ErrUnexpectedMetadataStatusCode),
-				errors.Is(err, ErrMissingTokenEndpoint):
-				status = http.StatusBadGateway
-				logger.Warn("GetCallbackURL returned an upstream error", zap.Error(err))
-			default:
-				status = http.StatusInternalServerError
-				logger.Error("GetCallbackURL failed due to internal error", zap.Error(err))
-			}
-			utils.WritePlainError(w, status, err, logger)
+			response.WriteErrorResponse(w, err, logger)
 			return
 		}
 
 		bodyStr := BuildTokenRequestBody(code, p)
 		req, err := http.NewRequest("POST", tokenEndpoint, strings.NewReader(bodyStr))
 		if err != nil {
-			status := http.StatusInternalServerError
-			utils.WritePlainError(w, status, err, logger)
+			response.WriteErrorResponse(w, err, logger)
 			return
 		}
 		req.Header.Set("Content-Type", "application/x-www-form-urlencoded")
@@ -64,8 +53,7 @@ func NewCallbackHandler(
 
 		resp, err := c.Do(req)
 		if err != nil {
-			status := http.StatusBadGateway
-			utils.WritePlainError(w, status, err, logger)
+			response.WriteErrorResponse(w, err, logger)
 			return
 		}
 		defer func() {
