@@ -1,14 +1,14 @@
 package notfound
 
 import (
-	"io"
+	"encoding/json"
 	"net/http"
 	"net/http/httptest"
 	"testing"
 
-	"github.com/stretchr/testify/assert"
+	"cognito-repeater-go/test/testhelpers"
 
-	"go.uber.org/zap"
+	"github.com/stretchr/testify/assert"
 )
 
 func TestNewError404Handler_StatusAndBody(t *testing.T) {
@@ -17,14 +17,22 @@ func TestNewError404Handler_StatusAndBody(t *testing.T) {
 	req := httptest.NewRequest(http.MethodGet, "/error/404", nil)
 	w := httptest.NewRecorder()
 
-	mockLogger := zap.NewNop()
-
-	NewError404Handler(mockLogger)(w, req)
+	NewError404Handler(testhelpers.MockLogger)(w, req)
 
 	resp := w.Result()
-	body, err := io.ReadAll(resp.Body)
-	assert.NoError(t, err)
+
+	t.Cleanup(func() {
+		if err := resp.Body.Close(); err != nil {
+			t.Errorf("failed to close response body: %v", err)
+		}
+	})
 
 	assert.Equal(t, http.StatusNotFound, resp.StatusCode)
-	assert.Equal(t, "not found 404", string(body))
+
+	assert.Equal(t, "application/json", resp.Header.Get("Content-Type"))
+
+	var got ErrorSimulationResponse
+	err := json.NewDecoder(resp.Body).Decode(&got)
+	assert.NoError(t, err)
+	assert.Equal(t, "Simulated 404 Not Found", got.Message)
 }
