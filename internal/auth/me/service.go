@@ -46,7 +46,7 @@ func GetJWKSURI(
 				zap.ByteString("body", body),
 			)
 		}
-		return "", ErrUnexpectedStatusCode
+		return "", ErrUnexpectedMetadataStatusCode
 	}
 
 	var meta JWKSMetadata

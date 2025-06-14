@@ -55,7 +55,7 @@ func TestGetJWKSURI_StatusCodeError(t *testing.T) {
 	_, err := GetJWKSURI(ts.URL, http.DefaultClient, testhelpers.MockLogger)
 
 	assert.Error(t, err)
-	assert.ErrorIs(t, err, ErrUnexpectedStatusCode)
+	assert.ErrorIs(t, err, ErrUnexpectedMetadataStatusCode)
 }
 
 func TestGetJWKSURI_DecodeError(t *testing.T) {
