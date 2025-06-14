@@ -2,8 +2,6 @@ package callback
 
 import (
 	"encoding/json"
-	"errors"
-	"io"
 	"net/http"
 	"strings"
 
