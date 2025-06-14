@@ -73,7 +73,7 @@ func GetCallbackURL(
 			fields = append(fields, zap.ByteString("body", body))
 			logger.Warn("unexpected response from metadata", fields...)
 		}
-		return "", ErrUnexpectedStatusCode
+		return "", ErrUnexpectedMetadataStatusCode
 	}
 
 	var meta callbackMetadata

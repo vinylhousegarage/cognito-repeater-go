@@ -40,7 +40,7 @@ func NewCallbackHandler(
 		if err != nil {
 			var status int
 			switch {
-			case errors.Is(err, ErrUnexpectedStatusCode),
+			case errors.Is(err, ErrUnexpectedMetadataStatusCode),
 				errors.Is(err, ErrMissingTokenEndpoint):
 				status = http.StatusBadGateway
 				logger.Warn("GetCallbackURL returned an upstream error", zap.Error(err))

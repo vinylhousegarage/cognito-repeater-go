@@ -120,7 +120,7 @@ func TestGetCallbackURL_UnexpectedStatusCode(t *testing.T) {
 
 	_, err := GetCallbackURL(ts.URL, http.DefaultClient, zap.NewNop())
 
-	assert.ErrorIs(t, err, ErrUnexpectedStatusCode)
+	assert.ErrorIs(t, err, ErrUnexpectedMetadataStatusCode)
 }
 
 func TestGetCallbackURL_DecodeError(t *testing.T) {
