@@ -156,5 +156,5 @@ func TestFetchJWKSet_DecodeError(t *testing.T) {
 
 	_, err := FetchJWKSet(server.URL, http.DefaultClient, testhelpers.MockLogger)
 	assert.Error(t, err)
-	assert.ErrorIs(t, err, ErrFailedToDecodeJWKS)
+	assert.ErrorIs(t, err, ErrFailedToDecodeJWKSet)
 }

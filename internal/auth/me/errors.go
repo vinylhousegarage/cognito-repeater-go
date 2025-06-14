@@ -9,7 +9,7 @@ var (
 	ErrExponentTooLarge             = apperror.New(http.StatusInternalServerError, "exponent too large to fit in int") // 500 Internal Server Error
 	ErrFailedToCreateJWKSetRequest  = apperror.New(http.StatusInternalServerError, "failed to create jwks request")    // 500 Internal Server Error
 	ErrFailedToCreateRequest        = apperror.New(http.StatusInternalServerError, "failed to create request")         // 500 Internal Server Error
-	ErrFailedToDecodeJWKS           = apperror.New(http.StatusBadGateway, "failed to decode jwks JSON")                // 502 Bad Gateway
+	ErrFailedToDecodeJWKSet         = apperror.New(http.StatusBadGateway, "failed to decode jwks JSON")                // 502 Bad Gateway
 	ErrFailedToDecodeJWTHeader      = apperror.New(http.StatusBadRequest, "failed to decode JWT header")               // 400 Bad Request
 	ErrFailedToDecodeMetadata       = apperror.New(http.StatusBadGateway, "failed to decode metadata")                 // 502 Bad Gateway
 	ErrFailedToFetchJWKS            = apperror.New(http.StatusBadGateway, "failed to fetch jwks")                      // 502 Bad Gateway
