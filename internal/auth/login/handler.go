@@ -1,12 +1,11 @@
 package login
 
 import (
-	"errors"
 	"net/http"
 
 	"cognito-repeater-go/internal/auth/deps"
-	"cognito-repeater-go/internal/auth/utils"
 	"cognito-repeater-go/internal/httpclient"
+	"cognito-repeater-go/internal/response"
 
 	"go.uber.org/zap"
 )
