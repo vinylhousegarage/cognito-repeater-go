@@ -42,7 +42,7 @@ func GetLoginURL(
 			zap.Int("status", resp.StatusCode),
 			zap.ByteString("body", body),
 		)
-		return "", ErrUnexpectedStatusCode
+		return "", ErrUnexpectedMetadataStatusCode
 	}
 
 	var meta LoginMetadata
