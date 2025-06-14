@@ -11,18 +11,20 @@ import (
 	"go.uber.org/zap"
 )
 
-// @Summary Get user info from access token
-// @Description Retrieves the user sub from the Cognito UserInfo endpoint.
-// @Description This endpoint expects a Bearer token in the Authorization header.
-// @Description Example: Authorization: Bearer ACCESS_TOKEN_VALUE
+// @Summary Verify access token using Cognito UserInfo endpoint
+// @Description Verifies an access token using the Cognito UserInfo endpoint.
+// @Description This endpoint expects a Bearer token in the Authorization header and should be called from a secure backend environment.
+// @Description
+// @Description Example header:
+// @Description   Authorization: Bearer ACCESS_TOKEN_VALUE
 // @Tags user
 // @Produce json
-// @Security BearerAuth
 // @Success 200 {object} whoami.UserInfoResponse "User info from Cognito"
 // @Failure 400 {object} response.ErrorResponse "Bad Request"
 // @Failure 401 {object} response.ErrorResponse "Unauthorized"
 // @Failure 500 {object} response.ErrorResponse "Internal Server Error"
 // @Failure 502 {object} response.ErrorResponse "Bad Gateway"
+// @Security BearerAuth
 // @Router /whoami [get]
 func NewWhoamiHandler(
 	p deps.WhoamiHandlerProvider,

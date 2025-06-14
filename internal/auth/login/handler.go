@@ -11,13 +11,13 @@ import (
 )
 
 // @Summary Redirect to Cognito login
-// @Description Initiates OAuth2 login by redirecting the user to the Cognito authorization endpoint.
-// @Description This endpoint is intended to be accessed via a web browser as it sets a state cookie and performs a redirect.
+// @Description Initiates an OAuth2 login by redirecting to the Cognito authorization endpoint.
+// @Description Sets a state cookie and is intended for browser access.
 // @Tags auth
 // @Produce plain
-// @Success 302 {string} string "Found"
-// @Failure 500 {string} string "Internal Server Error"
-// @Failure 502 {string} string "Bad Gateway"
+// @Success 302 {string} string "Found: Redirect with Location header"
+// @Failure 500 {object} response.ErrorResponse "Internal Server Error"
+// @Failure 502 {object} response.ErrorResponse "Bad Gateway"
 // @Router /login [get]
 func NewLoginHandler(
 	p deps.LoginHandlerProvider,

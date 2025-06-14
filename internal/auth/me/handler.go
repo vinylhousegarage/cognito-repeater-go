@@ -13,11 +13,12 @@ import (
 )
 
 // @Summary Verify ID token and return user info
-// @Description Verifies the provided ID token using Cognito's JWKS and returns the subject (sub) claim.
-// @Description This endpoint expects a form-encoded POST request and should be called from a secure backend environment.
-// @Description To verify an ID token, send a POST request with the following body:
-// @Description token=ID_TOKEN_VALUE
-// @Description Content-Type: application/x-www-form-urlencoded
+// @Description Verifies the provided ID token using Cognito's JWKS and returns the subject (`sub`) claim.
+// @Description This endpoint accepts a form-encoded POST request and should be called from a secure backend environment.
+// @Description
+// @Description Example form body:
+// @Description   token=ID_TOKEN_VALUE
+// @Description   Content-Type: application/x-www-form-urlencoded
 // @Tags user
 // @Accept application/x-www-form-urlencoded
 // @Produce json
