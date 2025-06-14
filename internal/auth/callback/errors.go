@@ -1,15 +1,21 @@
 package callback
 
-import "errors"
+import (
+	"cognito-repeater-go/internal/apperror"
+	"net/http"
+)
 
 var (
-	ErrFailedToCreateRequest  = errors.New("failed to create request")
-	ErrFailedToDecodeMetadata = errors.New("failed to decode metadata")
-	ErrFailedToFetchMetadata  = errors.New("failed to fetch metadata")
-	ErrMissingTokenEndpoint   = errors.New("missing token_endpoint")
-	ErrInvalidState           = errors.New("invalid state")
-	ErrMissingCode            = errors.New("missing code")
-	ErrMissingState           = errors.New("missing state")
-	ErrMissingStateCookie     = errors.New("missing oauth_state cookie")
-	ErrUnexpectedStatusCode   = errors.New("unexpected response from metadata")
+	ErrFailedToCreateRequest        = apperror.New(http.StatusInternalServerError, "failed to create request")        // 500 Internal Server Error
+	ErrFailedToDecodeTokenResponse  = apperror.New(http.StatusInternalServerError, "failed to decode token response") // 500 Internal Server Error
+	ErrFailedToDecodeMetadata       = apperror.New(http.StatusBadGateway, "failed to decode metadata")                // 502 Bad Gateway
+	ErrFailedToEncodeTokenResponse  = apperror.New(http.StatusInternalServerError, "failed to encode token response") // 500 Internal Server Error
+	ErrFailedToFetchMetadata        = apperror.New(http.StatusBadGateway, "failed to fetch metadata")                 // 502 Bad Gateway
+	ErrInvalidState                 = apperror.New(http.StatusBadRequest, "invalid state")                            // 400 Bad Request
+	ErrMissingCode                  = apperror.New(http.StatusBadRequest, "missing code")                             // 400 Bad Request
+	ErrMissingState                 = apperror.New(http.StatusBadRequest, "missing state")                            // 400 Bad Request
+	ErrMissingStateCookie           = apperror.New(http.StatusBadRequest, "missing oauth_state cookie")               // 400 Bad Request
+	ErrMissingTokenEndpoint         = apperror.New(http.StatusBadGateway, "missing token_endpoint")                   // 502 Bad Gateway
+	ErrUnexpectedCallbackStatusCode = apperror.New(http.StatusBadGateway, "unexpected response from callback")        // 502 Bad Gateway
+	ErrUnexpectedMetadataStatusCode = apperror.New(http.StatusBadGateway, "unexpected response from metadata")        // 502 Bad Gateway
 )

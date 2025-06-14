@@ -2,14 +2,12 @@ package callback
 
 import (
 	"encoding/json"
-	"errors"
-	"io"
 	"net/http"
 	"strings"
 
 	"cognito-repeater-go/internal/auth/deps"
-	"cognito-repeater-go/internal/auth/utils"
 	"cognito-repeater-go/internal/httpclient"
+	"cognito-repeater-go/internal/response"
 
 	"go.uber.org/zap"
 )
@@ -30,33 +28,21 @@ func NewCallbackHandler(
 	return func(w http.ResponseWriter, r *http.Request) {
 		code, err := ValidateCallbackRequest(r)
 		if err != nil {
-			status := http.StatusBadRequest
-			utils.WritePlainError(w, status, err, logger)
+			response.WriteErrorResponse(w, err, logger)
 			return
 		}
 
 		metadataURL := p.MetadataURL()
 		tokenEndpoint, err := GetCallbackURL(metadataURL, c, logger)
 		if err != nil {
-			var status int
-			switch {
-			case errors.Is(err, ErrUnexpectedStatusCode),
-				errors.Is(err, ErrMissingTokenEndpoint):
-				status = http.StatusBadGateway
-				logger.Warn("GetCallbackURL returned an upstream error", zap.Error(err))
-			default:
-				status = http.StatusInternalServerError
-				logger.Error("GetCallbackURL failed due to internal error", zap.Error(err))
-			}
-			utils.WritePlainError(w, status, err, logger)
+			response.WriteErrorResponse(w, err, logger)
 			return
 		}
 
 		bodyStr := BuildTokenRequestBody(code, p)
 		req, err := http.NewRequest("POST", tokenEndpoint, strings.NewReader(bodyStr))
 		if err != nil {
-			status := http.StatusInternalServerError
-			utils.WritePlainError(w, status, err, logger)
+			response.WriteErrorResponse(w, err, logger)
 			return
 		}
 		req.Header.Set("Content-Type", "application/x-www-form-urlencoded")
@@ -64,8 +50,7 @@ func NewCallbackHandler(
 
 		resp, err := c.Do(req)
 		if err != nil {
-			status := http.StatusBadGateway
-			utils.WritePlainError(w, status, err, logger)
+			response.WriteErrorResponse(w, err, logger)
 			return
 		}
 		defer func() {
@@ -74,33 +59,14 @@ func NewCallbackHandler(
 			}
 		}()
 
-		if resp.StatusCode != http.StatusOK {
-			body, readErr := io.ReadAll(resp.Body)
-			status := http.StatusBadGateway
-
-			fields := []zap.Field{
-				zap.Int("upstream_status", resp.StatusCode),
-				zap.String("method", req.Method),
-				zap.String("url", req.URL.String()),
-			}
-
-			if readErr != nil {
-				fields = append(fields, zap.Error(readErr))
-				logger.Warn(http.StatusText(status)+": failed to read error response body", fields...)
-			} else {
-				fields = append(fields, zap.ByteString("body", body))
-				logger.Warn(http.StatusText(status)+": token endpoint returned non-200", fields...)
-			}
-
-			w.Header().Set("Content-Type", "text/plain; charset=utf-8")
-			http.Error(w, http.StatusText(status), status)
+		if resp.StatusCode != http.StatusOK && resp.StatusCode != http.StatusNoContent {
+			response.WriteErrorResponse(w, ErrUnexpectedCallbackStatusCode, logger)
 			return
 		}
 
 		var tokenResp TokenResponse
 		if err := json.NewDecoder(resp.Body).Decode(&tokenResp); err != nil {
-			status := http.StatusInternalServerError
-			utils.WritePlainError(w, status, err, logger)
+			response.WriteErrorResponse(w, ErrFailedToDecodeTokenResponse, logger)
 			return
 		}
 
@@ -112,8 +78,7 @@ func NewCallbackHandler(
 		)
 
 		if err := json.NewEncoder(w).Encode(tokenResp); err != nil {
-			status := http.StatusInternalServerError
-			utils.WritePlainError(w, status, err, logger)
+			response.WriteErrorResponse(w, ErrFailedToEncodeTokenResponse, logger)
 			return
 		}
 	}
