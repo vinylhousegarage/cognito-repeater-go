@@ -62,26 +62,8 @@ func NewCallbackHandler(
 			}
 		}()
 
-		if resp.StatusCode != http.StatusOK {
-			body, readErr := io.ReadAll(resp.Body)
-			status := http.StatusBadGateway
-
-			fields := []zap.Field{
-				zap.Int("upstream_status", resp.StatusCode),
-				zap.String("method", req.Method),
-				zap.String("url", req.URL.String()),
-			}
-
-			if readErr != nil {
-				fields = append(fields, zap.Error(readErr))
-				logger.Warn(http.StatusText(status)+": failed to read error response body", fields...)
-			} else {
-				fields = append(fields, zap.ByteString("body", body))
-				logger.Warn(http.StatusText(status)+": token endpoint returned non-200", fields...)
-			}
-
-			w.Header().Set("Content-Type", "text/plain; charset=utf-8")
-			http.Error(w, http.StatusText(status), status)
+		if resp.StatusCode != http.StatusOK && resp.StatusCode != http.StatusNoContent {
+			response.WriteErrorResponse(w, ErrUnexpectedCallbackStatusCode, logger)
 			return
 		}
 
