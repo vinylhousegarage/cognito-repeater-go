@@ -12,8 +12,9 @@ import (
 )
 
 // @Summary Verify access token using Cognito UserInfo endpoint
-// @Description Verifies an access token using the Cognito UserInfo endpoint.
-// @Description This endpoint expects a Bearer token in the Authorization header and should be called from a secure backend environment.
+// @Description Checks if the provided access token is active and valid by querying the Cognito UserInfo endpoint.
+// @Description This endpoint is typically used to confirm the user's session is still valid.
+// @Description It expects a Bearer token in the Authorization header and should be called from a secure backend environment.
 // @Description
 // @Description Example header:
 // @Description   Authorization: Bearer ACCESS_TOKEN_VALUE
