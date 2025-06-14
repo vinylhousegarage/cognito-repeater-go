@@ -17,6 +17,7 @@ import (
 // @Produce plain
 // @Success 302 {string} string "Found"
 // @Failure 500 {string} string "Internal Server Error"
+// @Failure 502 {string} string "Bad Gateway"
 // @Router /login [get]
 func NewLoginHandler(
 	p deps.LoginHandlerProvider,
