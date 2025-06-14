@@ -54,7 +54,7 @@ func TestGetLogoutURL_StatusCodeError(t *testing.T) {
 	_, err := GetLogoutURL(ts.URL, http.DefaultClient, testhelpers.MockLogger)
 
 	assert.Error(t, err)
-	assert.ErrorIs(t, err, ErrUnexpectedStatusCode)
+	assert.ErrorIs(t, err, ErrUnexpectedMetadataStatusCode)
 }
 
 func TestGetLogoutURL_DecodeError(t *testing.T) {
