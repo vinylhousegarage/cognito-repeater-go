@@ -1,4 +1,4 @@
-package root_test
+package health_test
 
 import (
 	"encoding/json"
