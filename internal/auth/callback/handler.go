@@ -8,7 +8,6 @@ import (
 	"strings"
 
 	"cognito-repeater-go/internal/auth/deps"
-	"cognito-repeater-go/internal/auth/utils"
 	"cognito-repeater-go/internal/httpclient"
 	"cognito-repeater-go/internal/response"
 
@@ -69,8 +68,7 @@ func NewCallbackHandler(
 
 		var tokenResp TokenResponse
 		if err := json.NewDecoder(resp.Body).Decode(&tokenResp); err != nil {
-			status := http.StatusInternalServerError
-			utils.WritePlainError(w, status, err, logger)
+			response.WriteErrorResponse(w, ErrFailedToDecodeTokenResponse, logger)
 			return
 		}
 
@@ -82,8 +80,7 @@ func NewCallbackHandler(
 		)
 
 		if err := json.NewEncoder(w).Encode(tokenResp); err != nil {
-			status := http.StatusInternalServerError
-			utils.WritePlainError(w, status, err, logger)
+			response.WriteErrorResponse(w, ErrFailedToEncodeTokenResponse, logger)
 			return
 		}
 	}
