@@ -13,7 +13,9 @@ import (
 )
 
 // @Summary Verify ID token and return user info
-// @Description Verifies the provided ID token using Cognito's JWKS and returns the subject (`sub`) claim.
+// @Description Verifies the provided ID token by validating its signature using Cognito's JWK Set,
+// @Description and checking standard claims such as `iss`, `aud`, and `exp`.
+// @Description Returns the subject (`sub`) claim from the token if validation succeeds.
 // @Description This endpoint accepts a form-encoded POST request and should be called from a secure backend environment.
 // @Description
 // @Description Example form body:
