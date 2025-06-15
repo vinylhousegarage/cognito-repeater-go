@@ -35,7 +35,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/notfound.ErrorSimulationResponse"
+                $ref: "#/components/schemas/ErrorSimulationResponse"
       summary: Simulate 404 Not Found
       tags:
         - error
@@ -58,13 +58,13 @@ paths:
           content:
             text/plain:
               schema:
-                $ref: "#/components/schemas/response.ErrorResponse"
+                $ref: "#/components/schemas/ErrorResponse"
         "502":
           description: Bad Gateway
           content:
             text/plain:
               schema:
-                $ref: "#/components/schemas/response.ErrorResponse"
+                $ref: "#/components/schemas/ErrorResponse"
       summary: Redirect to Cognito login
       tags:
         - auth
@@ -86,13 +86,13 @@ paths:
           content:
             text/plain:
               schema:
-                $ref: "#/components/schemas/response.ErrorResponse"
+                $ref: "#/components/schemas/ErrorResponse"
         "502":
           description: Bad Gateway
           content:
             text/plain:
               schema:
-                $ref: "#/components/schemas/response.ErrorResponse"
+                $ref: "#/components/schemas/ErrorResponse"
       summary: Redirect to Cognito logout
       tags:
         - auth
@@ -132,31 +132,31 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/me.UserResponse"
+                $ref: "#/components/schemas/UserResponse"
         "400":
           description: Bad Request
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/response.ErrorResponse"
+                $ref: "#/components/schemas/ErrorResponse"
         "401":
           description: Unauthorized
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/response.ErrorResponse"
+                $ref: "#/components/schemas/ErrorResponse"
         "500":
           description: Internal Server Error
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/response.ErrorResponse"
+                $ref: "#/components/schemas/ErrorResponse"
         "502":
           description: Internal Bad Gateway
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/response.ErrorResponse"
+                $ref: "#/components/schemas/ErrorResponse"
       summary: Verify ID token and return user info
       tags:
         - user
@@ -169,7 +169,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/ping.PingResponse"
+                $ref: "#/components/schemas/PingResponse"
       summary: Health check endpoint
       tags:
         - health
@@ -214,19 +214,19 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/response.ErrorResponse"
+                $ref: "#/components/schemas/ErrorResponse"
         "500":
           description: Internal Server Error
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/response.ErrorResponse"
+                $ref: "#/components/schemas/ErrorResponse"
         "502":
           description: Bad Gateway
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/response.ErrorResponse"
+                $ref: "#/components/schemas/ErrorResponse"
       summary: Revoke refresh token
       tags:
         - auth
@@ -250,31 +250,31 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/whoami.UserInfoResponse"
+                $ref: "#/components/schemas/UserInfoResponse"
         "400":
           description: Bad Request
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/response.ErrorResponse"
+                $ref: "#/components/schemas/ErrorResponse"
         "401":
           description: Unauthorized
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/response.ErrorResponse"
+                $ref: "#/components/schemas/ErrorResponse"
         "500":
           description: Internal Server Error
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/response.ErrorResponse"
+                $ref: "#/components/schemas/ErrorResponse"
         "502":
           description: Bad Gateway
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/response.ErrorResponse"
+                $ref: "#/components/schemas/ErrorResponse"
       security:
         - BearerAuth: []
       summary: Verify access token using Cognito UserInfo endpoint
@@ -283,37 +283,32 @@ paths:
 servers:
   - url: https://cognito-repeater-go.com
 components:
-  securitySchemes:
-    BearerAuth:
-      in: header
-      name: Authorization
-      type: apiKey
   schemas:
-    me.UserResponse:
+    UserResponse:
       properties:
         sub:
           example: abc-123
           type: string
       type: object
-    notfound.ErrorSimulationResponse:
+    ErrorSimulationResponse:
       properties:
         message:
           example: Simulated 404 Not Found
           type: string
       type: object
-    ping.PingResponse:
+    PingResponse:
       properties:
         message:
           example: pong
           type: string
       type: object
-    response.ErrorResponse:
+    ErrorResponse:
       properties:
         error:
           example: invalid token
           type: string
       type: object
-    whoami.UserInfoResponse:
+    UserInfoResponse:
       properties:
         sub:
           example: abc-123-def-456
