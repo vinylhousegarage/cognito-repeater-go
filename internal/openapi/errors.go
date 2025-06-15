@@ -6,8 +6,8 @@ import (
 	"cognito-repeater-go/internal/apperror"
 )
 
-const msg = "Failed to read OpenAPI spec"
-
 var (
-	ErrFailedToReadOpenAPISpec = apperror.New(http.StatusInternalServerError, msg) // 500 Internal Server Error
+	ErrFailedToReadOpenAPISpec     = apperror.New(http.StatusInternalServerError, "Failed to read OpenAPI spec")     // 500 Internal Server Error
+	ErrFailedToLoadOpenAPISpec     = apperror.New(http.StatusInternalServerError, "Failed to load OpenAPI spec")     // 500 Internal Server Error
+	ErrFailedToValidateOpenAPISpec = apperror.New(http.StatusInternalServerError, "Failed to validate OpenAPI spec") // 500 Internal Server Error
 )
