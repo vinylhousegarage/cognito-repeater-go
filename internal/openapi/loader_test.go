@@ -3,31 +3,28 @@ package openapi
 import (
 	"testing"
 
+	"cognito-repeater-go/test/testhelpers"
+
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
 
 func TestLoadOpenAPISpec_Valid(t *testing.T) {
-	doc := LoadOpenAPISpec("../../testdata/openapi_valid.yaml")
+	doc, err := LoadOpenAPISpec("../../testdata/openapi_valid.yaml", testhelpers.MockLogger)
+	require.NoError(t, err)
 	require.NotNil(t, doc)
 	assert.Equal(t, "3.0.0", doc.OpenAPI)
 	assert.Equal(t, "Cognito Repeater API (Go)", doc.Info.Title)
 }
 
 func TestLoadOpenAPISpec_FileNotFound(t *testing.T) {
-	defer func() {
-		if r := recover(); r == nil {
-			t.Errorf("expected panic for missing file")
-		}
-	}()
-	LoadOpenAPISpec("no_such_file.yaml")
+	doc, err := LoadOpenAPISpec("no_such_file.yaml", testhelpers.MockLogger)
+	require.Error(t, err)
+	assert.Nil(t, doc)
 }
 
 func TestLoadOpenAPISpec_InvalidYAML(t *testing.T) {
-	defer func() {
-		if r := recover(); r == nil {
-			t.Errorf("expected panic for invalid YAML")
-		}
-	}()
-	LoadOpenAPISpec("../../testdata/openapi_invalid.yaml")
+	doc, err := LoadOpenAPISpec("../../testdata/openapi_invalid.yaml", testhelpers.MockLogger)
+	require.Error(t, err)
+	assert.Nil(t, doc)
 }
