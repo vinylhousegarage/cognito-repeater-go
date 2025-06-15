@@ -3,7 +3,6 @@ package openapi
 import (
 	"context"
 	_ "embed"
-	"os"
 
 	"github.com/getkin/kin-openapi/openapi3"
 
