@@ -23,8 +23,10 @@ func TestNewOpenAPIHandler(t *testing.T) {
 			Title:   "Mock API",
 			Version: "1.0.0",
 		},
-		Paths: openapi3.Paths{},
+		Paths: &openapi3.Paths{},
 	}
+
+	logger := zap.NewExample()
 
 	req := httptest.NewRequest(http.MethodGet, "/openapi.json", nil)
 	w := httptest.NewRecorder()
@@ -33,7 +35,11 @@ func TestNewOpenAPIHandler(t *testing.T) {
 	handler.ServeHTTP(w, req)
 
 	resp := w.Result()
-	defer resp.Body.Close()
+	defer func() {
+		if cerr := resp.Body.Close(); cerr != nil {
+			logger.Warn("failed to close response body", zap.Error(cerr))
+		}
+	}()
 
 	assert.Equal(t, http.StatusOK, resp.StatusCode)
 	assert.Equal(t, "application/json", resp.Header.Get("Content-Type"))
