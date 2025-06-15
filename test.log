@@ -1,0 +1,5 @@
+=== RUN   TestOpenAPIEndpoint_ReturnsJSON
+=== PAUSE TestOpenAPIEndpoint_ReturnsJSON
+=== CONT  TestOpenAPIEndpoint_ReturnsJSON
+FAIL	cognito-repeater-go/test/openapi	0.007s
+FAIL
