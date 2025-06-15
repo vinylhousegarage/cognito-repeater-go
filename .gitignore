@@ -6,6 +6,7 @@ bootstrap
 bin/
 build/
 dist/
+docs/
 
 # IDE
 .vscode/*
