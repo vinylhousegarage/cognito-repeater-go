@@ -12,7 +12,7 @@ import (
 func TestLoadEmbeddedOpenAPISpec(t *testing.T) {
 	t.Parallel()
 
-	doc, err := openapi.LoadEmbeddedOpenAPISpec(testhelpers.MockLogger)
+	doc, err := LoadEmbeddedOpenAPISpec(testhelpers.MockLogger)
 	require.NoError(t, err)
 	require.NotNil(t, doc)
 
