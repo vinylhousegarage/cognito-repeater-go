@@ -1,8 +1,9 @@
 package openapi
 
 import (
-	"context"
 	_ "embed"
+	"context"
+	"fmt"
 
 	"github.com/getkin/kin-openapi/openapi3"
 
@@ -20,6 +21,7 @@ func LoadEmbeddedOpenAPISpec(logger *zap.Logger) (*openapi3.T, error) {
 	}
 	if err := doc.Validate(context.Background()); err != nil {
 		logger.Error("failed to validate embedded OpenAPI spec", zap.Error(err))
+		fmt.Printf("VALIDATION ERROR: %+v\n", err)
 		return nil, ErrFailedToValidateOpenAPISpec
 	}
 	return doc, nil
