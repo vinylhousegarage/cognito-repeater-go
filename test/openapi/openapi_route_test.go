@@ -29,18 +29,20 @@ func TestOpenAPIEndpoint_ReturnsJSON(t *testing.T) {
 
 	resp := w.Result()
 	defer func() {
-		if err := resp.Body.Close(); err != nil {
-			t.Errorf("failed to close response body: %v", err)
+		if cerr := resp.Body.Close(); cerr != nil {
+			t.Errorf("failed to close response body: %v", cerr)
 		}
 	}()
 
-	body, err := io.ReadAll(resp.Body)
-	assert.NoError(t, err, "failed to read response body")
+	body, readErr := io.ReadAll(resp.Body)
+	assert.NoError(t, readErr, "failed to read response body")
 	assert.Equal(t, http.StatusOK, resp.StatusCode)
 
 	var spec map[string]any
-	err = json.Unmarshal(body, &spec)
-	assert.NoError(t, err, "failed to unmarshal OpenAPI JSON")
+	readErr = json.Unmarshal(body, &spec)
+	assert.NoError(t, readErr, "failed to unmarshal OpenAPI JSON")
 
-	assert.Equal(t, "3.0.0", spec["openapi"])
+	openapiVersion, ok := spec["openapi"].(string)
+	assert.True(t, ok, "openapi field is not a string")
+	assert.Equal(t, "3.0.0", openapiVersion)
 }
