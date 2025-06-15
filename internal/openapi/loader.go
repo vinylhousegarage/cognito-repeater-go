@@ -1,7 +1,6 @@
 package openapi
 
 import (
-	_ "embed"
 	"context"
 	"fmt"
 
@@ -9,8 +8,6 @@ import (
 
 	"go.uber.org/zap"
 )
-
-var openapiSpec []byte
 
 func LoadEmbeddedOpenAPISpec(logger *zap.Logger) (*openapi3.T, error) {
 	loader := openapi3.NewLoader()
