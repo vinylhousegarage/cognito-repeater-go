@@ -7,9 +7,9 @@ import (
 )
 
 func RegisterOpenAPIRoutes(mux *http.ServeMux, logger *zap.Logger) {
-	spec, err := LoadOpenAPISpec("openapi.yaml", logger)
+	spec, err := LoadEmbeddedOpenAPISpec(logger)
 	if err != nil {
-		logger.Fatal("failed to load OpenAPI spec", zap.Error(err))
+		logger.Fatal("failed to load embedded OpenAPI spec", zap.Error(err))
 	}
 	mux.HandleFunc("/openapi.json", NewOpenAPIHandler(spec, logger))
 }
