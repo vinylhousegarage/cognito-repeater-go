@@ -1,0 +1,321 @@
+openapi: 3.0.0
+info:
+  contact: {}
+  description: |-
+    A relay API for AWS Cognito login/logout/token verification
+    Implemented in Go 1.24.3.
+  license:
+    name: MIT
+    url: https://opensource.org/licenses/MIT
+  title: Cognito Repeater API (Go)
+  version: 1.0.0
+paths:
+  /:
+    get:
+      description: |-
+        Redirects the root path (/) to the login page.
+        This endpoint is intended to be accessed via a web browser.
+        It performs an HTTP redirect (status code 302) to /login.
+      responses:
+        "302":
+          description: "Found: Redirect with Location header"
+          content:
+            text/plain:
+              schema:
+                type: string
+      summary: Redirect to login
+      tags:
+        - system
+  /error/404:
+    get:
+      description: Returns a simulated 404 Not Found error response
+      responses:
+        "404":
+          description: Simulated 404 Not Found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/notfound.ErrorSimulationResponse"
+      summary: Simulate 404 Not Found
+      tags:
+        - error
+  /login:
+    get:
+      description: >-
+        Initiates an OAuth2 login by redirecting to the Cognito authorization
+        endpoint.
+
+        Sets a state cookie and is intended for browser access.
+      responses:
+        "302":
+          description: "Found: Redirect with Location header"
+          content:
+            text/plain:
+              schema:
+                type: string
+        "500":
+          description: Internal Server Error
+          content:
+            text/plain:
+              schema:
+                $ref: "#/components/schemas/response.ErrorResponse"
+        "502":
+          description: Bad Gateway
+          content:
+            text/plain:
+              schema:
+                $ref: "#/components/schemas/response.ErrorResponse"
+      summary: Redirect to Cognito login
+      tags:
+        - auth
+  /logout:
+    get:
+      description: >-
+        Logs the user out by redirecting to the Cognito end session endpoint.
+
+        This endpoint is intended to be accessed via a web browser as it performs a redirect.
+      responses:
+        "302":
+          description: "Found: Redirect with Location header"
+          content:
+            text/plain:
+              schema:
+                type: string
+        "500":
+          description: Internal Server Error
+          content:
+            text/plain:
+              schema:
+                $ref: "#/components/schemas/response.ErrorResponse"
+        "502":
+          description: Bad Gateway
+          content:
+            text/plain:
+              schema:
+                $ref: "#/components/schemas/response.ErrorResponse"
+      summary: Redirect to Cognito logout
+      tags:
+        - auth
+  /me:
+    post:
+      description: >-
+        Verifies the provided ID token by validating its signature using
+        Cognito's JWK Set,
+
+        and checking standard claims such as `iss`, `aud`, and `exp`.
+
+        Returns the subject (`sub`) claim from the token if validation succeeds.
+
+        This endpoint accepts a form-encoded POST request and should be called from a secure backend environment.
+
+
+        Example form body:
+
+        token=ID_TOKEN_VALUE
+
+        Content-Type: application/x-www-form-urlencoded
+      requestBody:
+        content:
+          application/x-www-form-urlencoded:
+            schema:
+              type: object
+              properties:
+                token:
+                  description: ID token to verify
+                  type: string
+              required:
+                - token
+        required: true
+      responses:
+        "200":
+          description: Returns user sub claim
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/me.UserResponse"
+        "400":
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/response.ErrorResponse"
+        "401":
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/response.ErrorResponse"
+        "500":
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/response.ErrorResponse"
+        "502":
+          description: Internal Bad Gateway
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/response.ErrorResponse"
+      summary: Verify ID token and return user info
+      tags:
+        - user
+  /ping:
+    get:
+      description: Returns "pong" to indicate the server is alive
+      responses:
+        "200":
+          description: pong message
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ping.PingResponse"
+      summary: Health check endpoint
+      tags:
+        - health
+  /revoke:
+    post:
+      description: >-
+        Revokes a refresh token by calling the Cognito revocation endpoint.
+
+        This will invalidate the refresh token and prevent further token refresh or reuse,
+
+        effectively ending the user session.
+
+        This endpoint accepts a form-encoded POST request and should be called from a secure backend environment.
+
+
+        Example form body:
+
+        token=REFRESH_TOKEN_VALUE
+
+        Content-Type: application/x-www-form-urlencoded
+      requestBody:
+        content:
+          application/x-www-form-urlencoded:
+            schema:
+              type: object
+              properties:
+                token:
+                  description: Refresh token to be revoked
+                  type: string
+              required:
+                - token
+        required: true
+      responses:
+        "204":
+          description: No Content
+          content:
+            application/json:
+              schema:
+                type: string
+        "400":
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/response.ErrorResponse"
+        "500":
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/response.ErrorResponse"
+        "502":
+          description: Bad Gateway
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/response.ErrorResponse"
+      summary: Revoke refresh token
+      tags:
+        - auth
+  /whoami:
+    get:
+      description: >-
+        Checks if the provided access token is active and valid by querying the
+        Cognito UserInfo endpoint.
+
+        This endpoint is typically used to confirm the user's session is still valid.
+
+        It expects a Bearer token in the Authorization header and should be called from a secure backend environment.
+
+
+        Example header:
+
+        Authorization: Bearer ACCESS_TOKEN_VALUE
+      responses:
+        "200":
+          description: User info from Cognito
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/whoami.UserInfoResponse"
+        "400":
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/response.ErrorResponse"
+        "401":
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/response.ErrorResponse"
+        "500":
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/response.ErrorResponse"
+        "502":
+          description: Bad Gateway
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/response.ErrorResponse"
+      security:
+        - BearerAuth: []
+      summary: Verify access token using Cognito UserInfo endpoint
+      tags:
+        - user
+servers:
+  - url: https://cognito-repeater-go.com
+components:
+  securitySchemes:
+    BearerAuth:
+      in: header
+      name: Authorization
+      type: apiKey
+  schemas:
+    me.UserResponse:
+      properties:
+        sub:
+          example: abc-123
+          type: string
+      type: object
+    notfound.ErrorSimulationResponse:
+      properties:
+        message:
+          example: Simulated 404 Not Found
+          type: string
+      type: object
+    ping.PingResponse:
+      properties:
+        message:
+          example: pong
+          type: string
+      type: object
+    response.ErrorResponse:
+      properties:
+        error:
+          example: invalid token
+          type: string
+      type: object
+    whoami.UserInfoResponse:
+      properties:
+        sub:
+          example: abc-123-def-456
+          type: string
+      type: object
