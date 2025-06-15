@@ -27,7 +27,11 @@ func TestNewOpenAPIHandler_FileExists(t *testing.T) {
 	handler.ServeHTTP(w, req)
 
 	resp := w.Result()
-	defer resp.Body.Close()
+	defer func() {
+			if err := resp.Body.Close(); err != nil {
+					logger.Error("failed to close response body", zap.Error(err))
+			}
+	}()
 
 	body, _ := io.ReadAll(resp.Body)
 
