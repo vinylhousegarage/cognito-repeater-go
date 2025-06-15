@@ -22,7 +22,7 @@ func NewOpenAPIHandler(spec *openapi3.T, logger *zap.Logger) http.HandlerFunc {
 		w.WriteHeader(http.StatusOK)
 		n, err := w.Write(data)
 		if err != nil {
-				logger.Error("failed to write OpenAPI response", zap.Int("bytes_written", n), zap.Error(err))
+			logger.Error("failed to write OpenAPI response", zap.Int("bytes_written", n), zap.Error(err))
 		}
 	}
 }
