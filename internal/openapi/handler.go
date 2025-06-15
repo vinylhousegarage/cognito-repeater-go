@@ -13,7 +13,14 @@ import (
 func NewOpenAPIHandler(logger *zap.Logger) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		path := filepath.Join("docs", "swagger.json")
-		data, err := os.ReadFile(path)
+
+		absPath, err := filepath.Abs(path)
+		if err != nil {
+			response.WriteErrorResponse(w, ErrFailedToReadOpenAPISpec, logger)
+			return
+		}
+
+		data, err := os.ReadFile(absPath)
 		if err != nil {
 			response.WriteErrorResponse(w, ErrFailedToReadOpenAPISpec, logger)
 			return
