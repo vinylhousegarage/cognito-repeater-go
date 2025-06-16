@@ -3,6 +3,8 @@ module cognito-repeater-go
 go 1.24.3
 
 require (
+	github.com/aws/aws-lambda-go v1.49.0
+	github.com/awslabs/aws-lambda-go-api-proxy v0.16.2
 	github.com/getkin/kin-openapi v0.132.0
 	github.com/golang-jwt/jwt/v5 v5.2.2
 	github.com/stretchr/testify v1.10.0
