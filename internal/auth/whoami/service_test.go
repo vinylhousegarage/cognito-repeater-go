@@ -13,6 +13,7 @@ import (
 	"cognito-repeater-go/test/testhelpers"
 
 	"github.com/stretchr/testify/assert"
+
 	"go.uber.org/zap/zaptest"
 )
 
