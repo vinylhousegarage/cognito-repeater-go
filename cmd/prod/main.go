@@ -9,7 +9,7 @@ import (
 
 	"github.com/aws/aws-lambda-go/events"
 	"github.com/aws/aws-lambda-go/lambda"
-	"github.com/awslabs/aws-lambda-go-api-proxy/httpadapter/v2"
+	"github.com/awslabs/aws-lambda-go-api-proxy/httpadapter"
 
 	"go.uber.org/zap"
 )
@@ -36,7 +36,9 @@ func main() {
 	}
 
 	app := router.NewRouter(routeDeps, http.DefaultClient, logger)
-	adapter := v2adapter.NewV2(app)
+	adapter := httpadapter.New(app)
 
-	lambda.Start(adapter.ProxyWithContext)
+	lambda.Start(func(req events.APIGatewayV2HTTPRequest) (events.APIGatewayV2HTTPResponse, error) {
+		return adapter.ProxyV2(req)
+	})
 }
