@@ -1,0 +1,408 @@
+openapi: 3.0.0
+info:
+  description: |-
+    A relay API for AWS Cognito login/logout/token verification
+    Implemented in Go 1.24.3.
+  license:
+    name: MIT
+    url: https://opensource.org/licenses/MIT
+  title: Cognito Repeater API (Go)
+  version: 1.0.0
+paths:
+  # System-level routing
+  /:
+    get:
+      summary: Redirect to login
+      description: |-
+        Redirects the root path (/) to the login page.
+        This endpoint is intended to be accessed via a web browser.
+        It performs an HTTP redirect (status code 302) to /login.
+      tags:
+        - system
+      responses:
+        "302":
+          description: Redirect to /login
+          headers:
+            Location:
+              description: Target redirect URL
+              schema:
+                type: string
+  /ping:
+    get:
+      summary: Health check endpoint
+      description: |-
+        A health check endpoint used by monitoring systems or load balancers
+        to confirm that the server is running. Returns a simple "pong" message.
+      tags:
+        - system
+      responses:
+        "200":
+          description: pong message
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PingResponse"
+              examples:
+                pingExample:
+                  summary: Ping reply message
+                  value:
+                    message: pong
+  /error/404:
+    get:
+      summary: Simulate 404 Not Found
+      description: Simulates a 404 Not Found response for testing or monitoring purposes.
+      tags:
+        - system
+      responses:
+        "404":
+          description: Simulated 404 Not Found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorSimulationResponse"
+              examples:
+                notFoundExample:
+                  summary: Simulated not found response
+                  value:
+                    message: Simulated 404 Not Found
+
+  # Auth-related endpoints
+  /login:
+    get:
+      summary: Redirect to Cognito login
+      description: |-
+        Starts the OAuth2 login flow by redirecting the client to the Cognito authorization endpoint.
+        This endpoint is designed to be used in a browser environment, as it performs an HTTP redirect (302)
+        and includes a state parameter in the redirect URL to help prevent CSRF attacks.
+      tags:
+        - auth
+      responses:
+        "302":
+          description: Redirect with Location header
+          headers:
+            Location:
+              description: Cognito authorization endpoint URL
+              schema:
+                type: string
+        "500":
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+              examples:
+                internalError:
+                  summary: Failed to create internal request
+                  value:
+                    error: failed to create request
+        "502":
+          description: Bad Gateway
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+              examples:
+                badGatewayExample:
+                  summary: Metadata fetch failure
+                  value:
+                    error: failed to fetch metadata
+  /logout:
+    get:
+      summary: Redirect to Cognito logout
+      description: |-
+        Logs the user out by redirecting to the Cognito end session endpoint.
+        This endpoint is intended to be accessed via a web browser as it performs a redirect.
+      tags:
+        - auth
+      responses:
+        "302":
+          description: Redirect with Location header
+          headers:
+            Location:
+              description: Cognito logout endpoint URL
+              schema:
+                type: string
+        "500":
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+              examples:
+                internalError:
+                  summary: Failed to create internal request
+                  value:
+                    error: failed to create request
+        "502":
+          description: Bad Gateway
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+              examples:
+                badGatewayExample:
+                  summary: Metadata fetch failure
+                  value:
+                    error: failed to fetch metadata
+  /revoke:
+    post:
+      summary: Revoke refresh token
+      description: |-
+        Calls the Cognito revocation endpoint to invalidate the provided refresh token.
+        This effectively terminates the user's session by preventing future token refresh.
+        Intended for secure backend usage only.
+
+        Example form body:
+          token=REFRESH_TOKEN_VALUE
+          Content-Type: application/x-www-form-urlencoded
+      tags:
+        - auth
+      requestBody:
+        required: true
+        content:
+          application/x-www-form-urlencoded:
+            schema:
+              type: object
+              properties:
+                token:
+                  type: string
+                  description: Refresh token to be revoked
+              required:
+                - token
+      responses:
+        "204":
+          description: No Content
+        "400":
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+              examples:
+                missingClientCredentials:
+                  summary: Client credentials not provided
+                  value:
+                    error: missing client credentials
+        "500":
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+              examples:
+                internalError:
+                  summary: Failed to create internal request
+                  value:
+                    error: failed to create request
+        "502":
+          description: Bad Gateway
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+              examples:
+                badGatewayExample:
+                  summary: Metadata fetch failure
+                  value:
+                    error: failed to fetch metadata
+
+  # User-related endpoints
+  /me:
+    post:
+      summary: Verify ID token and return user info
+      description: |-
+        Validates the given ID token using Cognito's JWK Set.
+        If verification passes—including checks for `iss`, `aud`, and `exp`—the `sub` claim is extracted and returned.
+        Designed for secure backend consumption.
+
+        Example form body:
+          token=ID_TOKEN_VALUE
+          Content-Type: application/x-www-form-urlencoded
+      tags:
+        - user
+      requestBody:
+        required: true
+        content:
+          application/x-www-form-urlencoded:
+            schema:
+              type: object
+              properties:
+                token:
+                  type: string
+                  description: ID token to verify
+              required:
+                - token
+      responses:
+        "200":
+          description: Returns user sub claim
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/UserResponse"
+              examples:
+                Returns user sub claim:
+                  summary: Returns user sub claim
+                  value:
+                    sub: "12345678-aaaa-bbbb-cccc-1234567890ab"
+        "400":
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+              examples:
+                missingClientCredentials:
+                  summary: Client credentials not provided
+                  value:
+                    error: missing client credentials
+        "401":
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+              examples:
+                tokenExpired:
+                  summary: Token is expired
+                  value:
+                    error: token is expired
+        "500":
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+              examples:
+                internalError:
+                  summary: Failed to create internal request
+                  value:
+                    error: failed to create request
+        "502":
+          description: Bad Gateway
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+              examples:
+                badGatewayExample:
+                  summary: Metadata fetch failure
+                  value:
+                    error: failed to fetch metadata
+  /whoami:
+    get:
+      summary: Verify access token using Cognito UserInfo endpoint
+      description: |-
+        Verifies the validity of an access token by querying the Cognito UserInfo endpoint.
+        Typically used to confirm an active session. Requires a Bearer token in the Authorization header.
+        Intended for secure backend environments.
+
+        Example header:
+          Authorization: Bearer ACCESS_TOKEN_VALUE
+      tags:
+        - user
+      security:
+        - BearerAuth: []
+      responses:
+        "200":
+          description: User info from Cognito
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/UserInfoResponse"
+              examples:
+                userInfoFromCognito:
+                  summary: User info from Cognito
+                  value:
+                    sub: "12345678-aaaa-bbbb-cccc-1234567890ab"
+        "400":
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+              examples:
+                missingClientCredentials:
+                  summary: Client credentials not provided
+                  value:
+                    error: missing client credentials
+        "401":
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+              examples:
+                tokenExpired:
+                  summary: Token is expired
+                  value:
+                    error: token is expired
+        "500":
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+              examples:
+                internalError:
+                  summary: Failed to create internal request
+                  value:
+                    error: failed to create request
+        "502":
+          description: Bad Gateway
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+              examples:
+                badGatewayExample:
+                  summary: Metadata fetch failure
+                  value:
+                    error: failed to fetch metadata
+
+components:
+  schemas:
+    PingResponse:
+      type: object
+      description: Health check response schema
+      properties:
+        message:
+          type: string
+          description: Ping reply message
+
+    ErrorSimulationResponse:
+      type: object
+      description: Simulated 404 response used for testing
+      properties:
+        message:
+          type: string
+          description: Description of the simulated 404 error
+
+    ErrorResponse:
+      type: object
+      description: Standard error response schema
+      properties:
+        error:
+          type: string
+          description: Description of the error message
+
+    UserResponse:
+      type: object
+      description: Response containing the subject (`sub`) from the ID token
+      properties:
+        sub:
+          type: string
+          description: Unique identifier of the user
+
+    UserInfoResponse:
+      type: object
+      description: Response returned by /whoami after validating the access token
+      properties:
+        sub:
+          type: string
+          description: Unique identifier of the user
+
+  securitySchemes:
+    BearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
