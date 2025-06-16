@@ -1,8 +1,9 @@
 package revoke
 
 import (
-	"cognito-repeater-go/internal/apperror"
 	"net/http"
+
+	"cognito-repeater-go/internal/apperror"
 )
 
 var (
