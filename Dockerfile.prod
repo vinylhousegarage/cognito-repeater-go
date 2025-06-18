@@ -13,3 +13,5 @@ RUN CGO_ENABLED=0 GOOS=linux GOARCH=amd64 \
 FROM public.ecr.aws/lambda/go:1
 
 COPY --from=builder /app/handler /var/task/
+
+CMD ["handler"]
