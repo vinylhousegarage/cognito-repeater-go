@@ -36,8 +36,10 @@ jobs:
         run: |
           docker push ${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.${{ secrets.AWS_REGION }}.amazonaws.com/cognito-repeater-go:main-${{ github.sha }}
 
-      - name: Update Lambda function code
+      - name: Update Lambda function code safely
         run: |
+          IMAGE_URI="${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.${{ secrets.AWS_REGION }}.amazonaws.com/cognito-repeater-go:main-${{ github.sha }}"
           aws lambda update-function-code \
             --function-name cognito-repeater-go \
-            --image-uri ${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.${{ secrets.AWS_REGION }}.amazonaws.com/cognito-repeater-go:main-${{ github.sha }}
+            --image-uri "$IMAGE_URI" \
+          | jq 'del(.Environment.Variables)'
