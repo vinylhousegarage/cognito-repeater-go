@@ -1,4 +1,4 @@
-package whoami
+package utils
 
 import (
 	"net/http"
