@@ -125,10 +125,10 @@ func generateNewMeHandlerTestToken(t *testing.T, claims jwt.RegisteredClaims, pr
 	return signed
 }
 
-func NewTokenGetRequest(token string) *http.Request {
-	req := httptest.NewRequest(http.MethodGet, "/me", nil)
-	req.Header.Set("Authorization", "Bearer "+token)
-	return req
+func NewAuthHeaderRequest(token string) *http.Request {
+    req := httptest.NewRequest(http.MethodGet, "/me", nil)
+    req.Header.Set("Authorization", "Bearer "+token)
+    return req
 }
 
 func ServeMeHandler(req *http.Request, provider deps.MeHandlerProvider, client httpclient.HTTPClient, logger *zap.Logger) *httptest.ResponseRecorder {
@@ -196,6 +196,6 @@ func setupWithClaims(t *testing.T, claims jwt.RegisteredClaims) *httptest.Respon
 	jwkJSON := generateJWKJSON(env.PubKey, kid)
 	client := buildMockHTTPClient(env.MockMetadataURL, env.MockJwksURL, env.MockIssuer, jwkJSON)
 	token := generateNewMeHandlerTestToken(t, claims, env.PrivKey, kid)
-	req := NewTokenPostRequest(token)
+	req := NewAuthHeaderRequest(token)
 	return ServeMeHandler(req, env.Provider, client, env.Logger)
 }
