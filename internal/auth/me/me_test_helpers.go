@@ -125,11 +125,9 @@ func generateNewMeHandlerTestToken(t *testing.T, claims jwt.RegisteredClaims, pr
 	return signed
 }
 
-func NewTokenPostRequest(token string) *http.Request {
-	form := url.Values{}
-	form.Set("token", token)
-	req := httptest.NewRequest(http.MethodPost, "/me", strings.NewReader(form.Encode()))
-	req.Header.Set("Content-Type", "application/x-www-form-urlencoded")
+func NewTokenGetRequest(token string) *http.Request {
+	req := httptest.NewRequest(http.MethodGet, "/me", nil)
+	req.Header.Set("Authorization", "Bearer "+token)
 	return req
 }
 

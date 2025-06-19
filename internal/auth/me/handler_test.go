@@ -139,7 +139,7 @@ func TestNewMeHandler_Errors(t *testing.T) {
 		tokenStr, err := token.SignedString(env.PrivKey)
 		assert.NoError(t, err)
 
-		req := NewTokenPostRequest(tokenStr)
+		req := NewTokenGetRequest(tokenStr)
 		rr := ServeMeHandler(req, env.Provider, mockHTTPClient, env.Logger)
 
 		AssertBadRequestResponse(t, rr, ErrMissingKID.Error())
