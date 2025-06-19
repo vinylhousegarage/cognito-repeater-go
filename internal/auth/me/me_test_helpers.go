@@ -10,7 +10,6 @@ import (
 	"math/big"
 	"net/http"
 	"net/http/httptest"
-	"net/url"
 	"strings"
 	"testing"
 
@@ -125,11 +124,9 @@ func generateNewMeHandlerTestToken(t *testing.T, claims jwt.RegisteredClaims, pr
 	return signed
 }
 
-func NewTokenPostRequest(token string) *http.Request {
-	form := url.Values{}
-	form.Set("token", token)
-	req := httptest.NewRequest(http.MethodPost, "/me", strings.NewReader(form.Encode()))
-	req.Header.Set("Content-Type", "application/x-www-form-urlencoded")
+func NewAuthHeaderRequest(token string) *http.Request {
+	req := httptest.NewRequest(http.MethodGet, "/me", nil)
+	req.Header.Set("Authorization", "Bearer "+token)
 	return req
 }
 
@@ -198,6 +195,6 @@ func setupWithClaims(t *testing.T, claims jwt.RegisteredClaims) *httptest.Respon
 	jwkJSON := generateJWKJSON(env.PubKey, kid)
 	client := buildMockHTTPClient(env.MockMetadataURL, env.MockJwksURL, env.MockIssuer, jwkJSON)
 	token := generateNewMeHandlerTestToken(t, claims, env.PrivKey, kid)
-	req := NewTokenPostRequest(token)
+	req := NewAuthHeaderRequest(token)
 	return ServeMeHandler(req, env.Provider, client, env.Logger)
 }

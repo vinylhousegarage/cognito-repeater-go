@@ -43,7 +43,7 @@ paths:
               schema:
                 $ref: "#/components/schemas/PingResponse"
               examples:
-                pingExample:
+                statusOKExample:
                   summary: Ping reply message
                   value:
                     message: pong
@@ -61,7 +61,7 @@ paths:
               schema:
                 $ref: "#/components/schemas/ErrorSimulationResponse"
               examples:
-                notFoundExample:
+                simulatedNotFoundExample:
                   summary: Simulated not found response
                   value:
                     message: Simulated 404 Not Found
@@ -91,7 +91,7 @@ paths:
               schema:
                 $ref: "#/components/schemas/ErrorResponse"
               examples:
-                internalError:
+                internalServerErrorExample:
                   summary: Failed to create internal request
                   value:
                     error: failed to create request
@@ -103,7 +103,7 @@ paths:
                 $ref: "#/components/schemas/ErrorResponse"
               examples:
                 badGatewayExample:
-                  summary: Metadata fetch failure
+                  summary: Failed to fetch Cognito metadata endpoint
                   value:
                     error: failed to fetch metadata
   /logout:
@@ -129,7 +129,7 @@ paths:
               schema:
                 $ref: "#/components/schemas/ErrorResponse"
               examples:
-                internalError:
+                internalServerErrorExample:
                   summary: Failed to create internal request
                   value:
                     error: failed to create request
@@ -148,13 +148,13 @@ paths:
     post:
       summary: Revoke refresh token
       description: |-
-        Calls the Cognito revocation endpoint to invalidate the provided refresh token.
-        This effectively terminates the user's session by preventing future token refresh.
-        Intended for secure backend usage only.
+        Revokes the given refresh token by calling Cognito's revocation endpoint.
+        This invalidates the token and prevents future use for refreshing sessions.
+
+        Requires the token to be sent in the request body as application/x-www-form-urlencoded.
 
         Example form body:
           token=REFRESH_TOKEN_VALUE
-          Content-Type: application/x-www-form-urlencoded
       tags:
         - auth
       requestBody:
@@ -167,6 +167,10 @@ paths:
                 token:
                   type: string
                   description: Refresh token to be revoked
+                token_type_hint:
+                  type: string
+                  enum: [refresh_token]
+                  description: Only `refresh_token` is supported
               required:
                 - token
       responses:
@@ -179,7 +183,7 @@ paths:
               schema:
                 $ref: "#/components/schemas/ErrorResponse"
               examples:
-                missingClientCredentials:
+                badRequestExample:
                   summary: Client credentials not provided
                   value:
                     error: missing client credentials
@@ -190,7 +194,7 @@ paths:
               schema:
                 $ref: "#/components/schemas/ErrorResponse"
               examples:
-                internalError:
+                internalServerErrorExample:
                   summary: Failed to create internal request
                   value:
                     error: failed to create request
@@ -208,30 +212,21 @@ paths:
 
   # User-related endpoints
   /me:
-    post:
+    get:
       summary: Verify ID token and return user info
       description: |-
-        Validates the given ID token using Cognito's JWK Set.
-        If verification passes—including checks for `iss`, `aud`, and `exp`—the `sub` claim is extracted and returned.
-        Designed for secure backend consumption.
+        Verifies the validity of an ID token by validating its signature using Cognito's JWK Set.
+        Includes checks for standard claims such as `iss`, `aud`, and `exp`.
+        Returns the `sub` claim if verification succeeds.
 
-        Example form body:
-          token=ID_TOKEN_VALUE
-          Content-Type: application/x-www-form-urlencoded
+        Requires a Bearer token in the Authorization header.
+
+        Example header:
+          Authorization: Bearer ID_TOKEN_VALUE
       tags:
         - user
-      requestBody:
-        required: true
-        content:
-          application/x-www-form-urlencoded:
-            schema:
-              type: object
-              properties:
-                token:
-                  type: string
-                  description: ID token to verify
-              required:
-                - token
+      security:
+        - BearerAuth: []
       responses:
         "200":
           description: Returns user sub claim
@@ -240,8 +235,8 @@ paths:
               schema:
                 $ref: "#/components/schemas/UserResponse"
               examples:
-                Returns user sub claim:
-                  summary: Returns user sub claim
+                statusOKExample:
+                  summary: User sub claim
                   value:
                     sub: "12345678-aaaa-bbbb-cccc-1234567890ab"
         "400":
@@ -251,7 +246,7 @@ paths:
               schema:
                 $ref: "#/components/schemas/ErrorResponse"
               examples:
-                missingClientCredentials:
+                badRequestExample:
                   summary: Client credentials not provided
                   value:
                     error: missing client credentials
@@ -262,8 +257,8 @@ paths:
               schema:
                 $ref: "#/components/schemas/ErrorResponse"
               examples:
-                tokenExpired:
-                  summary: Token is expired
+                unauthorizedExample:
+                  summary: Unauthorized - Token is expired
                   value:
                     error: token is expired
         "500":
@@ -273,7 +268,7 @@ paths:
               schema:
                 $ref: "#/components/schemas/ErrorResponse"
               examples:
-                internalError:
+                internalServerErrorExample:
                   summary: Failed to create internal request
                   value:
                     error: failed to create request
@@ -293,8 +288,10 @@ paths:
       summary: Verify access token using Cognito UserInfo endpoint
       description: |-
         Verifies the validity of an access token by querying the Cognito UserInfo endpoint.
-        Typically used to confirm an active session. Requires a Bearer token in the Authorization header.
-        Intended for secure backend environments.
+        Confirms that the session is active and the token is still valid.
+        Returns user information, including the `sub` claim, if verification succeeds.
+
+        Requires a Bearer token in the Authorization header.
 
         Example header:
           Authorization: Bearer ACCESS_TOKEN_VALUE
@@ -310,7 +307,7 @@ paths:
               schema:
                 $ref: "#/components/schemas/UserInfoResponse"
               examples:
-                userInfoFromCognito:
+                statusOKExample:
                   summary: User info from Cognito
                   value:
                     sub: "12345678-aaaa-bbbb-cccc-1234567890ab"
@@ -321,7 +318,7 @@ paths:
               schema:
                 $ref: "#/components/schemas/ErrorResponse"
               examples:
-                missingClientCredentials:
+                badRequestExample:
                   summary: Client credentials not provided
                   value:
                     error: missing client credentials
@@ -332,8 +329,8 @@ paths:
               schema:
                 $ref: "#/components/schemas/ErrorResponse"
               examples:
-                tokenExpired:
-                  summary: Token is expired
+                unauthorizedExample:
+                  summary: Unauthorized - Token is expired
                   value:
                     error: token is expired
         "500":
@@ -343,7 +340,7 @@ paths:
               schema:
                 $ref: "#/components/schemas/ErrorResponse"
               examples:
-                internalError:
+                internalServerErrorExample:
                   summary: Failed to create internal request
                   value:
                     error: failed to create request
@@ -354,16 +351,34 @@ paths:
               schema:
                 $ref: "#/components/schemas/ErrorResponse"
               examples:
-                badGatewayExample:
+                badRequestExample:
                   summary: Metadata fetch failure
                   value:
                     error: failed to fetch metadata
 
 components:
+  securitySchemes:
+    BearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+
   schemas:
+    ErrorResponse:
+      type: object
+      description: Standard error response schema
+      required:
+        - error
+      properties:
+        error:
+          type: string
+          description: Description of the error message
+
     PingResponse:
       type: object
       description: Health check response schema
+      required:
+        - message
       properties:
         message:
           type: string
@@ -372,22 +387,18 @@ components:
     ErrorSimulationResponse:
       type: object
       description: Simulated 404 response used for testing
+      required:
+        - message
       properties:
         message:
           type: string
           description: Description of the simulated 404 error
 
-    ErrorResponse:
-      type: object
-      description: Standard error response schema
-      properties:
-        error:
-          type: string
-          description: Description of the error message
-
     UserResponse:
       type: object
       description: Response containing the subject (`sub`) from the ID token
+      required:
+        - sub
       properties:
         sub:
           type: string
@@ -395,14 +406,22 @@ components:
 
     UserInfoResponse:
       type: object
-      description: Response returned by /whoami after validating the access token
+      description: Response containing the subject (`sub`) from the access token
+      required:
+        - sub
       properties:
         sub:
           type: string
           description: Unique identifier of the user
 
-  securitySchemes:
-    BearerAuth:
-      type: http
-      scheme: bearer
-      bearerFormat: JWT
+servers:
+  - url: https://cognito-repeater-go.com
+    description: Production server
+
+tags:
+  - name: system
+    description: System-level endpoints such as health checks and redirects
+  - name: auth
+    description: Authentication-related endpoints including login, logout, and token revocation
+  - name: user
+    description: Endpoints related to user identity and token validation
