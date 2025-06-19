@@ -30,14 +30,14 @@ import (
 // @Failure 401 {object} response.ErrorResponse "Unauthorized"
 // @Failure 500 {object} response.ErrorResponse "Internal Server Error"
 // @Failure 502 {object} response.ErrorResponse "Internal Bad Gateway"
-// @Router /me [post]
+// @Router /me [get]
 func NewMeHandler(
 	p deps.MeHandlerProvider,
 	c httpclient.HTTPClient,
 	logger *zap.Logger,
 ) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		idToken, err := utils.ExtractFormValue(r, logger)
+		idToken, err := utils.ExtractAuthHeaderToken(r)
 		if err != nil {
 			response.WriteErrorResponse(w, err, logger)
 			return
