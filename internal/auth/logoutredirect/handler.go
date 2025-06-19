@@ -7,10 +7,6 @@ import (
 	"go.uber.org/zap"
 )
 
-type LogoutResponse struct {
-	Message string `json:"message"`
-}
-
 func NewLogoutRedirectHandler(logger *zap.Logger) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		if r.Method != http.MethodGet {
