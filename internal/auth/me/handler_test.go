@@ -85,7 +85,7 @@ func TestNewMeHandler_Errors(t *testing.T) {
 		jwkJSON := generateJWKJSON(env.PubKey, "test-kid")
 		mockHTTPClient := buildMockHTTPClient(env.MockMetadataURL, env.MockJwksURL, env.MockIssuer, jwkJSON)
 		brokenToken := "this.is.not.a.valid.jwt"
-		req := NewTokenPostRequest(brokenToken)
+		req := NewTokenGetRequest(brokenToken)
 		rr := ServeMeHandler(req, env.Provider, mockHTTPClient, env.Logger)
 
 		AssertBadRequestResponse(t, rr, ErrInvalidJWTFormat.Error())
@@ -112,7 +112,7 @@ func TestNewMeHandler_Errors(t *testing.T) {
 		tokenStr, err := token.SignedString(hmacSecret)
 		assert.NoError(t, err)
 
-		req := NewTokenPostRequest(tokenStr)
+		req := NewTokenGetRequest(tokenStr)
 		rr := ServeMeHandler(req, env.Provider, mockHTTPClient, env.Logger)
 
 		AssertBadRequestResponse(t, rr, ErrInvalidSigningAlg.Error())
@@ -168,7 +168,7 @@ func TestNewMeHandler_Errors(t *testing.T) {
 		tokenStr, err := token.SignedString(env.PrivKey)
 		assert.NoError(t, err)
 
-		req := NewTokenPostRequest(tokenStr)
+		req := NewTokenGetRequest(tokenStr)
 		rr := ServeMeHandler(req, env.Provider, mockHTTPClient, env.Logger)
 
 		AssertUnauthorizedResponse(t, rr, ErrKIDNotFoundInJWKSet.Error())
