@@ -5,6 +5,7 @@ import (
 	"net/http"
 
 	"cognito-repeater-go/internal/auth/deps"
+	"cognito-repeater-go/internal/auth/utils"
 	"cognito-repeater-go/internal/httpclient"
 	"cognito-repeater-go/internal/response"
 
@@ -33,7 +34,7 @@ func NewWhoamiHandler(
 	logger *zap.Logger,
 ) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		accessToken, err := ExtractAuthHeaderToken(r)
+		accessToken, err := utils.ExtractAuthHeaderToken(r)
 		if err != nil {
 			response.WriteErrorResponse(w, err, logger)
 			return
