@@ -10,7 +10,6 @@ import (
 	"math/big"
 	"net/http"
 	"net/http/httptest"
-	"net/url"
 	"strings"
 	"testing"
 
@@ -126,9 +125,9 @@ func generateNewMeHandlerTestToken(t *testing.T, claims jwt.RegisteredClaims, pr
 }
 
 func NewAuthHeaderRequest(token string) *http.Request {
-    req := httptest.NewRequest(http.MethodGet, "/me", nil)
-    req.Header.Set("Authorization", "Bearer "+token)
-    return req
+	req := httptest.NewRequest(http.MethodGet, "/me", nil)
+	req.Header.Set("Authorization", "Bearer "+token)
+	return req
 }
 
 func ServeMeHandler(req *http.Request, provider deps.MeHandlerProvider, client httpclient.HTTPClient, logger *zap.Logger) *httptest.ResponseRecorder {
