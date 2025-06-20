@@ -25,6 +25,8 @@ type LoginHandlerProvider interface {
 
 type LogoutHandlerProvider interface {
 	MetadataURL() string
+	RedirectURIValue() string
+	UserPoolClientIDValue() string
 }
 
 type MeHandlerProvider interface {
