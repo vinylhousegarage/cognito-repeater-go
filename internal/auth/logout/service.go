@@ -61,9 +61,9 @@ func GetLogoutURL(
 	return meta.EndSessionEndpoint, nil
 }
 
-func buildLogoutRedirectURL(baseURL, clientID, redirectURI string) string {
+func buildLogoutRedirectURL(baseURL, clientID, logoutURI string) string {
 	q := url.Values{}
 	q.Set("client_id", clientID)
-	q.Set("post_logout_redirect_uri", redirectURI)
+	q.Set("post_logout_redirect_uri", logoutURI)
 	return baseURL + "?" + q.Encode()
 }
