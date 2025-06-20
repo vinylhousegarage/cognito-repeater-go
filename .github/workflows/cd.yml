@@ -13,23 +13,23 @@ jobs:
       - name: Checkout source code
         uses: actions/checkout@v4
 
-      - name: Check file changes
-        id: changes
-        uses: dorny/paths-filter@v3
-        with:
-          filters: |
-            deploy:
-              - 'Dockerfile.prod'
-              - '**/*.go'
-              - 'go.mod'
-              - 'go.sum'
-              - '.github/workflows/cd.yml'
-              - '!README.md'
-              - '!docs/index.md'
+      # - name: Check file changes
+      #   id: changes
+      #   uses: dorny/paths-filter@v3
+      #   with:
+      #     filters: |
+      #       deploy:
+      #         - 'Dockerfile.prod'
+      #         - '**/*.go'
+      #         - 'go.mod'
+      #         - 'go.sum'
+      #         - '.github/workflows/cd.yml'
+      #         - '!README.md'
+      #         - '!docs/index.md'
 
-      - name: Skip deployment if only docs changed
-        if: steps.changes.outputs.deploy != 'true'
-        run: echo "Only docs changed. Skipping deployment." && exit 0
+      # - name: Skip deployment if only docs changed
+      #   if: steps.changes.outputs.deploy != 'true'
+      #   run: echo "Only docs changed. Skipping deployment." && exit 0
 
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v4
@@ -44,7 +44,7 @@ jobs:
 
       - name: Build Docker image
         run: |
-          docker build -t cognito-repeater-go:prod -f Dockerfile.prod .
+          docker build --no-cache -t cognito-repeater-go:prod -f Dockerfile.prod .
 
       - name: Tag image with commit SHA
         run: |
