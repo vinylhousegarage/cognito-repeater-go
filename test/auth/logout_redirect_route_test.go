@@ -1,6 +1,7 @@
 package auth_test
 
 import (
+	"io"
 	"net/http"
 	"net/http/httptest"
 	"testing"
@@ -9,11 +10,10 @@ import (
 	"cognito-repeater-go/test/testhelpers"
 
 	"github.com/stretchr/testify/assert"
-
 	"go.uber.org/zap"
 )
 
-func TestRouterLogoutRedirectRouteReturns302Redirect(t *testing.T) {
+func TestRouterLogoutRedirectRouteReturns200OK(t *testing.T) {
 	t.Parallel()
 
 	provider := testhelpers.NewMockRouteDependencies()
@@ -33,8 +33,10 @@ func TestRouterLogoutRedirectRouteReturns302Redirect(t *testing.T) {
 		}
 	}()
 
-	assert.Equal(t, http.StatusFound, resp.StatusCode)
+	body, err := io.ReadAll(resp.Body)
+	assert.NoError(t, err)
 
-	location := resp.Header.Get("Location")
-	assert.Equal(t, "/", location, "unexpected redirect Location header")
+	assert.Equal(t, http.StatusOK, resp.StatusCode)
+	assert.Equal(t, "text/plain", resp.Header.Get("Content-Type"))
+	assert.Equal(t, "Logout successful", string(body))
 }

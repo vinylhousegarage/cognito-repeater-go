@@ -13,6 +13,14 @@ func NewLogoutRedirectHandler(logger *zap.Logger) http.HandlerFunc {
 			return
 		}
 
-		http.Redirect(w, r, "/", http.StatusFound)
+		w.Header().Set("Content-Type", "text/plain")
+		w.WriteHeader(http.StatusOK)
+
+		n, err := w.Write([]byte("Logout successful"))
+		if err != nil {
+			logger.Info("write failed", zap.Error(err))
+			return
+		}
+		logger.Info("response body written", zap.Int("bytes", n))
 	}
 }
