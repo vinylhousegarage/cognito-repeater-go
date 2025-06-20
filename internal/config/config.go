@@ -31,6 +31,10 @@ func (c *Config) Issuer() string {
 	return fmt.Sprintf("https://cognito-idp.%s.amazonaws.com/%s", c.Region, c.UserPoolID)
 }
 
+func (c *Config) LogoutURIValue() string {
+	return c.LogoutURI
+}
+
 func (c *Config) MetadataURL() string {
 	return fmt.Sprintf("https://cognito-idp.%s.amazonaws.com/%s/.well-known/openid-configuration", c.Region, c.UserPoolID)
 }
