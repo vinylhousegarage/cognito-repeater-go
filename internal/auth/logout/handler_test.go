@@ -3,6 +3,7 @@ package logout
 import (
 	"net/http"
 	"net/http/httptest"
+	"net/url"
 	"testing"
 
 	"cognito-repeater-go/test/testhelpers"
@@ -12,7 +13,9 @@ import (
 
 type MockLogoutConfig struct{}
 
-func (m *MockLogoutConfig) MetadataURL() string { return "https://mock.metadata.url" }
+func (m *MockLogoutConfig) LogoutURIValue() string        { return "https://myapp.com/logout/redirect" }
+func (m *MockLogoutConfig) MetadataURL() string           { return "https://mock.metadata.url" }
+func (m *MockLogoutConfig) UserPoolClientIDValue() string { return "test-client-id" }
 
 func TestNewLogoutHandlerRedirectsToLogoutEndpoint(t *testing.T) {
 	t.Parallel()
@@ -30,10 +33,15 @@ func TestNewLogoutHandlerRedirectsToLogoutEndpoint(t *testing.T) {
 	w := httptest.NewRecorder()
 
 	handler := NewLogoutHandler(&MockLogoutConfig{}, mockClient, testhelpers.MockLogger)
-
 	handler.ServeHTTP(w, req)
 
 	resp := w.Result()
+
+	params := url.Values{}
+	params.Set("client_id", "test-client-id")
+	params.Set("post_logout_redirect_uri", "https://myapp.com/logout/redirect")
+	expected := "https://example.com/logout?" + params.Encode()
+
 	assert.Equal(t, http.StatusFound, resp.StatusCode)
-	assert.Equal(t, "https://example.com/logout", resp.Header.Get("Location"))
+	assert.Equal(t, expected, resp.Header.Get("Location"))
 }

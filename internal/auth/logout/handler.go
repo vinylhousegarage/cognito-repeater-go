@@ -32,6 +32,12 @@ func NewLogoutHandler(
 			return
 		}
 
-		http.Redirect(w, r, endpoint, http.StatusFound)
+		redirectURL := buildLogoutRedirectURL(
+			endpoint,
+			p.UserPoolClientIDValue(),
+			p.LogoutURIValue(),
+		)
+
+		http.Redirect(w, r, redirectURL, http.StatusFound)
 	}
 }
