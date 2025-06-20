@@ -1,47 +1,45 @@
 package logoutredirect
 
 import (
-	"encoding/json"
-	"fmt"
-	"io"
 	"net/http"
 	"net/http/httptest"
 	"testing"
 
-	"github.com/stretchr/testify/assert"
+	"cognito-repeater-go/test/testhelpers"
 
-	"go.uber.org/zap"
+	"github.com/stretchr/testify/assert"
 )
 
-func TestMetadataHandler_ReturnsExpectedStatusAndJSONBody(t *testing.T) {
+func TestLogoutRedirectHandler(t *testing.T) {
 	t.Parallel()
 
-	req := httptest.NewRequest(http.MethodGet, "/logout/redirect", nil)
-	w := httptest.NewRecorder()
+	t.Run("GET returns 302 with /", func(t *testing.T) {
+		t.Parallel()
 
-	mockLogger := zap.NewNop()
+		req := httptest.NewRequest(http.MethodGet, "/logout/redirect", nil)
+		w := httptest.NewRecorder()
 
-	NewLogoutRedirectHandler(mockLogger)(w, req)
+		NewLogoutRedirectHandler(testhelpers.MockLogger)(w, req)
 
-	resp := w.Result()
-	defer func() {
-		if err := resp.Body.Close(); err != nil {
-			fmt.Printf("failed to close response body: %v\n", err)
-		}
-	}()
+		resp := w.Result()
+		defer func() {
+			if err := resp.Body.Close(); err != nil {
+				t.Fatalf("failed to close response body: %v", err)
+			}
+		}()
 
-	assert.Equal(t, http.StatusOK, resp.StatusCode)
+		assert.Equal(t, http.StatusFound, resp.StatusCode)
+		assert.Equal(t, "/", resp.Header.Get("Location"))
+	})
 
-	body, err := io.ReadAll(resp.Body)
-	assert.NoError(t, err)
+	t.Run("POST returns 405", func(t *testing.T) {
+		t.Parallel()
 
-	expected := map[string]string{
-		"message": "Logout successful",
-	}
+		req := httptest.NewRequest(http.MethodPost, "/logout/redirect", nil)
+		w := httptest.NewRecorder()
 
-	var actual map[string]string
-	err = json.Unmarshal(body, &actual)
-	assert.NoError(t, err)
+		NewLogoutRedirectHandler(testhelpers.MockLogger)(w, req)
 
-	assert.Equal(t, expected, actual)
+		assert.Equal(t, http.StatusMethodNotAllowed, w.Code)
+	})
 }

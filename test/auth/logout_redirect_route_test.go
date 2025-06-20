@@ -1,8 +1,6 @@
 package auth_test
 
 import (
-	"encoding/json"
-	"io"
 	"net/http"
 	"net/http/httptest"
 	"testing"
@@ -15,14 +13,13 @@ import (
 	"go.uber.org/zap"
 )
 
-func TestRouterLogoutRedirectRouteReturnsExpectedJSON(t *testing.T) {
+func TestRouterLogoutRedirectRouteReturns302Redirect(t *testing.T) {
 	t.Parallel()
 
 	provider := testhelpers.NewMockRouteDependencies()
 	client := testhelpers.NewMockHTTPClientOK()
-	mockLogger := zap.NewNop()
 
-	r := router.NewRouter(provider, client, mockLogger)
+	r := router.NewRouter(provider, client, testhelpers.MockLogger)
 
 	req := httptest.NewRequest(http.MethodGet, "/logout/redirect", nil)
 	w := httptest.NewRecorder()
@@ -30,18 +27,14 @@ func TestRouterLogoutRedirectRouteReturnsExpectedJSON(t *testing.T) {
 	r.ServeHTTP(w, req)
 
 	resp := w.Result()
-	body, err := io.ReadAll(resp.Body)
-	assert.NoError(t, err, "failed to read response body")
+	defer func() {
+		if cerr := resp.Body.Close(); cerr != nil {
+			testhelpers.MockLogger.Warn("failed to close response body", zap.Error(cerr))
+		}
+	}()
 
-	assert.Equal(t, http.StatusOK, resp.StatusCode)
+	assert.Equal(t, http.StatusFound, resp.StatusCode)
 
-	expected := map[string]string{
-		"message": "Logout successful",
-	}
-
-	var actual map[string]string
-	err = json.Unmarshal(body, &actual)
-	assert.NoError(t, err, "failed to unmarshal response JSON")
-
-	assert.Equal(t, expected, actual, "unexpected JSON response")
+	location := resp.Header.Get("Location")
+	assert.Equal(t, "/", location, "unexpected redirect Location header")
 }
