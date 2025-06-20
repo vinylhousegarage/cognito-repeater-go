@@ -97,7 +97,7 @@ func TestBuildLogoutRedirectURL(t *testing.T) {
 
 	expected := base + "?client_id=abc123clientid&post_logout_redirect_uri=" + url.QueryEscape(redirectURI)
 
-	actual := logout.BuildLogoutRedirectURL(base, clientID, redirectURI)
+	actual := buildLogoutRedirectURL(base, clientID, redirectURI)
 
 	assert.Equal(t, expected, actual)
 }
