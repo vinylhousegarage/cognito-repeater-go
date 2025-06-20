@@ -3,6 +3,7 @@ package logout
 import (
 	"net/http"
 	"net/http/httptest"
+	"net/url"
 	"testing"
 
 	"cognito-repeater-go/test/testhelpers"
@@ -85,4 +86,18 @@ func TestGetLogoutURL_MissingEndSessionEndpoint(t *testing.T) {
 
 	assert.Error(t, err)
 	assert.ErrorIs(t, err, ErrMissingEndSessionEndpoint)
+}
+
+func TestBuildLogoutRedirectURL(t *testing.T) {
+	t.Parallel()
+
+	base := "https://example.auth.ap-northeast-1.amazoncognito.com/logout"
+	clientID := "abc123clientid"
+	redirectURI := "https://myapp.com/logout/redirect"
+
+	expected := base + "?client_id=abc123clientid&post_logout_redirect_uri=" + url.QueryEscape(redirectURI)
+
+	actual := buildLogoutRedirectURL(base, clientID, redirectURI)
+
+	assert.Equal(t, expected, actual)
 }
