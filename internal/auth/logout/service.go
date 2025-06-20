@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"io"
 	"net/http"
+	"net/url"
 
 	"cognito-repeater-go/internal/httpclient"
 
@@ -58,4 +59,11 @@ func GetLogoutURL(
 
 	logger.Info("end_session_endpoint retrieved successfully", zap.String("end_session_endpoint", meta.EndSessionEndpoint))
 	return meta.EndSessionEndpoint, nil
+}
+
+func buildLogoutRedirectURL(baseURL, clientID, redirectURI string) string {
+	q := url.Values{}
+	q.Set("client_id", clientID)
+	q.Set("post_logout_redirect_uri", redirectURI)
+	return baseURL + "?" + q.Encode()
 }
