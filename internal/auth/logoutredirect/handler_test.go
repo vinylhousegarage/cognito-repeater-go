@@ -13,7 +13,7 @@ import (
 func TestLogoutRedirectHandler(t *testing.T) {
 	t.Parallel()
 
-	t.Run("GET returns 302 with /", func(t *testing.T) {
+	t.Run("GET returns 200 with logout message", func(t *testing.T) {
 		t.Parallel()
 
 		req := httptest.NewRequest(http.MethodGet, "/logout/redirect", nil)
@@ -22,14 +22,12 @@ func TestLogoutRedirectHandler(t *testing.T) {
 		NewLogoutRedirectHandler(testhelpers.MockLogger)(w, req)
 
 		resp := w.Result()
-		defer func() {
-			if err := resp.Body.Close(); err != nil {
-				t.Fatalf("failed to close response body: %v", err)
-			}
-		}()
+		defer resp.Body.Close()
 
-		assert.Equal(t, http.StatusFound, resp.StatusCode)
-		assert.Equal(t, "/", resp.Header.Get("Location"))
+		body := w.Body.String()
+		assert.Equal(t, http.StatusOK, resp.StatusCode)
+		assert.Equal(t, "text/plain", resp.Header().Get("Content-Type"))
+		assert.Equal(t, "Logout successful", body)
 	})
 
 	t.Run("POST returns 405", func(t *testing.T) {
