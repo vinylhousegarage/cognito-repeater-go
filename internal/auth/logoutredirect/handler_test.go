@@ -22,11 +22,15 @@ func TestLogoutRedirectHandler(t *testing.T) {
 		NewLogoutRedirectHandler(testhelpers.MockLogger)(w, req)
 
 		resp := w.Result()
-		defer resp.Body.Close()
+		defer func() {
+			if cerr := resp.Body.Close(); cerr != nil {
+				_ = cerr
+			}
+		}()
 
 		body := w.Body.String()
 		assert.Equal(t, http.StatusOK, resp.StatusCode)
-		assert.Equal(t, "text/plain", resp.Header().Get("Content-Type"))
+		assert.Equal(t, "text/plain", resp.Header.Get("Content-Type"))
 		assert.Equal(t, "Logout successful", body)
 	})
 
