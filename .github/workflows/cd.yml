@@ -44,7 +44,7 @@ jobs:
 
       - name: Build Docker image
         run: |
-          docker build -t cognito-repeater-go:prod -f Dockerfile.prod .
+          docker build --no-cache -t cognito-repeater-go:prod -f Dockerfile.prod .
 
       - name: Tag image with commit SHA
         run: |
