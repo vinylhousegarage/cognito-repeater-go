@@ -9,6 +9,7 @@ import (
 	"cognito-repeater-go/test/testhelpers"
 
 	"github.com/stretchr/testify/assert"
+
 	"go.uber.org/zap"
 )
 
@@ -17,9 +18,8 @@ func TestRouterLogoutRedirectRouteReturns302Redirect(t *testing.T) {
 
 	provider := testhelpers.NewMockRouteDependencies()
 	client := testhelpers.NewMockHTTPClientOK()
-	mockLogger := zap.NewNop()
 
-	r := router.NewRouter(provider, client, mockLogger)
+	r := router.NewRouter(provider, client, testhelpers.MockLogger)
 
 	req := httptest.NewRequest(http.MethodGet, "/logout/redirect", nil)
 	w := httptest.NewRecorder()
@@ -27,7 +27,11 @@ func TestRouterLogoutRedirectRouteReturns302Redirect(t *testing.T) {
 	r.ServeHTTP(w, req)
 
 	resp := w.Result()
-	defer resp.Body.Close()
+	defer func() {
+		if cerr := resp.Body.Close(); cerr != nil {
+			testhelpers.MockLogger.Warn("failed to close response body", zap.Error(cerr))
+		}
+	}()
 
 	assert.Equal(t, http.StatusFound, resp.StatusCode)
 
