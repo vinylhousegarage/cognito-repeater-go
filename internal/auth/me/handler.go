@@ -16,7 +16,7 @@ import (
 // @Description Verifies the provided ID token by validating its signature using Cognito's JWK Set,
 // @Description and checking standard claims such as `iss`, `aud`, and `exp`.
 // @Description Returns the subject (`sub`) claim from the token if validation succeeds.
-// @Description This endpoint accepts a form-encoded POST request and should be called from a secure backend environment.
+// @Description This endpoint accepts a form-encoded GET request and should be called from a secure backend environment.
 // @Description
 // @Description Example form body:
 // @Description   token=ID_TOKEN_VALUE
