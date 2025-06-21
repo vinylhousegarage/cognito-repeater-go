@@ -31,8 +31,7 @@ func TestNewLogoutHandlerRedirectsWithIDTokenHint(t *testing.T) {
 		},
 	}
 
-	req := httptest.NewRequest(http.MethodGet, "/logout", nil)
-	req.Header.Set("Authorization", "Bearer "+fakeIDToken)
+	req := httptest.NewRequest(http.MethodGet, "/logout?id_token_hint="+url.QueryEscape(fakeIDToken), nil)
 
 	w := httptest.NewRecorder()
 	handler := NewLogoutHandler(&MockLogoutConfig{}, mockClient, testhelpers.MockLogger)
@@ -49,4 +48,15 @@ func TestNewLogoutHandlerRedirectsWithIDTokenHint(t *testing.T) {
 
 	assert.Equal(t, http.StatusFound, resp.StatusCode)
 	assert.Equal(t, expected, resp.Header.Get("Location"))
+}
+
+func TestLogoutHandler_MissingToken(t *testing.T) {
+	req  := httptest.NewRequest(http.MethodGet, "/logout", nil)
+	w    := httptest.NewRecorder()
+	h    := NewLogoutHandler(&MockLogoutConfig{}, mockClient, testhelpers.MockLogger)
+
+	h.ServeHTTP(w, req)
+
+	assert.Equal(t, http.StatusBadRequest, w.Code)
+	assert.Contains(t, w.Body.String(), "missing id_token_hint")
 }

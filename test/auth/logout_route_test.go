@@ -33,10 +33,7 @@ func TestLogoutRouteIsRegisteredInProductionRouter(t *testing.T) {
 	}
 
 	r := router.NewRouter(testhelpers.NewMockRouteDependencies(), mockClient, testhelpers.MockLogger)
-
-	req := httptest.NewRequest(http.MethodGet, "/logout", nil)
-	req.Header.Set("Authorization", "Bearer dummy-id-token")
-
+	req := httptest.NewRequest(http.MethodGet, "/logout?id_token_hint=dummy-id-token", nil)
 	w := httptest.NewRecorder()
 
 	r.ServeHTTP(w, req)
