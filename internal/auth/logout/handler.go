@@ -38,6 +38,12 @@ func NewLogoutHandler(
 			p.LogoutURIValue(),
 		)
 
+		logger.Info("redirecting to Cognito logout",
+			zap.String("url", redirectURL),
+			zap.String("client_id", p.UserPoolClientIDValue()),
+			zap.String("post_logout_redirect_uri", p.LogoutURIValue()),
+		)
+
 		http.Redirect(w, r, redirectURL, http.StatusFound)
 	}
 }
