@@ -25,6 +25,7 @@ import (
 // @Failure 400 {object} response.ErrorResponse "Bad Request"
 // @Failure 500 {object} response.ErrorResponse "Internal Server Error"
 // @Failure 502 {object} response.ErrorResponse "Bad Gateway"
+// @Security BearerAuth
 // @Router /logout [get]
 func NewLogoutHandler(
 	p deps.LogoutHandlerProvider,
