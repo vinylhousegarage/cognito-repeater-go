@@ -41,7 +41,7 @@ func TestNewLogoutHandlerRedirectsWithIDTokenHint(t *testing.T) {
 
 	params := url.Values{}
 	params.Set("client_id", "test-client-id")
-	params.Set("post_logout_redirect_uri", "https://myapp.com/logout/redirect")
+	params.Set("logout_uri", "https://myapp.com/logout/redirect")
 	params.Set("id_token_hint", fakeIDToken)
 
 	expected := "https://example.com/logout?" + params.Encode()

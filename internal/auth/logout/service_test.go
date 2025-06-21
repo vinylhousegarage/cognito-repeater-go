@@ -98,7 +98,7 @@ func TestBuildLogoutRedirectURL(t *testing.T) {
 
 	params := url.Values{}
 	params.Set("client_id", clientID)
-	params.Set("post_logout_redirect_uri", redirectURI)
+	params.Set("logout_uri", redirectURI)
 	params.Set("id_token_hint", idToken)
 
 	expected := base + "?" + params.Encode()
