@@ -17,8 +17,10 @@ func (m *MockLogoutConfig) LogoutURIValue() string        { return "https://myap
 func (m *MockLogoutConfig) MetadataURL() string           { return "https://mock.metadata.url" }
 func (m *MockLogoutConfig) UserPoolClientIDValue() string { return "test-client-id" }
 
-func TestNewLogoutHandlerRedirectsToLogoutEndpoint(t *testing.T) {
+func TestNewLogoutHandlerRedirectsWithIDTokenHint(t *testing.T) {
 	t.Parallel()
+
+	const fakeIDToken = "eyJhbGciOi..."
 
 	mockClient := &testhelpers.MockHTTPClient{
 		DoFunc: func(req *http.Request) (*http.Response, error) {
@@ -30,8 +32,9 @@ func TestNewLogoutHandlerRedirectsToLogoutEndpoint(t *testing.T) {
 	}
 
 	req := httptest.NewRequest(http.MethodGet, "/logout", nil)
-	w := httptest.NewRecorder()
+	req.Header.Set("Authorization", "Bearer "+fakeIDToken)
 
+	w := httptest.NewRecorder()
 	handler := NewLogoutHandler(&MockLogoutConfig{}, mockClient, testhelpers.MockLogger)
 	handler.ServeHTTP(w, req)
 
@@ -40,6 +43,8 @@ func TestNewLogoutHandlerRedirectsToLogoutEndpoint(t *testing.T) {
 	params := url.Values{}
 	params.Set("client_id", "test-client-id")
 	params.Set("post_logout_redirect_uri", "https://myapp.com/logout/redirect")
+	params.Set("id_token_hint", fakeIDToken)
+
 	expected := "https://example.com/logout?" + params.Encode()
 
 	assert.Equal(t, http.StatusFound, resp.StatusCode)
