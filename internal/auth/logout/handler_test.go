@@ -51,9 +51,11 @@ func TestNewLogoutHandlerRedirectsWithIDTokenHint(t *testing.T) {
 }
 
 func TestLogoutHandler_MissingToken(t *testing.T) {
+	t.Parallel()
+
 	req := httptest.NewRequest(http.MethodGet, "/logout", nil)
 	w := httptest.NewRecorder()
-	h := NewLogoutHandler(&MockLogoutConfig{}, mockClient, testhelpers.MockLogger)
+	h := NewLogoutHandler(&MockLogoutConfig{}, testhelpers.NewMockHTTPClientOK(), testhelpers.MockLogger)
 
 	h.ServeHTTP(w, req)
 
