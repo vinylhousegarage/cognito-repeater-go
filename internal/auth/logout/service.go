@@ -64,7 +64,7 @@ func GetLogoutURL(
 func buildLogoutRedirectURL(baseURL, clientID, logoutURI, id_token_hint string) string {
 	q := url.Values{}
 	q.Set("client_id", clientID)
-	q.Set("post_logout_redirect_uri", logoutURI)
+	q.Set("logout_uri", logoutURI)
 	q.Set("id_token_hint", id_token_hint)
 	return baseURL + "?" + q.Encode()
 }
