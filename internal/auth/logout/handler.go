@@ -11,21 +11,20 @@ import (
 	"go.uber.org/zap"
 )
 
-// @Summary Redirect to Cognito logout endpoint
-// @Description Initiates a Cognito logout by redirecting the user's browser to the end_session_endpoint.
-// @Description The request must include a valid ID token in the Authorization header as a Bearer token.
-// @Description The token is extracted and passed to Cognito as `id_token_hint` according to the OIDC RP-Initiated Logout specification.
-// @Description This endpoint is typically called from a frontend application via a browser to complete the logout flow.
+// @Summary Log the user out (redirect)
+// @Description Redirects the browser to Cognito’s `end_session_endpoint`, passing the provided
+// @Description `id_token_hint` so Cognito can identify the session.
+// @Description The user’s browser is expected to call this endpoint directly.
 // @Description
-// @Description Example header:
-// @Description   Authorization: Bearer ID_TOKEN_VALUE
+// @Description Example:
+// @Description   GET /logout?id_token_hint=ID_TOKEN_VALUE
 // @Tags auth
 // @Produce plain
-// @Success 302 {string} string "Found: Redirect with Location header"
-// @Failure 400 {object} response.ErrorResponse "Bad Request"
+// @Param id_token_hint query string true "ID token (JWT) to supply as id_token_hint"
+// @Success 302 {string} string "Found: Location header points to Cognito"
+// @Failure 400 {object} response.ErrorResponse "Missing or invalid query parameter"
 // @Failure 500 {object} response.ErrorResponse "Internal Server Error"
-// @Failure 502 {object} response.ErrorResponse "Bad Gateway"
-// @Security BearerAuth
+// @Failure 502 {object} response.ErrorResponse "Bad Gateway (Cognito unreachable)"
 // @Router /logout [get]
 func NewLogoutHandler(
 	p deps.LogoutHandlerProvider,
@@ -33,9 +32,10 @@ func NewLogoutHandler(
 	logger *zap.Logger,
 ) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		idToken, err := utils.ExtractAuthHeaderToken(r)
-		if err != nil {
-			response.WriteErrorResponse(w, err, logger)
+		idToken := r.URL.Query().Get("id_token_hint")
+		if idToken == "" {
+			logger.Warn("missing id_token_hint in query")
+			response.WriteErrorResponse(w, ErrMissingIDTokenHint, logger)
 			return
 		}
 
@@ -54,7 +54,6 @@ func NewLogoutHandler(
 		)
 
 		logger.Info("redirecting to Cognito logout",
-			zap.String("url", redirectURL),
 			zap.String("client_id", p.UserPoolClientIDValue()),
 			zap.String("post_logout_redirect_uri", p.LogoutURIValue()),
 			zap.String("id_token_hint", utils.Mask(idToken)),
