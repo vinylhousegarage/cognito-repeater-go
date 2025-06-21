@@ -94,10 +94,15 @@ func TestBuildLogoutRedirectURL(t *testing.T) {
 	base := "https://example.auth.ap-northeast-1.amazoncognito.com/logout"
 	clientID := "abc123clientid"
 	redirectURI := "https://myapp.com/logout/redirect"
+	idToken := "dummy-id-token"
 
-	expected := base + "?client_id=abc123clientid&post_logout_redirect_uri=" + url.QueryEscape(redirectURI)
+	params := url.Values{}
+	params.Set("client_id", clientID)
+	params.Set("post_logout_redirect_uri", redirectURI)
+	params.Set("id_token_hint", idToken)
 
-	actual := buildLogoutRedirectURL(base, clientID, redirectURI)
+	expected := base + "?" + params.Encode()
+	actual := buildLogoutRedirectURL(base, clientID, redirectURI, idToken)
 
 	assert.Equal(t, expected, actual)
 }
