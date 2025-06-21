@@ -2,6 +2,7 @@ package logout
 
 import (
 	"net/http"
+	"net/url"
 
 	"cognito-repeater-go/internal/auth/deps"
 	"cognito-repeater-go/internal/httpclient"
@@ -35,13 +36,13 @@ func NewLogoutHandler(
 		redirectURL := buildLogoutRedirectURL(
 			endpoint,
 			p.UserPoolClientIDValue(),
-			p.LogoutURIValue(),
+			url.QueryEscape(p.LogoutURIValue()),
 		)
 
 		logger.Info("redirecting to Cognito logout",
 			zap.String("url", redirectURL),
 			zap.String("client_id", p.UserPoolClientIDValue()),
-			zap.String("post_logout_redirect_uri", p.LogoutURIValue()),
+			zap.String("post_logout_redirect_uri", url.QueryEscape(p.LogoutURIValue())),
 		)
 
 		http.Redirect(w, r, redirectURL, http.StatusFound)
