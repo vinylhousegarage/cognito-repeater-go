@@ -7,25 +7,23 @@ import (
 	"net/http/httptest"
 	"testing"
 
-	"cognito-repeater-go/internal/health/ping"
+	"cognito-repeater-go/internal/health"
 	"cognito-repeater-go/internal/router"
 	"cognito-repeater-go/test/testhelpers"
 
 	"github.com/stretchr/testify/assert"
-
-	"go.uber.org/zap"
 )
 
 func TestPingRouteReturnsPlainTextPong(t *testing.T) {
 	t.Parallel()
 
-	deps := testhelpers.NewMockRouteDependencies()
-	cli := testhelpers.NewMockHTTPClientOK()
-	mockLogger := zap.NewNop()
+	r := router.NewRouter(
+		testhelpers.NewMockRouteDependencies(),
+		testhelpers.NewMockHTTPClientOK(),
+		testhelpers.MockLogger,
+	)
 
-	r := router.NewRouter(deps, cli, mockLogger)
-
-	req := httptest.NewRequest(http.MethodGet, "/ping", nil)
+	req := httptest.NewRequest(http.MethodGet, "/health", nil)
 	w := httptest.NewRecorder()
 
 	r.ServeHTTP(w, req)
@@ -35,7 +33,7 @@ func TestPingRouteReturnsPlainTextPong(t *testing.T) {
 	assert.NoError(t, err, "failed to read response body")
 	assert.Equal(t, http.StatusOK, resp.StatusCode)
 
-	var res ping.PingResponse
+	var res health.HealthResponse
 	err = json.Unmarshal(body, &res)
 	assert.NoError(t, err)
 	assert.Equal(t, "pong", res.Message)
