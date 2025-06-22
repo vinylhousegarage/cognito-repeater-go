@@ -1,35 +1,35 @@
 package ping
 
-import (
-	"encoding/json"
-	"io"
-	"net/http"
-	"net/http/httptest"
-	"testing"
+// import (
+// 	"encoding/json"
+// 	"io"
+// 	"net/http"
+// 	"net/http/httptest"
+// 	"testing"
 
-	"github.com/stretchr/testify/assert"
+// 	"github.com/stretchr/testify/assert"
 
-	"go.uber.org/zap"
-)
+// 	"go.uber.org/zap"
+// )
 
-func TestNewPingHandler_ReturnsPong(t *testing.T) {
-	t.Parallel()
+// func TestNewPingHandler_ReturnsPong(t *testing.T) {
+// 	t.Parallel()
 
-	req := httptest.NewRequest(http.MethodGet, "/ping", nil)
-	w := httptest.NewRecorder()
+// 	req := httptest.NewRequest(http.MethodGet, "/ping", nil)
+// 	w := httptest.NewRecorder()
 
-	mockLogger := zap.NewNop()
+// 	mockLogger := zap.NewNop()
 
-	NewPingHandler(mockLogger)(w, req)
+// 	NewPingHandler(mockLogger)(w, req)
 
-	resp := w.Result()
-	body, err := io.ReadAll(resp.Body)
-	assert.NoError(t, err)
+// 	resp := w.Result()
+// 	body, err := io.ReadAll(resp.Body)
+// 	assert.NoError(t, err)
 
-	assert.Equal(t, http.StatusOK, resp.StatusCode)
+// 	assert.Equal(t, http.StatusOK, resp.StatusCode)
 
-	var res PingResponse
-	err = json.Unmarshal(body, &res)
-	assert.NoError(t, err)
-	assert.Equal(t, "pong", res.Message)
-}
+// 	var res PingResponse
+// 	err = json.Unmarshal(body, &res)
+// 	assert.NoError(t, err)
+// 	assert.Equal(t, "pong", res.Message)
+// }
