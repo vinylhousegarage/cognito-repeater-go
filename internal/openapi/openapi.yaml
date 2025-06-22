@@ -27,30 +27,33 @@ paths:
               description: Target redirect URL
               schema:
                 type: string
-  /ping:
+                example: https://cognito-repeater-go.com/login
+  /health:
     get:
       summary: Health check endpoint
       description: |-
         A health check endpoint used by monitoring systems or load balancers
-        to confirm that the server is running. Returns a simple "pong" message.
+        to confirm that the server is running. Returns a simple "healthy" message.
       tags:
         - system
       responses:
         "200":
-          description: pong message
+          description: healthy message
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/PingResponse"
+                $ref: "#/components/schemas/HealthResponse"
               examples:
                 statusOKExample:
-                  summary: Ping reply message
+                  summary: Health reply message
                   value:
-                    message: pong
+                    status: healthy
   /error/404:
     get:
       summary: Simulate 404 Not Found
-      description: Simulates a 404 Not Found response for testing or monitoring purposes.
+      description: |-
+        Simulates a 404 Not Found response for testing or monitoring purposes.
+        This can be used for uptime checks or CDN behavior testing.
       tags:
         - system
       responses:
@@ -84,6 +87,8 @@ paths:
               description: Cognito authorization endpoint URL
               schema:
                 type: string
+                example: >-
+                  https://ap-northeast-1phkt8hi3t.auth.ap-northeast-1.amazoncognito.com/oauth2/authorize?client_id=CLIENT_ID&response_type=code&scope=SCOPE&redirect_uri=REDIRECT_URI&state=STATE
         "500":
           description: Internal Server Error
           content:
@@ -114,6 +119,13 @@ paths:
         This endpoint is intended to be accessed via a web browser as it performs a redirect.
       tags:
         - auth
+      parameters:
+        - name: id_token_hint
+          in: query
+          required: true
+          description: ID token (JWT) to supply as id_token_hint
+          schema:
+            type: string
       responses:
         "302":
           description: Redirect with Location header
@@ -122,6 +134,19 @@ paths:
               description: Cognito logout endpoint URL
               schema:
                 type: string
+                example: >-
+                  https://ap-northeast-1phkt8hi3t.auth.ap-northeast-1.amazoncognito.com/logout?client_id=CLIENT_ID&logout_uri=LOGOUT_URI&id_token_hint=ID_TOKEN
+        "400":
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+              examples:
+                badRequestExample:
+                  summary: Missing ID token
+                  value:
+                    error: missing id_token_hint in query
         "500":
           description: Internal Server Error
           content:
@@ -150,6 +175,7 @@ paths:
       description: |-
         Revokes the given refresh token by calling Cognito's revocation endpoint.
         This invalidates the token and prevents future use for refreshing sessions.
+        Typically used during logout to invalidate the session.
 
         Requires the token to be sent in the request body as application/x-www-form-urlencoded.
 
@@ -163,19 +189,21 @@ paths:
           application/x-www-form-urlencoded:
             schema:
               type: object
+              required:
+                - token
               properties:
                 token:
                   type: string
                   description: Refresh token to be revoked
-                token_type_hint:
-                  type: string
-                  enum: [refresh_token]
-                  description: Only `refresh_token` is supported
-              required:
-                - token
+            examples:
+              sample:
+                summary: Example form payload
+                value:
+                  token: REFRESH_TOKEN_VALUE
       responses:
         "204":
           description: No Content
+          content: {}
         "400":
           description: Bad Request
           content:
@@ -351,7 +379,7 @@ paths:
               schema:
                 $ref: "#/components/schemas/ErrorResponse"
               examples:
-                badRequestExample:
+                badGatewayExample:
                   summary: Metadata fetch failure
                   value:
                     error: failed to fetch metadata
@@ -374,15 +402,15 @@ components:
           type: string
           description: Description of the error message
 
-    PingResponse:
+    HealthResponse:
       type: object
       description: Health check response schema
       required:
-        - message
+        - status
       properties:
-        message:
+        status:
           type: string
-          description: Ping reply message
+          description: Health reply message
 
     ErrorSimulationResponse:
       type: object
