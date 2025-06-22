@@ -26,6 +26,7 @@ jobs:
               - '.github/workflows/cd.yml'
               - '!README.md'
               - '!docs/index.md'
+              - '!internal/openapi/openapi.yaml'
 
       - name: Skip deployment if only docs changed
         if: steps.changes.outputs.deploy != 'true'
