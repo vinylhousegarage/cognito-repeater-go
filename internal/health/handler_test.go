@@ -1,4 +1,4 @@
-package ping
+package health
 
 import (
 	"encoding/json"
@@ -7,20 +7,18 @@ import (
 	"net/http/httptest"
 	"testing"
 
-	"github.com/stretchr/testify/assert"
+	"cognito-repeater-go/test/testhelpers"
 
-	"go.uber.org/zap"
+	"github.com/stretchr/testify/assert"
 )
 
-func TestNewPingHandler_ReturnsPong(t *testing.T) {
+func TestNewHealthHandler_ReturnsPong(t *testing.T) {
 	t.Parallel()
 
-	req := httptest.NewRequest(http.MethodGet, "/ping", nil)
+	req := httptest.NewRequest(http.MethodGet, "/health", nil)
 	w := httptest.NewRecorder()
 
-	mockLogger := zap.NewNop()
-
-	NewPingHandler(mockLogger)(w, req)
+	NewHealthHandler(testhelpers.MockLogger)(w, req)
 
 	resp := w.Result()
 	body, err := io.ReadAll(resp.Body)
@@ -28,7 +26,7 @@ func TestNewPingHandler_ReturnsPong(t *testing.T) {
 
 	assert.Equal(t, http.StatusOK, resp.StatusCode)
 
-	var res PingResponse
+	var res HealthResponse
 	err = json.Unmarshal(body, &res)
 	assert.NoError(t, err)
 	assert.Equal(t, "pong", res.Message)
