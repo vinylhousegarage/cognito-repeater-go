@@ -88,7 +88,7 @@ paths:
               schema:
                 type: string
                 example: >-
-                  https://ap-northeast-1phkt8hi3t.auth.ap-northeast-1.amazoncognito.com/oauth2/authorize?client_id=CLIENT_ID&response_type=code&scope=SCOPE&redirect_uri=REDIRECT_URI&state=STATE
+                  https://auth.cognito-repeater-go.com/oauth2/authorize?client_id=CLIENT_ID&response_type=code&scope=SCOPE&redirect_uri=REDIRECT_URI&state=STATE
         "500":
           description: Internal Server Error
           content:
@@ -156,7 +156,7 @@ paths:
               schema:
                 type: string
                 example: >-
-                  https://ap-northeast-1phkt8hi3t.auth.ap-northeast-1.amazoncognito.com/logout?client_id=CLIENT_ID&logout_uri=LOGOUT_URI&id_token_hint=ID_TOKEN
+                  https://auth.cognito-repeater-go.com/logout?client_id=CLIENT_ID&logout_uri=LOGOUT_URI&id_token_hint=ID_TOKEN
         "400":
           description: Bad Request
           content:
