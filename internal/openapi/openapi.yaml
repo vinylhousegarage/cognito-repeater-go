@@ -248,12 +248,10 @@ paths:
                   summary: Failed to parse form
                   value:
                     error: failed to parse form
-              examples:
                 ErrMissingClientCredentials:
                   summary: Missing client credentials
                   value:
                     error: missing client credentials
-              examples:
                 ErrMissingToken:
                   summary: Token is missing from body
                   value:
@@ -269,7 +267,6 @@ paths:
                   summary: Failed to create request
                   value:
                     error: failed to create request
-              examples:
                 ErrFailedToCreateRevokeRequest:
                   summary: Failed to create revoke request
                   value:
@@ -346,27 +343,22 @@ paths:
                   summary: Failed to decode JWT header
                   value:
                     error: failed to decode JWT header
-              examples:
                 ErrFailedToParseJWTHeader:
                   summary: Failed to parse JWT header
                   value:
                     error: failed to parse JWT header
-              examples:
                 ErrInvalidAuthorizationHeaderFormat:
                   summary: Invalid authorization header format"
                   value:
                     error: invalid authorization header format"
-              examples:
                 ErrInvalidJWTFormat:
                   summary: Invalid JWT format
                   value:
                     error: invalid JWT format
-              examples:
                 ErrInvalidSigningAlg:
                   summary: Unexpected signing method
                   value:
                     error: unexpected signing method
-              examples:
                 ErrMissingKID:
                   summary: Kid not found in JWT header
                   value:
@@ -382,32 +374,26 @@ paths:
                   summary: Invalid audience
                   value:
                     error: invalid audience
-              examples:
                 ErrInvalidIssuer:
                   summary: Unexpected issuer
                   value:
                     error: unexpected issuer
-              examples:
                 ErrKIDNotFoundInJWKSet:
                   summary: Kid not found in JWK set
                   value:
                     error: kid not found in JWK set
-              examples:
                 ErrMissingAudience:
                   summary: Audience claim is missing
                   value:
                     error: audience claim is missing
-              examples:
                 ErrMissingAuthorizationHeader:
                   summary: Missing authorization header
                   value:
                     error: missing authorization header
-              examples:
                 ErrMissingSubject:
                   summary: Missing subject (sub)
                   value:
                     error: missing subject (sub)
-              examples:
                 ErrTokenExpired:
                   summary: token is expired
                   value:
@@ -423,42 +409,34 @@ paths:
                   summary: Exponent too large to fit in int
                   value:
                     error: exponent too large to fit in int
-              examples:
                 ErrFailedToCreateJWKSetRequest:
                   summary: Failed to create jwks request
                   value:
                     error: failed to create jwks request
-              examples:
                 ErrFailedToCreateRequest:
                   summary: Failed to create request
                   value:
                     error: failed to create request
-              examples:
                 ErrFailedToWriteUserResponse:
                   summary: Failed to write user response
                   value:
                     error: failed to write user response
-              examples:
                 ErrInvalidE:
                   summary: Invalid e (exponent)
                   value:
                     error: invalid e (exponent)
-              examples:
                 ErrInvalidExponent:
                   summary: Invalid exponent value
                   value:
                     error: invalid exponent value
-              examples:
                 ErrInvalidN:
                   summary: Invalid n (modulus)
                   value:
                     error: invalid n (modulus)
-              examples:
                 ErrJWKSetNil:
                   summary: JWKSet is nil
                   value:
                     error: JWKSet is nil
-              examples:
                 ErrJWTParseFailed:
                   summary: Failed to parse JWT
                   value:
@@ -474,32 +452,26 @@ paths:
                   summary: Failed to decode jwks JSON
                   value:
                     error: failed to decode jwks JSON
-              examples:
                 ErrFailedToDecodeMetadata:
                   summary: Failed to decode metadata
                   value:
                     error: failed to decode metadata
-              examples:
                 ErrFailedToFetchJWKSet:
                   summary: Failed to fetch jwks
                   value:
                     error: failed to fetch jwks
-              examples:
                 ErrFailedToFetchMetadata:
                   summary: Failed to fetch metadata
                   value:
                     error: failed to fetch metadata
-              examples:
                 ErrInvalidBase64URL:
                   summary: Invalid base64url encoding
                   value:
                     error: invalid base64url encoding
-              examples:
                 ErrMissingJWKSURI:
                   summary: Missing jwks_uri
                   value:
                     error: missing jwks_uri
-              examples:
                 ErrUnexpectedMetadataStatusCode:
                   summary: Unexpected response from metadata
                   value:
@@ -543,7 +515,6 @@ paths:
                   summary: Invalid authorization header format
                   value:
                     error: invalid authorization header format
-              examples:
                 ErrMissingSubject:
                   summary: missing subject (sub)
                   value:
@@ -570,7 +541,6 @@ paths:
                   summary: Failed to create request
                   value:
                     error: failed to create request
-              examples:
                 ErrFailedToCreateUserinfoRequest:
                   summary: Failed to create userinfo request
                   value:
@@ -586,42 +556,34 @@ paths:
                   summary: Failed to decode metadata
                   value:
                     error: failed to decode metadata
-              examples:
                 ErrFailedToFetchMetadata:
                   summary: Failed to fetch metadata
                   value:
                     error: failed to fetch metadata
-              examples:
                 ErrFailedToFetchUserinfoRequest:
                   summary: Failed to fetch userinfo request
                   value:
                     error: failed to fetch userinfo request
-              examples:
                 ErrFailedToParseUserinfoResponse:
                   summary: Failed to parse userinfo response
                   value:
                     error: failed to parse userinfo response
-              examples:
                 ErrFailedToReadMetadataResponse:
                   summary: Failed to read metadata response body
                   value:
                     error: failed to read metadata response body
-              examples:
                 ErrFailedToReadUserinfoResponse:
                   summary: Failed to read userinfo response body
                   value:
                     error: failed to read userinfo response body
-              examples:
                 ErrMissingUserinfoEndpoint:
                   summary: Missing userinfo_endpoint
                   value:
                     error: missing userinfo_endpoint
-              examples:
                 ErrUnexpectedMetadataStatusCode:
                   summary: Unexpected response from metadata
                   value:
                     error: unexpected response from metadata
-              examples:
                 ErrUnexpectedUserinfoStatusCode:
                   summary: Unexpected response from userinfo
                   value:
