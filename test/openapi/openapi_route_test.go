@@ -44,5 +44,5 @@ func TestOpenAPIEndpoint_ReturnsJSON(t *testing.T) {
 
 	openapiVersion, ok := spec["openapi"].(string)
 	assert.True(t, ok, "openapi field is not a string")
-	assert.Equal(t, "3.0.0", openapiVersion)
+	assert.Equal(t, "3.0.3", openapiVersion)
 }
