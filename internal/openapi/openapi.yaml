@@ -1,4 +1,4 @@
-openapi: 3.0.0
+openapi: 3.0.3
 info:
   description: |-
     A relay API for AWS Cognito login/logout/token verification
@@ -88,7 +88,7 @@ paths:
               schema:
                 type: string
                 example: >-
-                  https://ap-northeast-1phkt8hi3t.auth.ap-northeast-1.amazoncognito.com/oauth2/authorize?client_id=CLIENT_ID&response_type=code&scope=SCOPE&redirect_uri=REDIRECT_URI&state=STATE
+                  https://auth.cognito-repeater-go.com/oauth2/authorize?client_id=CLIENT_ID&response_type=code&scope=SCOPE&redirect_uri=REDIRECT_URI&state=STATE
         "500":
           description: Internal Server Error
           content:
@@ -96,10 +96,14 @@ paths:
               schema:
                 $ref: "#/components/schemas/ErrorResponse"
               examples:
-                internalServerErrorExample:
-                  summary: Failed to create internal request
+                FailedToCreateRequest:
+                  summary: Failed to create request
                   value:
                     error: failed to create request
+                FailedToParseLoginURL:
+                  summary: Failed to parse login URL
+                  value:
+                    error: failed to parse login url
         "502":
           description: Bad Gateway
           content:
@@ -107,16 +111,33 @@ paths:
               schema:
                 $ref: "#/components/schemas/ErrorResponse"
               examples:
-                badGatewayExample:
-                  summary: Failed to fetch Cognito metadata endpoint
+                ErrFailedToDecodeMetadata:
+                  summary: Failed to decode metadata
+                  value:
+                    error: failed to decode metadata
+                ErrFailedToFetchMetadata:
+                  summary: Failed to fetch metadata
                   value:
                     error: failed to fetch metadata
+                ErrMissingAuthorizationEndpoint:
+                  summary: Missing authorization_endpoint
+                  value:
+                    error: missing authorization_endpoint
+                ErrUnexpectedMetadataStatusCode:
+                  summary: Unexpected response from metadata
+                  value:
+                    error: unexpected response from metadata
   /logout:
     get:
       summary: Redirect to Cognito logout
       description: |-
         Logs the user out by redirecting to the Cognito end session endpoint.
         This endpoint is intended to be accessed via a web browser as it performs a redirect.
+
+        Requires the token to be sent in the request URL as a query parameter.
+
+        Example request URL (replace <ID_TOKEN> with actual JWT value):
+          https://cognito-repeater-go.com/logout?id_token_hint=<ID_TOKEN>
       tags:
         - auth
       parameters:
@@ -135,7 +156,7 @@ paths:
               schema:
                 type: string
                 example: >-
-                  https://ap-northeast-1phkt8hi3t.auth.ap-northeast-1.amazoncognito.com/logout?client_id=CLIENT_ID&logout_uri=LOGOUT_URI&id_token_hint=ID_TOKEN
+                  https://auth.cognito-repeater-go.com/logout?client_id=CLIENT_ID&logout_uri=LOGOUT_URI&id_token_hint=ID_TOKEN
         "400":
           description: Bad Request
           content:
@@ -143,8 +164,8 @@ paths:
               schema:
                 $ref: "#/components/schemas/ErrorResponse"
               examples:
-                badRequestExample:
-                  summary: Missing ID token
+                ErrMissingIDTokenHint:
+                  summary: Missing id_token_hint in query
                   value:
                     error: missing id_token_hint in query
         "500":
@@ -154,8 +175,8 @@ paths:
               schema:
                 $ref: "#/components/schemas/ErrorResponse"
               examples:
-                internalServerErrorExample:
-                  summary: Failed to create internal request
+                ErrFailedToCreateRequest:
+                  summary: Failed to create request
                   value:
                     error: failed to create request
         "502":
@@ -165,10 +186,22 @@ paths:
               schema:
                 $ref: "#/components/schemas/ErrorResponse"
               examples:
-                badGatewayExample:
-                  summary: Metadata fetch failure
+                ErrFailedToDecodeMetadata:
+                  summary: Failed to decode metadata
+                  value:
+                    error: failed to decode metadata
+                ErrFailedToFetchMetadata:
+                  summary: Failed to fetch metadata
                   value:
                     error: failed to fetch metadata
+                ErrMissingEndSessionEndpoint:
+                  summary: Missing authorization_endpoint
+                  value:
+                    error: missing end_session_endpoint
+                ErrUnexpectedMetadataStatusCode:
+                  summary: Unexpected response from metadata
+                  value:
+                    error: unexpected response from metadata
   /revoke:
     post:
       summary: Revoke refresh token
@@ -179,8 +212,8 @@ paths:
 
         Requires the token to be sent in the request body as application/x-www-form-urlencoded.
 
-        Example form body:
-          token=REFRESH_TOKEN_VALUE
+        Example form body (replace <REFRESH_TOKEN> with actual token):
+          token=<REFRESH_TOKEN>
       tags:
         - auth
       requestBody:
@@ -199,7 +232,7 @@ paths:
               sample:
                 summary: Example form payload
                 value:
-                  token: REFRESH_TOKEN_VALUE
+                  token: <REFRESH_TOKEN>
       responses:
         "204":
           description: No Content
@@ -211,10 +244,18 @@ paths:
               schema:
                 $ref: "#/components/schemas/ErrorResponse"
               examples:
-                badRequestExample:
-                  summary: Client credentials not provided
+                ErrFailedToParseForm:
+                  summary: Failed to parse form
+                  value:
+                    error: failed to parse form
+                ErrMissingClientCredentials:
+                  summary: Missing client credentials
                   value:
                     error: missing client credentials
+                ErrMissingToken:
+                  summary: Token is missing from body
+                  value:
+                    error: token is missing from body
         "500":
           description: Internal Server Error
           content:
@@ -222,10 +263,14 @@ paths:
               schema:
                 $ref: "#/components/schemas/ErrorResponse"
               examples:
-                internalServerErrorExample:
-                  summary: Failed to create internal request
+                ErrFailedToCreateRequest:
+                  summary: Failed to create request
                   value:
                     error: failed to create request
+                ErrFailedToCreateRevokeRequest:
+                  summary: Failed to create revoke request
+                  value:
+                    error: failed to create revoke request
         "502":
           description: Bad Gateway
           content:
@@ -233,10 +278,30 @@ paths:
               schema:
                 $ref: "#/components/schemas/ErrorResponse"
               examples:
-                badGatewayExample:
-                  summary: Metadata fetch failure
+                ErrFailedToDecodeMetadata:
+                  summary: Failed to decode metadata
+                  value:
+                    error: failed to decode metadata
+                ErrFailedToFetchMetadata:
+                  summary: Failed to fetch metadata
                   value:
                     error: failed to fetch metadata
+                ErrFailedToSendRevokeRequest :
+                  summary: Failed to send revoke request
+                  value:
+                    error: failed to send revoke request
+                ErrMissingRevocationEndpoint:
+                  summary: Missing revocation_endpoint
+                  value:
+                    error: missing revocation_endpoint
+                ErrUnexpectedRevokeStatusCode:
+                  summary: Unexpected response from revoke
+                  value:
+                    error: unexpected response from revoke
+                ErrUnexpectedMetadataStatusCode:
+                  summary: Unexpected response from metadata
+                  value:
+                    error: unexpected response from metadata
 
   # User-related endpoints
   /me:
@@ -249,8 +314,8 @@ paths:
 
         Requires a Bearer token in the Authorization header.
 
-        Example header:
-          Authorization: Bearer ID_TOKEN_VALUE
+        Example header (replace <ID_TOKEN> with actual token):
+          Authorization: Bearer <ID_TOKEN>
       tags:
         - user
       security:
@@ -274,10 +339,30 @@ paths:
               schema:
                 $ref: "#/components/schemas/ErrorResponse"
               examples:
-                badRequestExample:
-                  summary: Client credentials not provided
+                ErrFailedToDecodeJWTHeader:
+                  summary: Failed to decode JWT header
                   value:
-                    error: missing client credentials
+                    error: failed to decode JWT header
+                ErrFailedToParseJWTHeader:
+                  summary: Failed to parse JWT header
+                  value:
+                    error: failed to parse JWT header
+                ErrInvalidAuthorizationHeaderFormat:
+                  summary: Invalid authorization header format"
+                  value:
+                    error: invalid authorization header format"
+                ErrInvalidJWTFormat:
+                  summary: Invalid JWT format
+                  value:
+                    error: invalid JWT format
+                ErrInvalidSigningAlg:
+                  summary: Unexpected signing method
+                  value:
+                    error: unexpected signing method
+                ErrMissingKID:
+                  summary: Kid not found in JWT header
+                  value:
+                    error: kid not found in JWT header
         "401":
           description: Unauthorized
           content:
@@ -285,8 +370,32 @@ paths:
               schema:
                 $ref: "#/components/schemas/ErrorResponse"
               examples:
-                unauthorizedExample:
-                  summary: Unauthorized - Token is expired
+                ErrInvalidAudience:
+                  summary: Invalid audience
+                  value:
+                    error: invalid audience
+                ErrInvalidIssuer:
+                  summary: Unexpected issuer
+                  value:
+                    error: unexpected issuer
+                ErrKIDNotFoundInJWKSet:
+                  summary: Kid not found in JWK set
+                  value:
+                    error: kid not found in JWK set
+                ErrMissingAudience:
+                  summary: Audience claim is missing
+                  value:
+                    error: audience claim is missing
+                ErrMissingAuthorizationHeader:
+                  summary: Missing authorization header
+                  value:
+                    error: missing authorization header
+                ErrMissingSubject:
+                  summary: Missing subject (sub)
+                  value:
+                    error: missing subject (sub)
+                ErrTokenExpired:
+                  summary: token is expired
                   value:
                     error: token is expired
         "500":
@@ -296,10 +405,42 @@ paths:
               schema:
                 $ref: "#/components/schemas/ErrorResponse"
               examples:
-                internalServerErrorExample:
-                  summary: Failed to create internal request
+                ErrExponentTooLarge:
+                  summary: Exponent too large to fit in int
+                  value:
+                    error: exponent too large to fit in int
+                ErrFailedToCreateJWKSetRequest:
+                  summary: Failed to create jwks request
+                  value:
+                    error: failed to create jwks request
+                ErrFailedToCreateRequest:
+                  summary: Failed to create request
                   value:
                     error: failed to create request
+                ErrFailedToWriteUserResponse:
+                  summary: Failed to write user response
+                  value:
+                    error: failed to write user response
+                ErrInvalidE:
+                  summary: Invalid e (exponent)
+                  value:
+                    error: invalid e (exponent)
+                ErrInvalidExponent:
+                  summary: Invalid exponent value
+                  value:
+                    error: invalid exponent value
+                ErrInvalidN:
+                  summary: Invalid n (modulus)
+                  value:
+                    error: invalid n (modulus)
+                ErrJWKSetNil:
+                  summary: JWKSet is nil
+                  value:
+                    error: JWKSet is nil
+                ErrJWTParseFailed:
+                  summary: Failed to parse JWT
+                  value:
+                    error: failed to parse JWT
         "502":
           description: Bad Gateway
           content:
@@ -307,10 +448,34 @@ paths:
               schema:
                 $ref: "#/components/schemas/ErrorResponse"
               examples:
-                badGatewayExample:
-                  summary: Metadata fetch failure
+                ErrFailedToDecodeJWKSet:
+                  summary: Failed to decode jwks JSON
+                  value:
+                    error: failed to decode jwks JSON
+                ErrFailedToDecodeMetadata:
+                  summary: Failed to decode metadata
+                  value:
+                    error: failed to decode metadata
+                ErrFailedToFetchJWKSet:
+                  summary: Failed to fetch jwks
+                  value:
+                    error: failed to fetch jwks
+                ErrFailedToFetchMetadata:
+                  summary: Failed to fetch metadata
                   value:
                     error: failed to fetch metadata
+                ErrInvalidBase64URL:
+                  summary: Invalid base64url encoding
+                  value:
+                    error: invalid base64url encoding
+                ErrMissingJWKSURI:
+                  summary: Missing jwks_uri
+                  value:
+                    error: missing jwks_uri
+                ErrUnexpectedMetadataStatusCode:
+                  summary: Unexpected response from metadata
+                  value:
+                    error: unexpected response from metadata
   /whoami:
     get:
       summary: Verify access token using Cognito UserInfo endpoint
@@ -322,7 +487,7 @@ paths:
         Requires a Bearer token in the Authorization header.
 
         Example header:
-          Authorization: Bearer ACCESS_TOKEN_VALUE
+          Authorization: Bearer <ACCESS_TOKEN>
       tags:
         - user
       security:
@@ -346,10 +511,14 @@ paths:
               schema:
                 $ref: "#/components/schemas/ErrorResponse"
               examples:
-                badRequestExample:
-                  summary: Client credentials not provided
+                ErrInvalidAuthorizationHeaderFormat:
+                  summary: Invalid authorization header format
                   value:
-                    error: missing client credentials
+                    error: invalid authorization header format
+                ErrMissingSubject:
+                  summary: missing subject (sub)
+                  value:
+                    error: missing subject (sub)
         "401":
           description: Unauthorized
           content:
@@ -357,10 +526,10 @@ paths:
               schema:
                 $ref: "#/components/schemas/ErrorResponse"
               examples:
-                unauthorizedExample:
-                  summary: Unauthorized - Token is expired
+                ErrMissingAuthorizationHeader:
+                  summary: Missing authorization header
                   value:
-                    error: token is expired
+                    error: missing authorization header
         "500":
           description: Internal Server Error
           content:
@@ -368,10 +537,14 @@ paths:
               schema:
                 $ref: "#/components/schemas/ErrorResponse"
               examples:
-                internalServerErrorExample:
-                  summary: Failed to create internal request
+                ErrFailedToCreateRequest:
+                  summary: Failed to create request
                   value:
                     error: failed to create request
+                ErrFailedToCreateUserinfoRequest:
+                  summary: Failed to create userinfo request
+                  value:
+                    error: failed to create userinfo request
         "502":
           description: Bad Gateway
           content:
@@ -379,10 +552,42 @@ paths:
               schema:
                 $ref: "#/components/schemas/ErrorResponse"
               examples:
-                badGatewayExample:
-                  summary: Metadata fetch failure
+                ErrFailedToDecodeMetadata:
+                  summary: Failed to decode metadata
+                  value:
+                    error: failed to decode metadata
+                ErrFailedToFetchMetadata:
+                  summary: Failed to fetch metadata
                   value:
                     error: failed to fetch metadata
+                ErrFailedToFetchUserinfoRequest:
+                  summary: Failed to fetch userinfo request
+                  value:
+                    error: failed to fetch userinfo request
+                ErrFailedToParseUserinfoResponse:
+                  summary: Failed to parse userinfo response
+                  value:
+                    error: failed to parse userinfo response
+                ErrFailedToReadMetadataResponse:
+                  summary: Failed to read metadata response body
+                  value:
+                    error: failed to read metadata response body
+                ErrFailedToReadUserinfoResponse:
+                  summary: Failed to read userinfo response body
+                  value:
+                    error: failed to read userinfo response body
+                ErrMissingUserinfoEndpoint:
+                  summary: Missing userinfo_endpoint
+                  value:
+                    error: missing userinfo_endpoint
+                ErrUnexpectedMetadataStatusCode:
+                  summary: Unexpected response from metadata
+                  value:
+                    error: unexpected response from metadata
+                ErrUnexpectedUserinfoStatusCode:
+                  summary: Unexpected response from userinfo
+                  value:
+                    error: unexpected response from userinfo
 
 components:
   securitySchemes:

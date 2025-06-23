@@ -16,6 +16,6 @@ func TestLoadEmbeddedOpenAPISpec(t *testing.T) {
 	require.NoError(t, err)
 	require.NotNil(t, doc)
 
-	assert.Equal(t, "3.0.0", doc.OpenAPI)
+	assert.Equal(t, "3.0.3", doc.OpenAPI)
 	assert.Equal(t, "Cognito Repeater API (Go)", doc.Info.Title)
 }
