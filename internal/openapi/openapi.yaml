@@ -117,6 +117,11 @@ paths:
       description: |-
         Logs the user out by redirecting to the Cognito end session endpoint.
         This endpoint is intended to be accessed via a web browser as it performs a redirect.
+
+        Requires the token to be sent in the request URL as a query parameter.
+
+        Example request URL (replace {ID_TOKEN} with actual JWT value):
+          https://cognito-repeater-go.com/logout?id_token_hint={ID_TOKEN}
       tags:
         - auth
       parameters:
