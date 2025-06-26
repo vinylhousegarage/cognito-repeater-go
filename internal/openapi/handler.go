@@ -19,6 +19,7 @@ func NewOpenAPIHandler(spec *openapi3.T, logger *zap.Logger) http.HandlerFunc {
 		}
 
 		w.Header().Set("Content-Type", "application/json")
+		w.Header().Set("Access-Control-Allow-Origin", "*")
 		w.WriteHeader(http.StatusOK)
 		n, err := w.Write(data)
 		if err != nil {
