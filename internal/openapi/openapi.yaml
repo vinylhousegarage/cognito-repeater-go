@@ -322,6 +322,14 @@ paths:
         CORS enabled: This endpoint includes `Access-Control-Allow-Origin: *` in its response headers.
       tags:
         - user
+      parameters:
+        - name: Authorization
+          in: header
+          required: true
+          description: Bearer ID token
+          schema:
+            type: string
+            example: Bearer <ID_TOKEN>
       security:
         - BearerAuth: []
       responses:
@@ -496,6 +504,14 @@ paths:
         CORS enabled: This endpoint includes `Access-Control-Allow-Origin: *` in its response headers.
       tags:
         - user
+      parameters:
+        - name: Authorization
+          in: header
+          required: true
+          description: Bearer Access token
+          schema:
+            type: string
+            example: Bearer <ACCESS_TOKEN>
       security:
         - BearerAuth: []
       responses:
