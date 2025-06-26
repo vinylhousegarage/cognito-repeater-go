@@ -232,9 +232,9 @@ paths:
                   description: Refresh token to be revoked
             examples:
               sample:
-                summary: Example form payload
+                summary: Example refresh token payload
                 value:
-                  token: <REFRESH_TOKEN>
+                  token: refresh_token
       responses:
         "204":
           description: No Content
