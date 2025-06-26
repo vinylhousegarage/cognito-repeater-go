@@ -214,6 +214,8 @@ paths:
 
         Example form body (replace <REFRESH_TOKEN> with actual token):
           token=<REFRESH_TOKEN>
+
+        CORS enabled: This endpoint includes `Access-Control-Allow-Origin: *` in its response headers.
       tags:
         - auth
       requestBody:
@@ -316,6 +318,8 @@ paths:
 
         Example header (replace <ID_TOKEN> with actual token):
           Authorization: Bearer <ID_TOKEN>
+
+        CORS enabled: This endpoint includes `Access-Control-Allow-Origin: *` in its response headers.
       tags:
         - user
       security:
@@ -488,6 +492,8 @@ paths:
 
         Example header:
           Authorization: Bearer <ACCESS_TOKEN>
+
+        CORS enabled: This endpoint includes `Access-Control-Allow-Origin: *` in its response headers.
       tags:
         - user
       security:
