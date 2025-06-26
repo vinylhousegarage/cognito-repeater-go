@@ -348,9 +348,9 @@ paths:
                   value:
                     error: failed to parse JWT header
                 ErrInvalidAuthorizationHeaderFormat:
-                  summary: Invalid authorization header format"
+                  summary: Invalid authorization header format
                   value:
-                    error: invalid authorization header format"
+                    error: invalid authorization header format
                 ErrInvalidJWTFormat:
                   summary: Invalid JWT format
                   value:
