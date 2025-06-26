@@ -16,15 +16,14 @@ import (
 // @Description Verifies the provided ID token by validating its signature using Cognito's JWK Set,
 // @Description and checking standard claims such as `iss`, `aud`, and `exp`.
 // @Description Returns the subject (`sub`) claim from the token if validation succeeds.
-// @Description This endpoint accepts a form-encoded GET request and should be called from a secure backend environment.
+// @Description This endpoint accepts a GET request with an Authorization header containing an ID token.
 // @Description
-// @Description Example form body:
-// @Description   token=ID_TOKEN_VALUE
-// @Description   Content-Type: application/x-www-form-urlencoded
+// @Description Example Authorization header:
+// @Description   Authorization: Bearer ID_TOKEN_VALUE
 // @Tags user
-// @Accept application/x-www-form-urlencoded
+// @Accept */*
 // @Produce json
-// @Param token formData string true "ID token to verify"
+// @Param Authorization header string true "Bearer ID token"
 // @Success 200 {object} me.UserResponse "Returns user sub claim"
 // @Failure 400 {object} response.ErrorResponse "Bad Request"
 // @Failure 401 {object} response.ErrorResponse "Unauthorized"
@@ -38,6 +37,15 @@ func NewMeHandler(
 	logger *zap.Logger,
 ) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
+		if r.Method == http.MethodOptions {
+			w.Header().Set("Access-Control-Allow-Origin", "*")
+			w.Header().Set("Vary", "Origin")
+			w.Header().Set("Access-Control-Allow-Methods", "GET, OPTIONS")
+			w.Header().Set("Access-Control-Allow-Headers", "Authorization")
+			w.WriteHeader(http.StatusNoContent)
+			return
+		}
+
 		idToken, err := utils.ExtractAuthHeaderToken(r)
 		if err != nil {
 			response.WriteErrorResponse(w, err, logger)
@@ -84,6 +92,8 @@ func NewMeHandler(
 		resp := UserResponse{
 			Sub: claims.Subject,
 		}
+		w.Header().Set("Access-Control-Allow-Origin", "*")
+		w.Header().Set("Vary", "Origin")
 		w.Header().Set("Content-Type", "application/json")
 		if err := json.NewEncoder(w).Encode(resp); err != nil {
 			logger.Error("failed to write user response", zap.Error(err))
