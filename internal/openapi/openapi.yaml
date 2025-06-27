@@ -140,13 +140,6 @@ paths:
           https://cognito-repeater-go.com/logout?id_token_hint=<ID_TOKEN>
       tags:
         - auth
-      parameters:
-        - name: id_token_hint
-          in: query
-          required: true
-          description: ID token (JWT) to supply as id_token_hint
-          schema:
-            type: string
       responses:
         "302":
           description: Redirect with Location header
@@ -230,11 +223,7 @@ paths:
                 token:
                   type: string
                   description: Refresh token to be revoked
-            examples:
-              sample:
-                summary: Example refresh token payload
-                value:
-                  token: refresh_token
+                  example: refresh_token
       responses:
         "204":
           description: No Content
