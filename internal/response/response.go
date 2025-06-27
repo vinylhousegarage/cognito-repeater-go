@@ -10,12 +10,10 @@ import (
 	"go.uber.org/zap"
 )
 
-// ErrorResponse is a shared structure for all error responses
 type ErrorResponse struct {
 	Error string `json:"error" example:"invalid token"`
 }
 
-// WriteJSONError writes a JSON-formatted error response
 func WriteJSONError(w http.ResponseWriter, status int, msg string, logger *zap.Logger) {
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(status)
@@ -25,7 +23,6 @@ func WriteJSONError(w http.ResponseWriter, status int, msg string, logger *zap.L
 	}
 }
 
-// WriteErrorResponse handles errors, using *AppError if available.
 func WriteErrorResponse(w http.ResponseWriter, err error, logger *zap.Logger) {
 	var appErr *apperror.AppError
 	if errors.As(err, &appErr) {
