@@ -10,15 +10,6 @@ import (
 	"go.uber.org/zap"
 )
 
-// @Summary Redirect to Cognito login
-// @Description Initiates an OAuth2 login by redirecting to the Cognito authorization endpoint.
-// @Description Sets a state cookie and is intended for browser access.
-// @Tags auth
-// @Produce plain
-// @Success 302 {string} string "Found: Redirect with Location header"
-// @Failure 500 {object} response.ErrorResponse "Internal Server Error"
-// @Failure 502 {object} response.ErrorResponse "Bad Gateway"
-// @Router /login [get]
 func NewLoginHandler(
 	p deps.LoginHandlerProvider,
 	c httpclient.HTTPClient,

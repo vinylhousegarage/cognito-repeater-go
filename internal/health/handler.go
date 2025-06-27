@@ -7,12 +7,6 @@ import (
 	"go.uber.org/zap"
 )
 
-// @Summary Health check endpoint
-// @Description Returns "healthy" to indicate the server is alive
-// @Tags health
-// @Produce json
-// @Success 200 {object} health.HealthResponse "healthy message"
-// @Router /health [get]
 func NewHealthHandler(logger *zap.Logger) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		logger.Info("responding to /health")

@@ -12,24 +12,6 @@ import (
 	"go.uber.org/zap"
 )
 
-// @Summary Verify access token using Cognito UserInfo endpoint
-// @Description Checks if the provided access token is active and valid by querying the Cognito UserInfo endpoint.
-// @Description This endpoint is typically used to confirm the user's session is still valid.
-// @Description It expects a Bearer token in the Authorization header and should be called from a secure backend environment.
-// @Description
-// @Description Example header:
-// @Description   Authorization: Bearer ACCESS_TOKEN_VALUE
-// @Tags user
-// @Accept */*
-// @Produce json
-// @Param Authorization header string true "Bearer Access token"
-// @Success 200 {object} whoami.UserInfoResponse "User info from Cognito"
-// @Failure 400 {object} response.ErrorResponse "Bad Request"
-// @Failure 401 {object} response.ErrorResponse "Unauthorized"
-// @Failure 500 {object} response.ErrorResponse "Internal Server Error"
-// @Failure 502 {object} response.ErrorResponse "Bad Gateway"
-// @Security BearerAuth
-// @Router /whoami [get]
 func NewWhoamiHandler(
 	p deps.WhoamiHandlerProvider,
 	cli httpclient.HTTPClient,
