@@ -12,24 +12,6 @@ import (
 	"go.uber.org/zap"
 )
 
-// @Summary Revoke refresh token
-// @Description Revokes a refresh token by calling the Cognito revocation endpoint.
-// @Description This will invalidate the refresh token and prevent further token refresh or reuse,
-// @Description effectively ending the user session.
-// @Description This endpoint accepts a form-encoded POST request and should be called from a secure backend environment.
-// @Description
-// @Description Example form body:
-// @Description   token=REFRESH_TOKEN_VALUE
-// @Description   Content-Type: application/x-www-form-urlencoded
-// @Tags auth
-// @Accept application/x-www-form-urlencoded
-// @Produce json
-// @Param token formData string true "Refresh token to be revoked"
-// @Success 204 {string} string "No Content"
-// @Failure 400 {object} response.ErrorResponse "Bad Request"
-// @Failure 500 {object} response.ErrorResponse "Internal Server Error"
-// @Failure 502 {object} response.ErrorResponse "Bad Gateway"
-// @Router /revoke [post]
 func NewRevokeHandler(
 	p deps.RevokeHandlerProvider,
 	cli httpclient.HTTPClient,

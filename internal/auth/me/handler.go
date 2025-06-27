@@ -12,25 +12,6 @@ import (
 	"go.uber.org/zap"
 )
 
-// @Summary Verify ID token and return user info
-// @Description Verifies the provided ID token by validating its signature using Cognito's JWK Set,
-// @Description and checking standard claims such as `iss`, `aud`, and `exp`.
-// @Description Returns the subject (`sub`) claim from the token if validation succeeds.
-// @Description This endpoint accepts a GET request with an Authorization header containing an ID token.
-// @Description
-// @Description Example Authorization header:
-// @Description   Authorization: Bearer ID_TOKEN_VALUE
-// @Tags user
-// @Accept */*
-// @Produce json
-// @Param Authorization header string true "Bearer ID token"
-// @Success 200 {object} me.UserResponse "Returns user sub claim"
-// @Failure 400 {object} response.ErrorResponse "Bad Request"
-// @Failure 401 {object} response.ErrorResponse "Unauthorized"
-// @Failure 500 {object} response.ErrorResponse "Internal Server Error"
-// @Failure 502 {object} response.ErrorResponse "Internal Bad Gateway"
-// @Security BearerAuth
-// @Router /me [get]
 func NewMeHandler(
 	p deps.MeHandlerProvider,
 	c httpclient.HTTPClient,
