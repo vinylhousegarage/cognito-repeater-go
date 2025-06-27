@@ -48,26 +48,6 @@ paths:
                   summary: Health reply message
                   value:
                     status: healthy
-  /error/404:
-    get:
-      summary: Simulate 404 Not Found
-      description: |-
-        Simulates a 404 Not Found response for testing or monitoring purposes.
-        This can be used for uptime checks or CDN behavior testing.
-      tags:
-        - system
-      responses:
-        "404":
-          description: Simulated 404 Not Found
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/ErrorSimulationResponse"
-              examples:
-                simulatedNotFoundExample:
-                  summary: Simulated not found response
-                  value:
-                    message: Simulated 404 Not Found
 
   # Auth-related endpoints
   /login:
@@ -611,16 +591,6 @@ components:
         status:
           type: string
           description: Health reply message
-
-    ErrorSimulationResponse:
-      type: object
-      description: Simulated 404 response used for testing
-      required:
-        - message
-      properties:
-        message:
-          type: string
-          description: Description of the simulated 404 error
 
     UserResponse:
       type: object
