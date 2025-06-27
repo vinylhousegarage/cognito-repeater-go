@@ -223,7 +223,7 @@ paths:
                 token:
                   type: string
                   description: Refresh token to be revoked
-                  example: refresh_token
+                  example: <REFRESH_TOKEN>
       responses:
         "204":
           description: No Content
