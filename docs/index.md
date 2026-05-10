@@ -8,10 +8,10 @@
     - インタプリタ言語（Python/FastAPI）からコンパイル言語（Go）に刷新することで、AWS Lambda のコールドスタートを 1,329ms から 127ms に短縮しました。
 
       #### FastAPI (改善前)
-      ![FastAPI Log](images/cut-cognito-repeater_InitDuration_20260426.png)
+      ![FastAPI Log](./docs/images/cut-cognito-repeater_InitDuration_20260426.png)
 
       #### Go (改善後)
-      ![Go Log](images/cut-cognito-repeater-go_InitDuration_20260426.png)
+      ![Go Log](./docs/images/cut-cognito-repeater-go_InitDuration_20260426.png)
 
   - **提供機能**
     - 本 API は、AWS Cognito を利用した認証処理を中継し、複数アプリ間で共通利用可能なログイン機能を提供します。
@@ -53,23 +53,26 @@
 
 ### 5. システム構成
   - **技術スタック**
-    - プログラミング言語：Go 1.24.3
-    - 認証機能：Cognito
-    - 仮想環境構築：Docker
-      - 開発環境：Docker でコンテナを起動
-      - 本番環境：AWS Lambda で Dockerイメージを使用
-    - テスト環境：GitHub Actions
-    - ローカル環境のバージョン管理：Git
-    - リモートリポジトリのホスティング：GitHub
-    - CI/CD：GitHub Actions
+    ```
+    開発言語　　：Go 1.24.3
+    開発環境　　：Docker
+    認証基盤　　：Amazon Cognito
+    ＣＩ／ＣＤ　：GitHub Actions
+    ソース管理　：Git
+    リポジトリ　：GitHub
+    ```
 
   - **インフラ構成**
-    - API 実行クラウド：AWS
-    - API 実行環境：Lambda
-    - イメージ管理：ECR
-    - ハンドラー：aws-lambda-go + aws-lambda-go-api-proxy/httpadapter
-    - API Gateway：HTTP API
-    - ドメイン・DNS管理：Route 53
+    ```
+    実行基盤　　：AWS Lambda
+    ＡＰＩ接点　：Amazon API Gateway
+    ＡＰＩタイプ：HTTP API
+    変換アダプタ：httpadapter
+    イメージ管理：Amazon ECR
+    ドメイン登録：Route 53
+    ＤＮＳ管理　：Route 53
+    証明書管理　：AWS Certificate Manager (ACM)
+    ```
 
 ### 6. アクセス情報
   - **APIエンドポイント**
