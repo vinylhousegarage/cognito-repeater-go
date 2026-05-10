@@ -2,10 +2,10 @@
 
 ### 1. 概要
   - **目的**
-    - 本 API は、FastAPI製認証中継API のコールドスタート起動時間を短縮することを目的としています。
+    - 本 API は、FastAPI製認証中継API のコールドスタート高速化を目的としています。
 
   - **技術選定**
-    - インタプリタ言語（Python/FastAPI）からコンパイル言語（Go）に刷新することで、AWS Lambda の起動速度を 1,329ms から 127ms に短縮しました。
+    - インタプリタ言語（Python/FastAPI）からコンパイル言語（Go）に刷新することで、AWS Lambda のコールドスタートを 1,329ms から 127ms に短縮しました。
 
       #### FastAPI (改善前)
       ![FastAPI Log](images/cut-cognito-repeater_InitDuration_20260426.png)
@@ -14,7 +14,7 @@
       ![Go Log](images/cut-cognito-repeater-go_InitDuration_20260426.png)
 
   - **提供機能**
-    - 本 API は、AWS Cognito を利用した認証処理を中継し、複数アプリ間で共通利用できるログイン機能を提供します。
+    - 本 API は、AWS Cognito を利用した認証処理を中継し、複数アプリ間で共通利用可能なログイン機能を提供します。
       - Cognito へのログインおよびログアウト
       - Cognito が発行する id_token の署名および標準クレーム（iss・aud・exp）の検証
       - Cognito が発行する access_token によるユーザーアカウントの有効確認
