@@ -2,15 +2,24 @@
 
 ### 1. 概要
   - **目的**
-    - 本 API は、AWS が提供する認証サービス「Cognito」を利用しています。
-    - 本 API は、複数アプリ間で共通利用できるログイン機能を提供することを目的としています。
+    - 本 API は、FastAPI製認証中継API のコールドスタート起動時間を短縮することを目的としています。
+
+  - **技術選定**
+    - インタプリタ言語（Python/FastAPI）からコンパイル言語（Go）に刷新することで、AWS Lambda の起動速度を 1,329ms から 127ms に短縮しました。
+
+      #### FastAPI (改善前)
+      ![FastAPI Log](./docs/images/cut-cognito-repeater_InitDuration_20260426.png)
+
+      #### Go (改善後)
+      ![Go Log](./docs/images/cut-cognito-repeater-go_InitDuration_20260426.png)
 
   - **提供機能**
-    - Cognito へのログインおよびログアウト
-    - Cognito が発行する id_token の署名および標準クレーム（iss・aud・exp）の検証
-    - Cognito が発行する access_token によるユーザーアカウントの有効確認
-    - Cognito が発行する refresh_token の強制失効
-    - 本 API による OpenAPI 3.0.3 仕様ドキュメント（JSON 形式）
+    - 本 API は、AWS Cognito を利用した認証処理を中継し、複数アプリ間で共通利用できるログイン機能を提供します。
+      - Cognito へのログインおよびログアウト
+      - Cognito が発行する id_token の署名および標準クレーム（iss・aud・exp）の検証
+      - Cognito が発行する access_token によるユーザーアカウントの有効確認
+      - Cognito が発行する refresh_token の強制失効
+      - 本 API による OpenAPI 3.0.3 仕様ドキュメント（JSON 形式）
 
 ### 2. ルートURL
   - ### [https://cognito-repeater-go.com](https://cognito-repeater-go.com)
@@ -63,8 +72,6 @@
     - ドメイン・DNS管理：Route 53
 
 ### 6. アクセス情報
-  - **GitHubリポジトリURL**
-    - [https://github.com/vinylhousegarage/cognito-repeater-go](https://github.com/vinylhousegarage/cognito-repeater-go)
   - **APIエンドポイント**
     - [https://cognito-repeater-go.com](https://cognito-repeater-go.com)
   - **API仕様（OpenAPI）**
