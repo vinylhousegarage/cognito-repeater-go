@@ -8,10 +8,10 @@
     - インタプリタ言語（Python/FastAPI）からコンパイル言語（Go）に刷新することで、AWS Lambda の起動速度を 1,329ms から 127ms に短縮しました。
 
       #### FastAPI (改善前)
-      ![FastAPI Log](./docs/images/cut-cognito-repeater_InitDuration_20260426.png)
+      ![FastAPI Log](images/cut-cognito-repeater_InitDuration_20260426.png)
 
       #### Go (改善後)
-      ![Go Log](./docs/images/cut-cognito-repeater-go_InitDuration_20260426.png)
+      ![Go Log](images/cut-cognito-repeater-go_InitDuration_20260426.png)
 
   - **提供機能**
     - 本 API は、AWS Cognito を利用した認証処理を中継し、複数アプリ間で共通利用できるログイン機能を提供します。
