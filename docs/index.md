@@ -14,7 +14,7 @@
       ![Go Log](./docs/images/cut-cognito-repeater-go_InitDuration_20260426.png)
 
   - **提供機能**
-    - 本 API は、AWS Cognito を利用した認証処理を中継し、複数アプリ間で共通利用可能なログイン機能を提供します。
+    - Amazon Cognito を利用した認証処理を中継し、複数アプリ間で共通利用可能なログイン機能を提供します。
       - Cognito へのログインおよびログアウト
       - Cognito が発行する id_token の署名および標準クレーム（iss・aud・exp）の検証
       - Cognito が発行する access_token によるユーザーアカウントの有効確認
