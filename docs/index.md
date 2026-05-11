@@ -53,26 +53,26 @@
 
 ### 5. システム構成
   - **技術スタック**
-    ```
-    開発言語　　：Go 1.24.3
-    開発環境　　：Docker
-    認証基盤　　：Amazon Cognito
-    ＣＩ／ＣＤ　：GitHub Actions
-    ソース管理　：Git
-    リポジトリ　：GitHub
-    ```
+    | カテゴリー | 選定技術 |
+    | :--- | :--- |
+    | 開発言語 | Go 1.24.3 |
+    | 開発環境 | Docker |
+    | 認証基盤 | Amazon Cognito |
+    | ソース管理 | Git |
+    | リポジトリ | GitHub |
+    | CI/CD | GitHub Actions |
 
-  - **インフラ構成**
-    ```
-    実行基盤　　：AWS Lambda
-    ＡＰＩ接点　：Amazon API Gateway
-    ＡＰＩタイプ：HTTP API
-    変換アダプタ：httpadapter
-    イメージ管理：Amazon ECR
-    ドメイン登録：Route 53
-    ＤＮＳ管理　：Route 53
-    証明書管理　：AWS Certificate Manager (ACM)
-    ```
+  - **インフラ構成（AWS）**
+    | コンポーネント | 採用サービス・ツール |
+    | :--- | :--- |
+    | ドメイン登録 | Route 53 |
+    | DNS管理 | Route 53 |
+    | 証明書管理 | ACM |
+    | 実行基盤 | Lambda |
+    | API接点 | API Gateway |
+    | APIタイプ | HTTP API |
+    | 変換アダプター | httpadapter (aws-lambda-go-api-proxy) |
+    | イメージ管理 | ECR |
 
 ### 6. アクセス情報
   - **APIエンドポイント**
