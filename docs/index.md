@@ -56,11 +56,10 @@
     | カテゴリー | 選定技術 |
     | :--- | :--- |
     | 開発言語 | Go 1.24.3 |
-    | 開発環境 | Docker |
-    | 認証基盤 | Amazon Cognito |
     | ソース管理 | Git |
     | リポジトリ | GitHub |
     | CI/CD | GitHub Actions |
+    | 開発環境 | Docker |
 
   - **インフラ構成（AWS）**
     | コンポーネント | 採用サービス・ツール |
@@ -68,9 +67,10 @@
     | ドメイン登録 | Route 53 |
     | DNS管理 | Route 53 |
     | 証明書管理 | ACM |
-    | 実行基盤 | Lambda |
     | API接点 | API Gateway |
     | APIタイプ | HTTP API |
+    | 認証基盤 | Cognito |
+    | 実行基盤 | Lambda |
     | 変換アダプター | httpadapter (aws-lambda-go-api-proxy) |
     | イメージ管理 | ECR |
 
