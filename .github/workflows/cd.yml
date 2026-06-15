@@ -16,30 +16,28 @@ jobs:
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v4
         with:
-          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          aws-region: ${{ secrets.AWS_REGION }}
+          role-to-assume: arn:aws:iam::626635405187:role/cognito-repeater-go-cd-role
+          aws-region: ap-northeast-1
 
       - name: Login to Amazon ECR
-        run: |
-          aws ecr get-login-password | docker login --username AWS --password-stdin ${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.${{ secrets.AWS_REGION }}.amazonaws.com
+        id: login-ecr
+        uses: aws-actions/amazon-ecr-login@v2
 
-      - name: Build Docker image
+      - name: Build and Push Docker image
+        env:
+          ACCOUNT_ID: ${{ steps.login-ecr.outputs.registry }}
+          REGION: ap-northeast-1 
         run: |
-          docker build --no-cache -t cognito-repeater-go:prod -f Dockerfile.prod .
+          REGISTRY="${{ steps.login-ecr.outputs.registry }}"
+          IMAGE_URI="$REGISTRY/cognito-repeater-go:main-${{ github.sha }}"
+          
+          docker build -t "$IMAGE_URI" -f Dockerfile.prod .
+          docker push "$IMAGE_URI"
 
-      - name: Tag image with commit SHA
+      - name: Update Lambda function code
         run: |
-          docker tag cognito-repeater-go:prod ${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.${{ secrets.AWS_REGION }}.amazonaws.com/cognito-repeater-go:main-${{ github.sha }}
-
-      - name: Push image to ECR
-        run: |
-          docker push ${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.${{ secrets.AWS_REGION }}.amazonaws.com/cognito-repeater-go:main-${{ github.sha }}
-
-      - name: Update Lambda function code safely
-        run: |
-          IMAGE_URI="${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.${{ secrets.AWS_REGION }}.amazonaws.com/cognito-repeater-go:main-${{ github.sha }}"
+          REGISTRY="${{ steps.login-ecr.outputs.registry }}"
           aws lambda update-function-code \
             --function-name cognito-repeater-go \
-            --image-uri "$IMAGE_URI" \
-          | jq 'del(.Environment.Variables)'
+            --image-uri "$REGISTRY/cognito-repeater-go:main-${{ github.sha }}" \
+            | jq 'del(.Environment.Variables)'
